@@ -558,7 +558,7 @@ export default function App() {
                 <div className="w-9 h-9 rounded-xl bg-[#1E3A5F] flex items-center justify-center text-white font-black">A</div>
                 <div><div className="font-bold text-sm text-slate-900">Anggy Keuangan</div><div className="text-xs text-slate-500">Navigasi Modul</div></div>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400"><X size={20} /></button>
+              <button onClick={() => setMobileMenuOpen(false)} className="min-h-11 min-w-11 p-2 rounded-xl hover:bg-slate-100 text-slate-400" aria-label="Tutup menu navigasi"><X size={20} /></button>
             </div>
             <div className="p-3">
               <div className="relative">
@@ -600,7 +600,7 @@ export default function App() {
         <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200">
           <div className="px-4 sm:px-6 lg:px-8 h-[64px] flex items-center justify-between gap-4 max-w-[1600px] mx-auto w-full">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 -ml-2 rounded-xl text-slate-600 hover:bg-slate-100" aria-label="Open Menu"><Menu size={22} /></button>
+              <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden min-h-11 min-w-11 p-2 -ml-2 rounded-xl text-slate-600 hover:bg-slate-100" aria-label="Buka menu navigasi"><Menu size={22} /></button>
               <div className="min-w-0">
                 <div className="hidden sm:flex items-center gap-2 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
                   <span>{currentTabMeta.group}</span>
@@ -800,8 +800,8 @@ export default function App() {
                         <td className="px-3 py-3 text-slate-800 font-semibold text-[13px]">{t.nsb}</td>
                         <td className="px-3 py-3 text-slate-600 font-medium text-[13px]">{t.pos}</td>
                         <td className="px-4 py-3 text-slate-900 font-medium">{t.uraian}</td>
-                        <td className="px-4 py-3 text-right num font-bold text-emerald-600">{t.penerimaan ? `+${fmt.format(t.penerimaan)}` : <span className="text-slate-300">—</span>}</td>
-                        <td className="px-4 py-3 text-right num font-bold text-rose-600">{t.pengeluaran ? `-${fmt.format(t.pengeluaran)}` : <span className="text-slate-300">—</span>}</td>
+                        <td className="px-4 py-3 text-right num font-bold text-emerald-600">{t.penerimaan ? `+${fmt.format(t.penerimaan)}` : <span className="text-slate-300">-</span>}</td>
+                        <td className="px-4 py-3 text-right num font-bold text-rose-600">{t.pengeluaran ? `-${fmt.format(t.pengeluaran)}` : <span className="text-slate-300">-</span>}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -880,8 +880,8 @@ export default function App() {
                             <td className="px-3.5 py-3 text-slate-800 font-semibold text-[13px]">{t.nsb}</td>
                             <td className="px-3.5 py-3 text-slate-600 font-medium text-[13px]">{t.pos}</td>
                             <td className="px-4 py-3 text-slate-900 font-medium">{t.uraian}</td>
-                            <td className="px-3.5 py-3 text-right num font-bold text-emerald-600 text-[13px]">{t.penerimaan ? fmt.format(t.penerimaan) : <span className="text-slate-300">—</span>}</td>
-                            <td className="px-3.5 py-3 text-right num font-bold text-rose-600 text-[13px]">{t.pengeluaran ? fmt.format(t.pengeluaran) : <span className="text-slate-300">—</span>}</td>
+                            <td className="px-3.5 py-3 text-right num font-bold text-emerald-600 text-[13px]">{t.penerimaan ? fmt.format(t.penerimaan) : <span className="text-slate-300">-</span>}</td>
+                            <td className="px-3.5 py-3 text-right num font-bold text-rose-600 text-[13px]">{t.pengeluaran ? fmt.format(t.pengeluaran) : <span className="text-slate-300">-</span>}</td>
                             <td className="px-3.5 py-3 text-right num font-extrabold text-[#1E3A5F] bg-slate-50/80 text-[13px]">{fmt.format(runningBal)}</td>
                             <td className="px-3 py-3 text-center">
                               <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition">
@@ -905,7 +905,7 @@ export default function App() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div>
-                <h2 className="text-[22px] font-extrabold text-slate-900 tracking-tight">Rencana Anggaran Belanja (RAB) — {s.year}</h2>
+                <h2 className="text-[22px] font-extrabold text-slate-900 tracking-tight">Rencana Anggaran Belanja (RAB) | {s.year}</h2>
                 <p className="text-sm text-slate-500 mt-1 flex flex-wrap items-center gap-2">
                   <span>Rekapitulasi anggaran mingguan W-1…W-4 dan proyeksi 12 bulan</span>
                   <span className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200"><Eye size={12} /> Mode baca optimal</span>
@@ -999,7 +999,7 @@ export default function App() {
                             <td className={`px-2 ${rowPad} text-right num font-semibold text-slate-700 text-[13px]`}>{r.hs ? fmt.format(r.hs) : <span className="text-slate-300">0</span>}</td>
                             {r.w.map((wVal, idx)=>(
                               <td key={idx} className={`px-1.5 ${rowPad} text-center`}>
-                                {wVal>0 ? <span className="inline-flex min-w-[60px] justify-center px-2 py-1 rounded-lg bg-blue-50 text-blue-900 border border-blue-200 num font-bold text-[12px]">{fmt.format(wVal)}</span> : <span className="text-slate-300 font-medium text-xs">—</span>}
+                                {wVal>0 ? <span className="inline-flex min-w-[60px] justify-center px-2 py-1 rounded-lg bg-blue-50 text-blue-900 border border-blue-200 num font-bold text-[12px]">{fmt.format(wVal)}</span> : <span className="text-slate-300 font-medium text-xs">-</span>}
                               </td>
                             ))}
                             <td className={`px-3 ${rowPad} text-right num font-extrabold text-[#1E3A5F] bg-slate-50/70 border-l border-slate-100 text-[13px]`}>Rp {fmt.format(totalBulan)}</td>
@@ -1047,7 +1047,7 @@ export default function App() {
                           <button onClick={()=> askConfirm({ title: 'Hapus item RAB?', message: `Hapus "${r.uraian}"?`, confirmLabel: 'Hapus', variant: 'danger', onConfirm: () => { s.delRab('anggy', r.id); pushToast('Item dihapus', 'success') }})} className="p-1.5 text-slate-400 hover:text-rose-600" aria-label={`Hapus ${r.uraian}`}><Trash2 size={14} /></button>
                         </div>
                         <div className="grid grid-cols-4 gap-1.5 mt-3">
-                          {r.w.map((wVal,i)=>(<div key={i} className={`rounded-lg border px-2 py-2 text-center ${wVal>0 ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'}`}><div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">W-{i+1}</div><div className={`text-xs num font-bold ${wVal>0 ? 'text-blue-900' : 'text-slate-400'}`}>{wVal>0 ? fmt.format(wVal) : '—'}</div></div>))}
+                          {r.w.map((wVal,i)=>(<div key={i} className={`rounded-lg border px-2 py-2 text-center ${wVal>0 ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'}`}><div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">W-{i+1}</div><div className={`text-xs num font-bold ${wVal>0 ? 'text-blue-900' : 'text-slate-400'}`}>{wVal>0 ? fmt.format(wVal) : '-'}</div></div>))}
                         </div>
                         <div className="mt-3 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                           <span className="text-xs font-bold text-slate-500 uppercase">Total / Bulan</span><span className="text-sm font-extrabold num text-[#1E3A5F]">Rp {fmt.format(totalBulan)}</span>
@@ -1109,7 +1109,7 @@ export default function App() {
                             <td className={`px-2 ${rowPad} text-right num font-semibold text-slate-700 text-[13px]`}>{r.hs ? fmt.format(r.hs) : <span className="text-slate-300">0</span>}</td>
                             {r.w.map((wVal, idx)=>(
                               <td key={idx} className={`px-1.5 ${rowPad} text-center`}>
-                                {wVal>0 ? <span className="inline-flex min-w-[60px] justify-center px-2 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 num font-bold text-[12px]">{fmt.format(wVal)}</span> : <span className="text-slate-300 font-medium text-xs">—</span>}
+                                {wVal>0 ? <span className="inline-flex min-w-[60px] justify-center px-2 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 num font-bold text-[12px]">{fmt.format(wVal)}</span> : <span className="text-slate-300 font-medium text-xs">-</span>}
                               </td>
                             ))}
                             <td className={`px-3 ${rowPad} text-right num font-extrabold text-[#1E3A5F] bg-slate-50/70 border-l border-slate-100 text-[13px]`}>Rp {fmt.format(totalBulan)}</td>
@@ -1154,7 +1154,7 @@ export default function App() {
                             <div className="text-[11px] font-semibold text-slate-500 uppercase mt-1 flex items-center gap-1.5"><span className="px-1.5 py-0.5 bg-slate-100 rounded border border-slate-200 text-[10px]">{r.group}</span> Sat: {r.sat} • Vol {r.vol} • HS Rp {fmt.format(r.hs)}</div>
                           </div>
                           <button onClick={()=> askConfirm({ title: 'Hapus item RAB?', message: `Hapus "${r.uraian}"?`, confirmLabel: 'Hapus', variant: 'danger', onConfirm: () => { s.delRab('keluarga', r.id); pushToast('Item dihapus', 'success') }})} className="p-1.5 text-slate-400 hover:text-rose-600" aria-label={`Hapus ${r.uraian}`}><Trash2 size={14} /></button>
-                          {r.w.map((wVal,i)=>(<div key={i} className={`rounded-lg border px-2 py-2 text-center ${wVal>0 ? 'bg-teal-50 border-teal-200' : 'bg-slate-50 border-slate-200'}`}><div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">W-{i+1}</div><div className={`text-xs num font-bold ${wVal>0 ? 'text-teal-900' : 'text-slate-400'}`}>{wVal>0 ? fmt.format(wVal) : '—'}</div></div>))}
+                          {r.w.map((wVal,i)=>(<div key={i} className={`rounded-lg border px-2 py-2 text-center ${wVal>0 ? 'bg-teal-50 border-teal-200' : 'bg-slate-50 border-slate-200'}`}><div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">W-{i+1}</div><div className={`text-xs num font-bold ${wVal>0 ? 'text-teal-900' : 'text-slate-400'}`}>{wVal>0 ? fmt.format(wVal) : '-'}</div></div>))}
                         </div>
                         <div className="mt-3 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                           <span className="text-xs font-bold text-slate-500 uppercase">Total / Bulan</span><span className="text-sm font-extrabold num text-teal-700">Rp {fmt.format(totalBulan)}</span>
@@ -1206,12 +1206,12 @@ export default function App() {
                             <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase block">{r.group}</span>
                             <span className="font-bold text-[13px]">{r.uraian}</span>
                           </td>
-                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[0] ? fmt.format(r.w[0]) : <span className="text-slate-300">—</span>}</td>
-                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[1] ? fmt.format(r.w[1]) : <span className="text-slate-300">—</span>}</td>
-                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[2] ? fmt.format(r.w[2]) : <span className="text-slate-300">—</span>}</td>
-                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[3] ? fmt.format(r.w[3]) : <span className="text-slate-300">—</span>}</td>
+                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[0] ? fmt.format(r.w[0]) : <span className="text-slate-300">-</span>}</td>
+                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[1] ? fmt.format(r.w[1]) : <span className="text-slate-300">-</span>}</td>
+                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[2] ? fmt.format(r.w[2]) : <span className="text-slate-300">-</span>}</td>
+                          <td className="px-2.5 py-3 text-right num text-slate-700 text-[13px]">{r.w[3] ? fmt.format(r.w[3]) : <span className="text-slate-300">-</span>}</td>
                           <td className="px-3 py-3 text-right num font-bold text-[#1E3A5F] bg-slate-50 border-x border-slate-100 text-[13px]">{fmt.format(jumlahBulan)}</td>
-                          {r.months.map((v, idx) => (<td key={idx} className="px-2.5 py-3 text-right num text-slate-600 text-[13px]">{v ? fmt.format(v) : <span className="text-slate-300">—</span>}</td>))}
+                          {r.months.map((v, idx) => (<td key={idx} className="px-2.5 py-3 text-right num text-slate-600 text-[13px]">{v ? fmt.format(v) : <span className="text-slate-300">-</span>}</td>))}
                           <td className="px-3 py-3 text-right num font-extrabold text-[#1E3A5F] bg-blue-50/60 border-l border-blue-100 text-[13px]">{fmt.format(r.total)}</td>
                         </tr>
                       )
@@ -1245,7 +1245,7 @@ export default function App() {
         {tab === 'cashflow' && (
           <div className="space-y-6 animate-in">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div><h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Monitoring Arus Kas (Cash Flow) — Tahun {s.year}</h2><p className="text-sm text-slate-500 mt-1">Proyeksi penerimaan, alokasi pengeluaran, dan akumulasi saldo kas 12 bulan</p></div>
+              <div><h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Monitoring Arus Kas (Cash Flow) | Tahun {s.year}</h2><p className="text-sm text-slate-500 mt-1">Proyeksi penerimaan, alokasi pengeluaran, dan akumulasi saldo kas 12 bulan</p></div>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
@@ -1277,10 +1277,10 @@ export default function App() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-[13px]">
                     <tr className="bg-slate-100 font-bold text-slate-900"><td colSpan={16} className="px-3.5 py-2.5 text-[#1E3A5F]">I. PENERIMAAN</td></tr>
-                    <tr className="hover:bg-slate-50"><td className="px-3.5 py-2.5 font-medium text-slate-800">Penerimaan non-transfer</td><td className="px-3 py-2.5 text-right num font-semibold">{fmt.format(monthlyActual.income.reduce((a,b)=>a+b,0))}</td>{monthlyActual.income.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num text-slate-700">{v ? fmt.format(v) : '—'}</td>))}<td className="px-3 py-2.5 text-right num font-bold text-[#1E3A5F] bg-blue-50/50">{fmt.format(totalIncomeYtd)}</td><td className="px-3 py-2.5 text-right num text-slate-600">-</td><td className="px-2.5 py-2.5 text-center num font-medium">-</td></tr>
+                    <tr className="hover:bg-slate-50"><td className="px-3.5 py-2.5 font-medium text-slate-800">Penerimaan non-transfer</td><td className="px-3 py-2.5 text-right num font-semibold">{fmt.format(monthlyActual.income.reduce((a,b)=>a+b,0))}</td>{monthlyActual.income.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num text-slate-700">{v ? fmt.format(v) : '-'}</td>))}<td className="px-3 py-2.5 text-right num font-bold text-[#1E3A5F] bg-blue-50/50">{fmt.format(totalIncomeYtd)}</td><td className="px-3 py-2.5 text-right num text-slate-600">-</td><td className="px-2.5 py-2.5 text-center num font-medium">-</td></tr>
                     <tr className="bg-emerald-50/80 font-extrabold text-emerald-950"><td className="px-3.5 py-2.5">SUBTOTAL - PENERIMAAN</td><td className="px-3 py-2.5 text-right num">{fmt.format(totalIncomeYtd)}</td>{monthlyActual.income.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num">{fmt.format(v)}</td>))}<td className="px-3 py-2.5 text-right num bg-emerald-100">{fmt.format(totalIncomeYtd)}</td><td className="px-3 py-2.5 text-right num">-</td><td className="px-2.5 py-2.5 text-center num">-</td></tr>
                     <tr className="bg-slate-100 font-bold text-slate-900"><td colSpan={16} className="px-3.5 py-2.5 text-rose-900">II. PENGELUARAN</td></tr>
-                    <tr className="hover:bg-slate-50"><td className="px-3.5 py-2.5 font-medium text-slate-800">Pengeluaran non-transfer</td><td className="px-3 py-2.5 text-right num font-semibold">{fmt.format(monthlyActual.expense.reduce((a,b)=>a+b,0))}</td>{monthlyActual.expense.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num text-slate-700">{v ? fmt.format(v) : '—'}</td>))}<td className="px-3 py-2.5 text-right num font-bold text-rose-900 bg-rose-50">{fmt.format(totalExpenseYtd)}</td><td className="px-3 py-2.5 text-right num text-slate-600">-</td><td className="px-2.5 py-2.5 text-center num font-medium">-</td></tr>
+                    <tr className="hover:bg-slate-50"><td className="px-3.5 py-2.5 font-medium text-slate-800">Pengeluaran non-transfer</td><td className="px-3 py-2.5 text-right num font-semibold">{fmt.format(monthlyActual.expense.reduce((a,b)=>a+b,0))}</td>{monthlyActual.expense.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num text-slate-700">{v ? fmt.format(v) : '-'}</td>))}<td className="px-3 py-2.5 text-right num font-bold text-rose-900 bg-rose-50">{fmt.format(totalExpenseYtd)}</td><td className="px-3 py-2.5 text-right num text-slate-600">-</td><td className="px-2.5 py-2.5 text-center num font-medium">-</td></tr>
                     <tr className="bg-rose-50/80 font-extrabold text-rose-950"><td className="px-3.5 py-2.5">SUBTOTAL - PENGELUARAN</td><td className="px-3 py-2.5 text-right num">{fmt.format(totalExpenseYtd)}</td>{monthlyActual.expense.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num">{fmt.format(v)}</td>))}<td className="px-3 py-2.5 text-right num bg-rose-100">{fmt.format(totalExpenseYtd)}</td><td className="px-3 py-2.5 text-right num">-</td><td className="px-2.5 py-2.5 text-center num">-</td></tr>
                     <tr className="bg-blue-50/80 font-extrabold text-blue-950"><td className="px-3.5 py-2.5">III. SURPLUS / (DEFISIT) BULANAN</td><td className="px-3 py-2.5 text-right num">{fmt.format(netSurplusYtd)}</td>{monthlyActual.net.map((v, i) => (<td key={i} className="px-2.5 py-2.5 text-right num text-blue-900 font-bold">{fmt.format(v)}</td>))}<td className="px-3 py-2.5 text-right num bg-blue-100">{fmt.format(netSurplusYtd)}</td><td className="px-3 py-2.5 text-right num">-</td><td className="px-2.5 py-2.5 text-center num">-</td></tr>
                     <tr className="bg-[#1E3A5F] font-extrabold text-white"><td className="px-3.5 py-2.5">SALDO KAS BERJALAN</td><td className="px-3 py-2.5 text-right num text-slate-200">Rp {fmt.format(s.saldoAwal)}</td>{(() => { let cur = s.saldoAwal; return monthlyActual.net.map((surplus, i) => { cur += surplus; return (<td key={i} className="px-2.5 py-2.5 text-right num text-emerald-300">{fmt.format(cur)}</td>)})})()}<td className="px-3 py-2.5 text-right num text-emerald-300 bg-[#152a45]">{fmt.format(s.saldoAwal + netSurplusYtd)}</td><td className="px-3 py-2.5 text-right num">-</td><td className="px-2.5 py-2.5 text-center num">-</td></tr>
@@ -1300,7 +1300,7 @@ export default function App() {
               </div>
             </div>
             <Card className="p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3"><div className="font-bold text-[15px] text-slate-900">RARI — {monthNames[selectedMonth]} {s.year}</div><span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200">Surplus (Sesuai Rencana)</span></div>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3"><div className="font-bold text-[15px] text-slate-900">RARI | {monthNames[selectedMonth]} {s.year}</div><span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200">Surplus (Sesuai Rencana)</span></div>
               <div className="mt-4 overflow-x-auto border border-slate-200 rounded-xl">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-[#1E3A5F] text-white text-xs">
@@ -1331,7 +1331,7 @@ export default function App() {
                           <td className="px-3 py-2.5 text-right num font-bold text-slate-900">{fmt.format(item.ri)}</td>
                           <td className={`px-3 py-2.5 text-right num font-bold ${dev >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{fmt.format(dev)}</td>
                           <td className="px-2.5 py-2.5 text-center num text-xs font-semibold">{pctDev.toFixed(1)}%</td>
-                          <td className="px-3 py-2.5 text-right num text-slate-600">{item.sisa ? fmt.format(item.sisa) : '—'}</td>
+                          <td className="px-3 py-2.5 text-right num text-slate-600">{item.sisa ? fmt.format(item.sisa) : '-'}</td>
                           <td className="px-3 py-2.5 text-right num text-slate-700">{fmt.format(riVsRa)}</td>
                           <td className="px-3 py-2.5 text-right num font-bold text-slate-900">{fmt.format(totalProyeksi)}</td>
                           <td className="px-2.5 py-2.5 text-center num font-bold">{koef.toFixed(0)}%</td>
@@ -1355,7 +1355,7 @@ export default function App() {
                           <td className="px-3 py-2.5 text-right num font-bold text-slate-900">{fmt.format(item.ri)}</td>
                           <td className={`px-3 py-2.5 text-right num font-bold ${dev >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{fmt.format(dev)}</td>
                           <td className="px-2.5 py-2.5 text-center num text-xs font-semibold">{pctDev.toFixed(1)}%</td>
-                          <td className="px-3 py-2.5 text-right num text-slate-600">{item.sisa ? fmt.format(item.sisa) : '—'}</td>
+                          <td className="px-3 py-2.5 text-right num text-slate-600">{item.sisa ? fmt.format(item.sisa) : '-'}</td>
                           <td className="px-3 py-2.5 text-right num text-slate-700">{fmt.format(riVsRa)}</td>
                           <td className="px-3 py-2.5 text-right num font-bold text-slate-900">{fmt.format(totalProyeksi)}</td>
                           <td className="px-2.5 py-2.5 text-center num font-bold">{koef.toFixed(0)}%</td>
@@ -1501,7 +1501,7 @@ export default function App() {
                           <td className="px-3 py-2.5 text-right num font-semibold text-slate-900">{fmt.format(sc.hs * vol)}</td>
                           {sc.months.map((v, mIdx) => (
                             <td key={mIdx} className="px-1.5 py-2.5 text-center">
-                              <button onClick={() => s.toggleSchedMonth(sc.id, mIdx)} className={`w-8 h-8 rounded-lg text-xs font-bold num transition border ${v > 0 ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-xs' : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'}`} aria-label={`${sc.nama} ${monthShort[mIdx]} ${v>0?'aktif':'nonaktif'}`}>{v > 0 ? '✓' : '—'}</button>
+                              <button onClick={() => s.toggleSchedMonth(sc.id, mIdx)} className={`w-8 h-8 rounded-lg text-xs font-bold num transition border ${v > 0 ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-xs' : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'}`} aria-label={`${sc.nama} ${monthShort[mIdx]} ${v>0?'aktif':'nonaktif'}`}>{v > 0 ? '✓' : '-'}</button>
                             </td>
                           ))}
                           <td className="px-3.5 py-2.5 text-right num font-extrabold text-[#1E3A5F] bg-blue-50/50">{fmt.format(total)}</td>
@@ -1509,7 +1509,7 @@ export default function App() {
                         </tr>
                       )
                     })}
-                    {s.scheds.length>0 && <tr className="bg-[#1E3A5F] font-bold text-white text-xs"><td colSpan={4} className="px-3.5 py-3 text-slate-200 font-extrabold uppercase tracking-wider">TOTAL / BULAN</td>{Array(12).fill(null).map((_, mIdx) => { const mTotal = s.scheds.reduce((a, sc) => a + (sc.months[mIdx] || 0), 0); return (<td key={mIdx} className="px-1 py-3 text-center num text-amber-300 font-bold">{mTotal > 0 ? fmt.format(mTotal) : '—'}</td>)})}<td className="px-3.5 py-3 text-right num text-amber-300 font-black text-sm bg-[#152a45]">{fmt.format(s.scheds.reduce((a, sc) => a + sc.months.reduce((x, y) => x + y, 0), 0))}</td><td></td></tr>}
+                    {s.scheds.length>0 && <tr className="bg-[#1E3A5F] font-bold text-white text-xs"><td colSpan={4} className="px-3.5 py-3 text-slate-200 font-extrabold uppercase tracking-wider">TOTAL / BULAN</td>{Array(12).fill(null).map((_, mIdx) => { const mTotal = s.scheds.reduce((a, sc) => a + (sc.months[mIdx] || 0), 0); return (<td key={mIdx} className="px-1 py-3 text-center num text-amber-300 font-bold">{mTotal > 0 ? fmt.format(mTotal) : '-'}</td>)})}<td className="px-3.5 py-3 text-right num text-amber-300 font-black text-sm bg-[#152a45]">{fmt.format(s.scheds.reduce((a, sc) => a + sc.months.reduce((x, y) => x + y, 0), 0))}</td><td></td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1543,8 +1543,8 @@ export default function App() {
                           <td className="px-3.5 py-3 text-slate-600 font-medium whitespace-nowrap text-xs">{new Date(p.tgl).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                           <td className="px-3.5 py-3 font-bold text-slate-900">{p.nsb}</td>
                           <td className="px-4 py-3 text-slate-800 font-medium">{p.uraian}</td>
-                          <td className="px-3.5 py-3 text-right num font-bold text-rose-600">{p.terbit ? fmt.format(p.terbit) : <span className="text-slate-300">—</span>}</td>
-                          <td className="px-3.5 py-3 text-right num font-bold text-emerald-600">{p.lunas ? fmt.format(p.lunas) : <span className="text-slate-300">—</span>}</td>
+                          <td className="px-3.5 py-3 text-right num font-bold text-rose-600">{p.terbit ? fmt.format(p.terbit) : <span className="text-slate-300">-</span>}</td>
+                          <td className="px-3.5 py-3 text-right num font-bold text-emerald-600">{p.lunas ? fmt.format(p.lunas) : <span className="text-slate-300">-</span>}</td>
                           <td className="px-3.5 py-3 text-right num font-extrabold text-[#1E3A5F] bg-slate-50">{fmt.format(runningSaldo)}</td>
                           <td className="px-3.5 py-3 text-center"><div className="flex items-center justify-center gap-1.5">{p.terbit > 0 && (<button onClick={() => setShowPelunasanModal(p)} className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold border border-emerald-200 flex items-center gap-1"><CheckCircle2 size={13} /> Lunas</button>)}<button onClick={() => askConfirm({ title: 'Hapus piutang?', message: `Piutang "${p.uraian}" milik ${p.nsb} akan dihapus.`, confirmLabel: 'Hapus', variant: 'danger', onConfirm: () => { s.delPiutang(p.id); pushToast('Piutang dihapus', 'success') }})} className="text-slate-400 hover:text-rose-600 p-1 hover:bg-rose-50 rounded-lg" aria-label={`Hapus piutang ${p.nsb}`}><Trash2 size={15} /></button></div></td>
                         </tr>
@@ -1559,14 +1559,14 @@ export default function App() {
 
         {tab === 'neraca' && (
           <div className="space-y-6 animate-in">
-            <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Neraca Keuangan — Aktiva vs Passiva</h2><p className="text-sm text-slate-500 mt-1">Validasi keseimbangan posisi harta, kewajiban, dan ekuitas bersih</p></div><div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3.5 py-1.5 rounded-full border border-emerald-200 font-bold text-xs"><CheckCircle2 size={16} /> Balance Validated</div></div>
+            <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Neraca Keuangan | Aktiva vs Passiva</h2><p className="text-sm text-slate-500 mt-1">Validasi keseimbangan posisi harta, kewajiban, dan ekuitas bersih</p></div><div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3.5 py-1.5 rounded-full border border-emerald-200 font-bold text-xs"><CheckCircle2 size={16} /> Balance Validated</div></div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="p-6">
                 <div className="bg-[#1E3A5F] text-white px-4 py-3 rounded-xl font-bold text-sm flex items-center justify-between shadow-sm"><span>I. TOTAL AKTIVA (HARTA)</span><span className="num text-base font-extrabold">Rp {fmt.format(totalKekayaan)}</span></div>
                 <div className="mt-4 divide-y divide-slate-100 text-sm">
                   <div className="py-3 flex justify-between items-center"><div><div className="font-bold text-slate-900">Kas & Setara Kas</div><div className="text-xs text-slate-500">Master + Operasional + Keluarga</div></div><div className="font-bold num text-slate-900">Rp {fmt.format(totalKas)}</div></div>
                   <div className="py-3 flex justify-between items-center"><div><div className="font-bold text-slate-900">Piutang Personal</div><div className="text-xs text-slate-500">Tagihan piutang aktif</div></div><div className="font-bold num text-slate-900">Rp {fmt.format(piutangTotal)}</div></div>
-                  <div className="py-3 flex justify-between items-center"><div><div className="font-bold text-slate-900">Aset Tetap — Property</div><div className="text-xs text-slate-500">Nilai pasar taksiran</div></div><div className="font-bold num text-slate-900">Rp {fmt.format(s.assets[0]?.nilaiPasar || 0)}</div></div>
+                  <div className="py-3 flex justify-between items-center"><div><div className="font-bold text-slate-900">Aset Tetap | Property</div><div className="text-xs text-slate-500">Nilai pasar taksiran</div></div><div className="font-bold num text-slate-900">Rp {fmt.format(s.assets[0]?.nilaiPasar || 0)}</div></div>
                   <div className="py-3 flex justify-between items-center"><div><div className="font-bold text-slate-900">Aset Bergerak & Elektronik</div><div className="text-xs text-slate-500">Kendaraan + Gadget (Taksir)</div></div><div className="font-bold num text-slate-900">Rp {fmt.format(s.deps.reduce((a, d) => a + d.nilaiTaksir, 0))}</div></div>
                 </div>
               </Card>
@@ -1607,11 +1607,11 @@ export default function App() {
 
       {/* MOBILE BOTTOM NAV */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200 flex items-center justify-around px-2 py-2 safe-area-pb">
-        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] ${tab === 'dashboard' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`}><LayoutDashboard size={20} /><span className="text-[10px]">Dashboard</span></button>
-        <button onClick={() => setTab('transaksi')} className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] ${tab === 'transaksi' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`}><Wallet size={20} /><span className="text-[10px]">Transaksi</span></button>
-        <button onClick={() => { setEditingTx(null); setShowAddTxModal(true)}} className="w-12 h-12 rounded-full bg-[#1E3A5F] text-white flex items-center justify-center -mt-6 shadow-lg shadow-[#1E3A5F]/30 border-4 border-[#f1f5f9]" aria-label="Catat Transaksi"><Plus size={22} /></button>
-        <button onClick={() => setTab('rab')} className={`flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] ${tab === 'rab' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`}><FileSpreadsheet size={20} /><span className="text-[10px]">RAB</span></button>
-        <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center gap-1 p-2 rounded-xl text-xs font-semibold text-slate-500 min-w-[56px]"><Menu size={20} /><span className="text-[10px]">Menu</span></button>
+        <button onClick={() => setTab('dashboard')} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] min-h-11 ${tab === 'dashboard' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`} aria-label="Buka dashboard"><LayoutDashboard size={20} /><span className="text-[10px]">Dashboard</span></button>
+        <button onClick={() => setTab('transaksi')} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] min-h-11 ${tab === 'transaksi' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`} aria-label="Buka transaksi"><Wallet size={20} /><span className="text-[10px]">Transaksi</span></button>
+        <button onClick={() => { setEditingTx(null); setShowAddTxModal(true)}} className="w-12 h-12 min-h-12 rounded-full bg-[#1E3A5F] text-white flex items-center justify-center -mt-6 shadow-lg shadow-[#1E3A5F]/30 border-4 border-[#f1f5f9]" aria-label="Catat transaksi"><Plus size={22} /></button>
+        <button onClick={() => setTab('rab')} className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-xs font-semibold min-w-[56px] min-h-11 ${tab === 'rab' ? 'text-[#1E3A5F] bg-blue-50' : 'text-slate-500'}`} aria-label="Buka RAB"><FileSpreadsheet size={20} /><span className="text-[10px]">RAB</span></button>
+        <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-xs font-semibold text-slate-500 min-w-[56px] min-h-11" aria-label="Buka menu"><Menu size={20} /><span className="text-[10px]">Menu</span></button>
       </div>
 
       {/* MODALS - keep existing but styled */}
@@ -1638,9 +1638,9 @@ export default function App() {
                 <div>
                   <label className="text-sm font-semibold text-slate-700">Dompet / Ledger</label>
                   <select value={txForm.ledger} onChange={(e) => setTxForm({ ...txForm, ledger: e.target.value as Ledger })} className="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1E3A5F] bg-white font-medium">
-                    <option value="master">MASTER (0) — Kas Induk & Gaji</option>
-                    <option value="operasional">OPERASIONAL (1) — Kas Harian</option>
-                    <option value="keluarga">KELUARGA (2) — Kas Rutin Rumah</option>
+                    <option value="master">MASTER (0) | Kas Induk & Gaji</option>
+                    <option value="operasional">OPERASIONAL (1) | Kas Harian</option>
+                    <option value="keluarga">KELUARGA (2) | Kas Rutin Rumah</option>
                   </select>
                 </div>
               </div>
@@ -1690,7 +1690,7 @@ export default function App() {
                 pushToast(`Dropping Rp ${fmt.format(amt)} ke ${transferForm.to.toUpperCase()} berhasil`, 'success')
               }} className="space-y-4 mt-4">
               <div><label className="text-sm font-semibold text-slate-700">Tanggal Transfer</label><input type="date" required value={transferForm.tanggal} onChange={(e) => setTransferForm({ ...transferForm, tanggal: e.target.value })} className="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-[#1E3A5F]" /></div>
-              <div><label className="text-sm font-semibold text-slate-700">Rekening Tujuan</label><select value={transferForm.to} onChange={(e) => setTransferForm({ ...transferForm, to: e.target.value as 'operasional' | 'keluarga' })} className="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm outline-none bg-white font-medium focus:border-[#1E3A5F]"><option value="operasional">OPERASIONAL (1) — Kas Harian</option><option value="keluarga">KELUARGA (2) — Kas Rutin</option></select></div>
+              <div><label className="text-sm font-semibold text-slate-700">Rekening Tujuan</label><select value={transferForm.to} onChange={(e) => setTransferForm({ ...transferForm, to: e.target.value as 'operasional' | 'keluarga' })} className="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm outline-none bg-white font-medium focus:border-[#1E3A5F]"><option value="operasional">OPERASIONAL (1) | Kas Harian</option><option value="keluarga">KELUARGA (2) | Kas Rutin</option></select></div>
               <div><label className="text-sm font-semibold text-slate-700">Nominal Transfer (Rp)</label><RupiahInput required placeholder="Contoh: 1.500.000" value={transferForm.amount} onChange={(val) => setTransferForm({ ...transferForm, amount: String(val) })} className="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm outline-none num font-bold text-[#1E3A5F]" /></div>
               <div className="pt-3 flex gap-3"><button type="button" onClick={() => setShowTransferModal(false)} className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button><button type="submit" className="flex-1 px-4 py-2.5 bg-[#1E3A5F] hover:bg-[#152a45] text-white rounded-xl text-sm font-bold shadow-sm">Eksekusi Dropping</button></div>
             </form>
