@@ -49,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Input tidak valid', details: err.errors })
+      return res.status(400).json({ error: 'Input tidak valid', details: err.issues })
     }
     console.error('Login error:', err)
     return res.status(500).json({ error: 'Gagal login. Silakan coba lagi.' })
