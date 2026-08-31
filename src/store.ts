@@ -78,18 +78,37 @@ export const uid = () => {
 
 export const SCHEMA_VERSION = 2
 
+function emptySeed(): StateData {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    demoMode: false,
+    txs: [],
+    rabAnggy: [],
+    rabKeluarga: [],
+    piutangs: [],
+    deps: [],
+    assets: [],
+    scheds: [],
+    year: 2026,
+    saldoAwal: 0,
+  }
+}
+
 function normalizeState(data: Partial<StateData>): StateData {
-  const base = seed()
-  const months = (values: unknown): number[] => Array.from({ length: 12 }, (_, index) => {
-    const value = Array.isArray(values) ? Number(values[index]) : 0
-    return Number.isFinite(value) && value >= 0 ? value : 0
-  })
-  const txs = Array.isArray(data.txs) ? data.txs.filter(Boolean).map((tx) => ({
-    ...tx,
-    id: typeof tx.id === 'string' && tx.id ? tx.id : uid(),
-    penerimaan: Math.max(0, Number(tx.penerimaan) || 0),
-    pengeluaran: Math.max(0, Number(tx.pengeluaran) || 0),
-  })) : base.txs
+  const base = emptySeed()
+  const months = (values: unknown): number[] =>
+    Array.from({ length: 12 }, (_, index) => {
+      const value = Array.isArray(values) ? Number(values[index]) : 0
+      return Number.isFinite(value) && value >= 0 ? value : 0
+    })
+  const txs = Array.isArray(data.txs)
+    ? data.txs.filter(Boolean).map((tx) => ({
+        ...tx,
+        id: typeof tx.id === 'string' && tx.id ? tx.id : uid(),
+        penerimaan: Math.max(0, Number(tx.penerimaan) || 0),
+        pengeluaran: Math.max(0, Number(tx.pengeluaran) || 0),
+      }))
+    : base.txs
   return {
     ...base,
     ...data,
@@ -101,89 +120,15 @@ function normalizeState(data: Partial<StateData>): StateData {
     piutangs: Array.isArray(data.piutangs) ? data.piutangs : base.piutangs,
     deps: Array.isArray(data.deps) ? data.deps : base.deps,
     assets: Array.isArray(data.assets) ? data.assets : base.assets,
-    scheds: Array.isArray(data.scheds) ? data.scheds.map((row) => ({ ...row, months: months(row.months), total: months(row.months).reduce((sum, value) => sum + value, 0) })) : base.scheds,
+    scheds: Array.isArray(data.scheds)
+      ? data.scheds.map((row) => ({
+          ...row,
+          months: months(row.months),
+          total: months(row.months).reduce((sum, value) => sum + value, 0),
+        }))
+      : base.scheds,
     year: Number.isFinite(Number(data.year)) ? Math.round(Number(data.year)) : base.year,
     saldoAwal: Math.max(0, Number(data.saldoAwal) || 0),
-  }
-}
-
-function seed(): StateData {
-  return {
-    schemaVersion: SCHEMA_VERSION,
-    demoMode: true,
-    txs: [
-      { id: uid(), tanggal: '2025-12-31', nsb: 'ANGGY', pos: 'SALDO AWAL', uraian: 'SALDO AWAL - 26 AGUSTUS 2026', penerimaan: 20000000, pengeluaran: 0, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-01', nsb: 'ANGGY', pos: 'SALARY', uraian: 'SALARY - JANUARI 2026', penerimaan: 6000000, pengeluaran: 0, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-01', nsb: 'ANGGY', pos: 'DROPPING', uraian: 'DROPPING - OPERASIONAL', penerimaan: 0, pengeluaran: 1500000, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-01', nsb: 'ANGGY', pos: 'DROPPING', uraian: 'DROPPING - KELUARGA', penerimaan: 0, pengeluaran: 4000000, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-15', nsb: 'ANGGY', pos: 'PENJUALAN - ASET', uraian: 'PENJUALAN ASET - HP', penerimaan: 3800000, pengeluaran: 0, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-15', nsb: 'DAMAR', pos: 'ASET - PIUTANG', uraian: 'KEMBALI HUTANG - DAMAR', penerimaan: 500000, pengeluaran: 0, ledger: 'master' },
-      { id: uid(), tanggal: '2026-01-31', nsb: 'ANGGY', pos: 'PENDAPATAN LAIN', uraian: 'ADMIN BANK', penerimaan: 0, pengeluaran: 20000, ledger: 'master' },
-      // operasional
-      { id: uid(), tanggal: '2026-01-01', nsb: 'ANGGY', pos: 'DROPPING', uraian: 'DROPPING - OPERASIONAL', penerimaan: 1500000, pengeluaran: 0, ledger: 'operasional' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ANGGY', pos: 'ORANG TUA', uraian: 'ORANG TUA', penerimaan: 0, pengeluaran: 200000, ledger: 'operasional' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ANGGY', pos: 'OPERASIONAL', uraian: 'ADMIN BANK', penerimaan: 0, pengeluaran: 2500, ledger: 'operasional' },
-      { id: uid(), tanggal: '2026-01-05', nsb: 'ANGGY', pos: 'BELANJA', uraian: 'ROKOK', penerimaan: 0, pengeluaran: 34000, ledger: 'operasional' },
-      { id: uid(), tanggal: '2026-01-07', nsb: 'ANGGY', pos: 'OPERASIONAL', uraian: 'PULSA', penerimaan: 0, pengeluaran: 50000, ledger: 'operasional' },
-      { id: uid(), tanggal: '2026-01-13', nsb: 'ANGGY', pos: 'BELANJA', uraian: 'KOPI', penerimaan: 0, pengeluaran: 20000, ledger: 'operasional' },
-      // keluarga
-      { id: uid(), tanggal: '2026-01-01', nsb: 'ANGGY', pos: 'DROPPING', uraian: 'DROPPING - MANDIRI', penerimaan: 4000000, pengeluaran: 0, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'NAFKAH', uraian: 'NAFKAH', penerimaan: 0, pengeluaran: 1500000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'ANAK', uraian: 'SPP', penerimaan: 0, pengeluaran: 200000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'ANAK', uraian: 'LES', penerimaan: 0, pengeluaran: 100000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'ANAK', uraian: 'NGAJI', penerimaan: 0, pengeluaran: 50000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'MERTUA', uraian: 'MERTUA', penerimaan: 0, pengeluaran: 100000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'PEMBANTU', uraian: 'PEMBANTU', penerimaan: 0, pengeluaran: 400000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-02', nsb: 'ISTRI', pos: 'RUMAH', uraian: 'LISTRIK', penerimaan: 0, pengeluaran: 100000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-07', nsb: 'ANGGY', pos: 'ANAK', uraian: 'JAJAN ANAK', penerimaan: 0, pengeluaran: 30000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-10', nsb: 'ANGGY', pos: 'ANAK', uraian: 'BUKU TULIS ANAK', penerimaan: 0, pengeluaran: 45000, ledger: 'keluarga' },
-      { id: uid(), tanggal: '2026-01-20', nsb: 'ANGGY', pos: 'RUMAH', uraian: 'LISTRIK RUMAH', penerimaan: 0, pengeluaran: 50000, ledger: 'keluarga' },
-    ],
-    rabAnggy: [
-      { id: uid(), group: 'OPERASIONAL', uraian: 'TARIK DANA', sat: 'mg', vol: 1, hs: 100000, w: [100000, 100000, 100000, 100000], months: Array(12).fill(400000), total: 4800000 },
-      { id: uid(), group: 'OPERASIONAL', uraian: 'PULSA / TOP UP', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-      { id: uid(), group: 'ORANG TUA', uraian: 'ORANG TUA', sat: 'bln', vol: 1, hs: 200000, w: [200000, 0, 0, 0], months: Array(12).fill(200000), total: 2400000 },
-      { id: uid(), group: 'BELANJA', uraian: 'BELANJA / SHOPPING', sat: 'mg', vol: 4, hs: 100000, w: [100000, 100000, 100000, 100000], months: Array(12).fill(400000), total: 4800000 },
-      { id: uid(), group: 'BELANJA', uraian: 'ROKOK / SEJENISNYA', sat: 'mg', vol: 4, hs: 100000, w: [100000, 100000, 100000, 100000], months: Array(12).fill(400000), total: 4800000 },
-      { id: uid(), group: 'MOMENTUM', uraian: 'MOMENTUM (SCHEDULED)', sat: 'ls', vol: 1, hs: 0, w: [0, 0, 0, 0], months: Array(12).fill(0), total: 0 },
-      { id: uid(), group: 'INSIDENTAL', uraian: 'INSIDENTAL', sat: 'ls', vol: 1, hs: 0, w: [0, 0, 0, 0], months: Array(12).fill(0), total: 0 },
-    ],
-    rabKeluarga: [
-      { id: uid(), group: 'NAFKAH', uraian: 'NAFKAH', sat: 'bln', vol: 1, hs: 1500000, w: [1500000, 0, 0, 0], months: Array(12).fill(1500000), total: 18000000 },
-      { id: uid(), group: 'NAFKAH', uraian: 'BELANJA BULANAN', sat: 'bln', vol: 1, hs: 300000, w: [300000, 0, 0, 0], months: Array(12).fill(300000), total: 3600000 },
-      { id: uid(), group: 'ANAK', uraian: 'SPP', sat: 'bln', vol: 1, hs: 200000, w: [200000, 0, 0, 0], months: Array(12).fill(200000), total: 2400000 },
-      { id: uid(), group: 'ANAK', uraian: 'LES', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-      { id: uid(), group: 'ANAK', uraian: 'NGAJI', sat: 'bln', vol: 1, hs: 50000, w: [50000, 0, 0, 0], months: Array(12).fill(50000), total: 600000 },
-      { id: uid(), group: 'ANAK', uraian: 'SAKU', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-      { id: uid(), group: 'ANAK', uraian: 'JAJAN', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-      { id: uid(), group: 'MERTUA', uraian: 'MERTUA', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-      { id: uid(), group: 'PEMBANTU', uraian: 'PEMBANTU', sat: 'bln', vol: 1, hs: 400000, w: [400000, 0, 0, 0], months: Array(12).fill(400000), total: 4800000 },
-      { id: uid(), group: 'RUMAH', uraian: 'LISTRIK', sat: 'bln', vol: 1, hs: 100000, w: [100000, 0, 0, 0], months: Array(12).fill(100000), total: 1200000 },
-    ],
-    piutangs: [
-      { id: uid(), tgl: '2025-11-01', nsb: 'DAMAR', uraian: 'HUTANG PRIBADI', terbit: 1000000, lunas: 0, keterangan: 'Hutang keperluan usaha' },
-      { id: uid(), tgl: '2025-11-15', nsb: 'CEDAR', uraian: 'HUTANG PRIBADI', terbit: 1500000, lunas: 0, keterangan: 'Pinjaman modal' },
-      { id: uid(), tgl: '2025-12-15', nsb: 'CEDAR', uraian: 'KEMBALI HUTANG', terbit: 0, lunas: 500000, keterangan: 'Cicilan 1' },
-    ],
-    deps: [
-      { id: uid(), nama: 'MOTOR - VESPA', tgl: '2024-01-10', nilai: 50000000, umur: 60, nilaiTaksir: 35000000, kat: 'KENDARAAN' },
-      { id: uid(), nama: 'SEPEDA - POLIGON', tgl: '2025-08-01', nilai: 5000000, umur: 60, nilaiTaksir: 3500000, kat: 'KENDARAAN' },
-      { id: uid(), nama: 'LAPTOP - ASUS', tgl: '2025-07-01', nilai: 12000000, umur: 24, nilaiTaksir: 8000000, kat: 'GADGET' },
-      { id: uid(), nama: 'HP - IPHONE', tgl: '2026-05-01', nilai: 15000000, umur: 12, nilaiTaksir: 12000000, kat: 'GADGET' },
-      { id: uid(), nama: 'HP - SAMSUNG', tgl: '2026-03-01', nilai: 9000000, umur: 12, nilaiTaksir: 7000000, kat: 'GADGET' },
-    ],
-    assets: [
-      { id: uid(), jenis: 'PROPERTY', nama: 'RUMAH', atasNama: 'ANGGY', tgl: '2023-04-01', nilai: 200000000, dp: 50000000, bunga: 0.08, tenor: 120, nilaiPasar: 400000000, tambah: 40000000 },
-    ],
-    scheds: [
-      { id: uid(), nama: 'MOTOR - VESPA service', hs: 300000, months: [0, 0, 0, 0, 0, 300000, 0, 0, 0, 0, 0, 300000], kat: 'service' },
-      { id: uid(), nama: 'SEPEDA - POLIGON', hs: 100000, months: [0, 0, 100000, 0, 0, 0, 0, 0, 0, 0, 0, 0], kat: 'service' },
-      { id: uid(), nama: 'SERVICE AC', hs: 150000, months: [0, 0, 0, 0, 150000, 0, 0, 0, 0, 150000, 0, 0], kat: 'service' },
-      { id: uid(), nama: 'PAJAK MOTOR VESPA', hs: 500000, months: [500000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], kat: 'pajak' },
-      { id: uid(), nama: 'PBB - TAHUNAN', hs: 50000, months: [0, 0, 50000, 0, 0, 0, 0, 0, 0, 0, 0, 0], kat: 'pajak' },
-    ],
-    year: 2026,
-    saldoAwal: 20000000,
   }
 }
 
@@ -201,12 +146,20 @@ export type StateData = {
   saldoAwal: number
 }
 
+export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error'
+
 export type State = StateData & {
+  syncStatus: SyncStatus
+  setSyncStatus: (s: SyncStatus) => void
+
+  loadFromServer: () => Promise<void>
+  syncToServer: () => Promise<void>
+
   addTx: (t: Omit<Tx, 'id'>) => void
   delTx: (id: string) => void
   updTx: (id: string, patch: Partial<Tx>) => void
   transferDropping: (from: 'master', to: 'operasional' | 'keluarga', amount: number, tanggal: string, uraian: string) => void
-  
+
   addRab: (which: 'anggy' | 'keluarga', r: Omit<RabRow, 'id'>) => void
   delRab: (which: 'anggy' | 'keluarga', id: string) => void
   updRab: (which: 'anggy' | 'keluarga', id: string, patch: Partial<RabRow>) => void
@@ -236,113 +189,227 @@ export type State = StateData & {
   reset: () => void
 }
 
+let syncTimeout: any = null
+function queueSync(get: () => State) {
+  if (syncTimeout) clearTimeout(syncTimeout)
+  syncTimeout = setTimeout(() => {
+    void get().syncToServer()
+  }, 500)
+}
+
 export const useStore = create<State>()(
   persist(
-    (set) => ({
-      ...seed(),
+    (set, get) => ({
+      ...emptySeed(),
+      syncStatus: 'synced',
+      setSyncStatus: (syncStatus) => set({ syncStatus }),
 
-      addTx: (t) => set((s) => {
+      loadFromServer: async () => {
+        set({ syncStatus: 'syncing' })
+        try {
+          const res = await fetch('/api/state')
+          if (res.ok) {
+            const data = await res.json()
+            set({ ...normalizeState(data), syncStatus: 'synced' })
+          } else {
+            set({ syncStatus: 'offline' })
+          }
+        } catch {
+          set({ syncStatus: 'offline' })
+        }
+      },
+
+      syncToServer: async () => {
+        const s = get()
+        set({ syncStatus: 'syncing' })
+        try {
+          const res = await fetch('/api/state', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              schemaVersion: s.schemaVersion,
+              demoMode: s.demoMode,
+              year: s.year,
+              saldoAwal: s.saldoAwal,
+              txs: s.txs,
+              rabAnggy: s.rabAnggy,
+              rabKeluarga: s.rabKeluarga,
+              piutangs: s.piutangs,
+              assets: s.assets,
+              deps: s.deps,
+              scheds: s.scheds,
+            }),
+          })
+          if (res.ok) {
+            set({ syncStatus: 'synced' })
+          } else {
+            set({ syncStatus: 'error' })
+          }
+        } catch {
+          set({ syncStatus: 'offline' })
+        }
+      },
+
+      addTx: (t) => {
         const penerimaan = Number(t.penerimaan) || 0
         const pengeluaran = Number(t.pengeluaran) || 0
-        if (!t.tanggal || !t.uraian.trim() || penerimaan < 0 || pengeluaran < 0 || (penerimaan > 0 && pengeluaran > 0)) return s
-        return { txs: [...s.txs, { ...t, penerimaan, pengeluaran, id: uid() }], demoMode: false }
-      }),
-      delTx: (id) => set((s) => ({ txs: s.txs.filter((x) => x.id !== id), demoMode: false })),
-      updTx: (id, patch) => set((s) => ({ txs: s.txs.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false })),
+        if (!t.tanggal || !t.uraian.trim() || penerimaan < 0 || pengeluaran < 0 || (penerimaan > 0 && pengeluaran > 0)) return
+        set((s) => ({ txs: [...s.txs, { ...t, penerimaan, pengeluaran, id: uid() }], demoMode: false }))
+        queueSync(get)
+      },
+      delTx: (id) => {
+        set((s) => ({ txs: s.txs.filter((x) => x.id !== id), demoMode: false }))
+        queueSync(get)
+      },
+      updTx: (id, patch) => {
+        set((s) => ({ txs: s.txs.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        queueSync(get)
+      },
 
+      transferDropping: (from, to, amount, tanggal, uraian) => {
+        const s = get()
+        const targetYear = Number(tanggal.slice(0, 4)) || s.year
+        const currentMasterBal = s.saldoAwal + s.txs
+          .filter((x) => x.ledger === from && x.tanggal.startsWith(`${targetYear}-`))
+          .reduce((sum, x) => sum + x.penerimaan - x.pengeluaran, 0)
 
-      transferDropping: (from, to, amount, tanggal, uraian) =>
-        set((s) => {
-          if (from !== 'master' || !['operasional', 'keluarga'].includes(to) || !Number.isFinite(amount) || amount <= 0 || amount > s.txs.filter((x) => x.ledger === from).reduce((sum, x) => sum + x.penerimaan - x.pengeluaran, s.saldoAwal)) return s
-          const transferId = uid()
-          const t1: Tx = {
-            id: uid(),
-            tanggal,
-            nsb: 'ANGGY',
-            pos: 'DROPPING',
-            uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
-            penerimaan: 0,
-            pengeluaran: amount,
-            ledger: 'master',
-            transferId,
-          }
-          const t2: Tx = {
-            id: uid(),
-            tanggal,
-            nsb: 'ANGGY',
-            pos: 'DROPPING',
-            uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
-            penerimaan: amount,
-            pengeluaran: 0,
-            ledger: to,
-            transferId,
-          }
-          return { txs: [...s.txs, t1, t2] }
-        }),
+        if (from !== 'master' || !['operasional', 'keluarga'].includes(to) || !Number.isFinite(amount) || amount <= 0 || amount > currentMasterBal) return
+        const transferId = uid()
+        const t1: Tx = {
+          id: uid(),
+          tanggal,
+          nsb: 'ANGGY',
+          pos: 'DROPPING',
+          uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
+          penerimaan: 0,
+          pengeluaran: amount,
+          ledger: 'master',
+          transferId,
+        }
+        const t2: Tx = {
+          id: uid(),
+          tanggal,
+          nsb: 'ANGGY',
+          pos: 'DROPPING',
+          uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
+          penerimaan: amount,
+          pengeluaran: 0,
+          ledger: to,
+          transferId,
+        }
+        set((state) => ({ txs: [...state.txs, t1, t2], demoMode: false }))
+        queueSync(get)
+      },
 
-      addRab: (which, r) =>
+      addRab: (which, r) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: [...s.rabAnggy, { ...r, id: uid() }] }
-            : { rabKeluarga: [...s.rabKeluarga, { ...r, id: uid() }] }
-        ),
-      delRab: (which, id) =>
+            ? { rabAnggy: [...s.rabAnggy, { ...r, id: uid() }], demoMode: false }
+            : { rabKeluarga: [...s.rabKeluarga, { ...r, id: uid() }], demoMode: false }
+        )
+        queueSync(get)
+      },
+      delRab: (which, id) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: s.rabAnggy.filter((x) => x.id !== id) }
-            : { rabKeluarga: s.rabKeluarga.filter((x) => x.id !== id) }
-        ),
-      updRab: (which, id, patch) =>
+            ? { rabAnggy: s.rabAnggy.filter((x) => x.id !== id), demoMode: false }
+            : { rabKeluarga: s.rabKeluarga.filter((x) => x.id !== id), demoMode: false }
+        )
+        queueSync(get)
+      },
+      updRab: (which, id, patch) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: s.rabAnggy.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
-            : { rabKeluarga: s.rabKeluarga.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
-        ),
+            ? { rabAnggy: s.rabAnggy.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }
+            : { rabKeluarga: s.rabKeluarga.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }
+        )
+        queueSync(get)
+      },
 
-      addPiutang: (p) => set((s) => ({ piutangs: [...s.piutangs, { ...p, id: uid() }] })),
-      delPiutang: (id) => set((s) => ({ piutangs: s.piutangs.filter((x) => x.id !== id) })),
-      updPiutang: (id, patch) => set((s) => ({ piutangs: s.piutangs.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
-      catatPelunasan: (id, nominal, tanggal) =>
-        set((s) => {
-          const p = s.piutangs.find((x) => x.id === id)
-          const outstanding = p ? p.terbit - p.lunas : 0
-          if (!p || !Number.isFinite(nominal) || nominal <= 0 || nominal > outstanding) return s
-          const tglStr = tanggal || new Date().toISOString().slice(0, 10)
-          const newEntry: PiutangRow = {
-            id: uid(),
-            tgl: tglStr,
-            nsb: p.nsb,
-            uraian: `KEMBALI HUTANG - ${p.nsb}`,
-            terbit: 0,
-            lunas: nominal,
-            keterangan: `Pelunasan piutang ref: ${p.uraian}`,
-          }
-          const newTx: Tx = {
-            id: uid(),
-            tanggal: tglStr,
-            nsb: p.nsb,
-            pos: 'ASET - PIUTANG',
-            uraian: `KEMBALI HUTANG - ${p.nsb}`,
-            penerimaan: nominal,
-            pengeluaran: 0,
-            ledger: 'master',
-            receivableId: id,
-          }
-          return { piutangs: [...s.piutangs, newEntry], txs: [...s.txs, newTx], demoMode: false }
-        }),
+      addPiutang: (p) => {
+        set((s) => ({ piutangs: [...s.piutangs, { ...p, id: uid() }], demoMode: false }))
+        queueSync(get)
+      },
+      delPiutang: (id) => {
+        set((s) => ({ piutangs: s.piutangs.filter((x) => x.id !== id), demoMode: false }))
+        queueSync(get)
+      },
+      updPiutang: (id, patch) => {
+        set((s) => ({ piutangs: s.piutangs.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        queueSync(get)
+      },
+      catatPelunasan: (id, nominal, tanggal) => {
+        const s = get()
+        const p = s.piutangs.find((x) => x.id === id)
+        const outstanding = p ? p.terbit - p.lunas : 0
+        if (!p || !Number.isFinite(nominal) || nominal <= 0 || nominal > outstanding) return
+        const tglStr = tanggal || new Date().toISOString().slice(0, 10)
+        const newEntry: PiutangRow = {
+          id: uid(),
+          tgl: tglStr,
+          nsb: p.nsb,
+          uraian: `KEMBALI HUTANG - ${p.nsb}`,
+          terbit: 0,
+          lunas: nominal,
+          keterangan: `Pelunasan piutang ref: ${p.uraian}`,
+        }
+        const newTx: Tx = {
+          id: uid(),
+          tanggal: tglStr,
+          nsb: p.nsb,
+          pos: 'ASET - PIUTANG',
+          uraian: `KEMBALI HUTANG - ${p.nsb}`,
+          penerimaan: nominal,
+          pengeluaran: 0,
+          ledger: 'master',
+          receivableId: id,
+        }
+        set((state) => ({ piutangs: [...state.piutangs, newEntry], txs: [...state.txs, newTx], demoMode: false }))
+        queueSync(get)
+      },
 
-      addAsset: (a) => set((s) => ({ assets: [...s.assets, { ...a, id: uid() }] })),
-      delAsset: (id) => set((s) => ({ assets: s.assets.filter((x) => x.id !== id) })),
-      updAsset: (id, patch) => set((s) => ({ assets: s.assets.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
+      addAsset: (a) => {
+        set((s) => ({ assets: [...s.assets, { ...a, id: uid() }], demoMode: false }))
+        queueSync(get)
+      },
+      delAsset: (id) => {
+        set((s) => ({ assets: s.assets.filter((x) => x.id !== id), demoMode: false }))
+        queueSync(get)
+      },
+      updAsset: (id, patch) => {
+        set((s) => ({ assets: s.assets.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        queueSync(get)
+      },
 
-      addDep: (d) => set((s) => ({ deps: [...s.deps, { ...d, id: uid() }] })),
-      delDep: (id) => set((s) => ({ deps: s.deps.filter((x) => x.id !== id) })),
-      updDep: (id, patch) => set((s) => ({ deps: s.deps.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
+      addDep: (d) => {
+        set((s) => ({ deps: [...s.deps, { ...d, id: uid() }], demoMode: false }))
+        queueSync(get)
+      },
+      delDep: (id) => {
+        set((s) => ({ deps: s.deps.filter((x) => x.id !== id), demoMode: false }))
+        queueSync(get)
+      },
+      updDep: (id, patch) => {
+        set((s) => ({ deps: s.deps.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        queueSync(get)
+      },
 
-      addSched: (sc) => set((s) => ({ scheds: [...s.scheds, { ...sc, months: sc.months.length === 12 ? sc.months : Array(12).fill(0), id: uid() }], demoMode: false })),
-      delSched: (id) => set((s) => ({ scheds: s.scheds.filter((x) => x.id !== id) })),
-      updSched: (id, patch) => set((s) => ({ scheds: s.scheds.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
-      toggleSchedMonth: (id, monthIdx, customAmount) =>
+      addSched: (sc) => {
+        set((s) => ({
+          scheds: [...s.scheds, { ...sc, months: sc.months.length === 12 ? sc.months : Array(12).fill(0), id: uid() }],
+          demoMode: false,
+        }))
+        queueSync(get)
+      },
+      delSched: (id) => {
+        set((s) => ({ scheds: s.scheds.filter((x) => x.id !== id), demoMode: false }))
+        queueSync(get)
+      },
+      updSched: (id, patch) => {
+        set((s) => ({ scheds: s.scheds.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        queueSync(get)
+      },
+      toggleSchedMonth: (id, monthIdx, customAmount) => {
         set((s) => ({
           scheds: s.scheds.map((item) => {
             if (item.id !== id || monthIdx < 0 || monthIdx >= 12) return item
@@ -351,15 +418,31 @@ export const useStore = create<State>()(
             return { ...item, months: newMonths, total: newMonths.reduce((sum, value) => sum + value, 0) }
           }),
           demoMode: false,
-        })),
+        }))
+        queueSync(get)
+      },
 
-      setYear: (y) => set({ year: Math.round(y) }),
-      setSaldoAwal: (nominal) => set({ saldoAwal: Math.max(0, Number(nominal) || 0), demoMode: false }),
-      setDemoMode: (value) => set({ demoMode: value }),
-      importState: (data) => set(normalizeState(data)),
-      reset: () => set(seed()),
+      setYear: (y) => {
+        set({ year: Math.round(y) })
+        queueSync(get)
+      },
+      setSaldoAwal: (nominal) => {
+        set({ saldoAwal: Math.max(0, Number(nominal) || 0), demoMode: false })
+        queueSync(get)
+      },
+      setDemoMode: (value) => {
+        set({ demoMode: value })
+        queueSync(get)
+      },
+      importState: (data) => {
+        set(normalizeState(data))
+        queueSync(get)
+      },
+      reset: () => {
+        set(emptySeed())
+        queueSync(get)
+      },
     }),
     { name: 'anggy-keu-v2' }
   )
 )
-

@@ -32,10 +32,11 @@ export function ledgerExpense(txs: Tx[], ledger: Tx['ledger']): number {
   return txs.filter((tx) => tx.ledger === ledger && !isTransfer(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
 }
 
-export function runningBalances(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0): Map<string, number> {
+export function runningBalances(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0, year?: number): Map<string, number> {
   let balance = saldoAwal
   const result = new Map<string, number>()
-  yearTransactions(txs, new Date().getFullYear())
+  const targetYear = year ?? (txs.length > 0 ? Number(txs[0].tanggal.slice(0, 4)) : new Date().getFullYear())
+  yearTransactions(txs, targetYear)
     .filter((tx) => tx.ledger === ledger)
     .forEach((tx) => {
       balance += tx.penerimaan - tx.pengeluaran
