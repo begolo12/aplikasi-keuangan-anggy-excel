@@ -1,49 +1,49 @@
 # Anggy Keuangan
 
-Ruang kerja keuangan pribadi untuk transaksi tiga ledger, anggaran RAB, cash flow, evaluasi realisasi, aset, depresiasi, jadwal, piutang, dan neraca.
+Aplikasi manajemen keuangan pribadi berbasis cloud dengan database **Neon PostgreSQL**, sistem autentikasi **JWT Session**, dan 3-Ledger cash flow management.
 
-## Status saat ini
+## Fitur Utama
 
-Versi ini adalah frontend local-first. Data tersimpan di browser melalui `localStorage` dan belum tersinkron ke server. Gunakan `Backup JSON` secara berkala. Jangan menganggap data demo sebagai laporan keuangan nyata.
+- **Autentikasi & Multi-User:** Login & Register akun email/password dengan enkripsi password (bcrypt) dan session cookie httpOnly.
+- **Database Cloud Neon PostgreSQL:** Seluruh transaksi, anggaran RAB, cicilan KPR/aset, depresiasi, piutang, dan jadwal tersimpan aman di cloud per workspace pengguna.
+- **3-Ledger Cash System:**
+  - **MASTER (0):** Rekening induk, gaji, dan penerimaan dividen.
+  - **OPERASIONAL (1):** Kas harian, bensin, dan pulsa.
+  - **KELUARGA (2):** Kas belanja rutin, uang sekolah, nafkah, dan rumah.
+- **RAB Anggaran & Cash Flow 12 Bulan:** Proyeksi mingguan W-1 s.d. W-4 dan evaluasi realisasi (RARI) otomatis.
+- **Aset & Fasilitas Kredit:** Perhitungan KPR properti, cicilan bulanan, sisa hutang pokok, dan capital gain.
+- **Depresiasi Garis Lurus:** Monitoring nilai buku aset bergerak (kendaraan & gadget).
+- **Export Excel 13 Sheet:** Menghasilkan file workbook `.xlsx` lengkap dengan format ribuan dan formula `SUM`.
+- **Backup & Restore JSON:** Snapshot data lokal untuk arsip mandiri.
 
-## Menjalankan lokal
+---
 
-```bash
-npm ci
-npm run dev
-```
+## Cara Menjalankan Lokal
 
-Validasi sebelum deploy:
+1. Salin template environment:
+   ```bash
+   cp .env.example .env.local
+   ```
+2. Isi `DATABASE_URL` dan `JWT_SECRET` di file `.env.local`.
+3. Pasang dependensi dan sinkronkan database:
+   ```bash
+   npm install
+   npx drizzle-kit push
+   ```
+4. Jalankan aplikasi:
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
-```
+---
 
-## Deploy Vercel
+## Deployment ke Vercel
 
-Project ini adalah Vite SPA. Import repository ke Vercel dan gunakan:
+1. Push repository ke GitHub.
+2. Import project ke Vercel (framework preset: **Vite**).
+3. Masukkan Environment Variables di Vercel Dashboard (Settings → Environment Variables):
+   - `DATABASE_URL` = `postgresql://...`
+   - `JWT_SECRET` = `(random secret key min 32 chars)`
+4. Deploy! Vercel otomatis menjalankan `/api/*` sebagai Serverless Functions dan menyajikan frontend static.
 
-- Build command: `npm run build`
-- Output directory: `dist`
-- Install command: `npm ci`
-
-Jangan memasukkan `DATABASE_URL` ke environment variable browser. Saat integrasi Neon dibuat, koneksi database harus berada di API/serverless function server-side.
-
-## Data dan backup
-
-- Pilih `Mulai dari data kosong` untuk pemakaian nyata.
-- `Lihat data demo` hanya untuk memahami alur aplikasi.
-- `Backup JSON` adalah snapshot data yang dapat dipulihkan melalui `Impor Backup`.
-- Export Excel adalah laporan, bukan format restore utama.
-- Import harus dikonfirmasi sebelum mengganti seluruh data lokal.
-
-## Roadmap Neon PostgreSQL
-
-Tahap berikutnya perlu menambahkan auth dan workspace sebelum data pengguna masuk cloud. Semua tabel harus memiliki `workspace_id`, nilai uang memakai `numeric`, transfer memakai correlation ID, dan pelunasan piutang memakai relasi parent-payment. `DATABASE_URL` tidak boleh dikirim ke client.
-
-## Catatan produk
-
-Sebelum penjualan publik, lengkapi privacy policy, terms of service, monitoring, server-side backup, autentikasi, isolasi workspace, serta rekonsiliasi data. Angka dan status laporan harus berasal dari data pengguna, bukan nilai contoh.
+> **Catatan Keamanan:** `DATABASE_URL` dan `JWT_SECRET` adalah variabel **server-side**. Jangan pernah menambahkan prefix `VITE_` agar kredensial database tidak terekspos ke browser client bundle.
