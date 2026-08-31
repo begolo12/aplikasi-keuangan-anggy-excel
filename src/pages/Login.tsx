@@ -41,15 +41,15 @@ export default function Login() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1b4332] to-[#52b788] flex items-center justify-center text-white font-black text-2xl shadow-sm">
-                A
+                F
               </div>
               <div>
-                <h1 className="text-3xl font-black tracking-tight text-[#132a22]">Anggy Keuangan</h1>
-                <p className="text-sm font-bold text-[#40916c] tracking-wide uppercase">Multi-Ledger & Asset Suite</p>
+                <h1 className="text-3xl font-black tracking-tight text-[#132a22]">FinSheet Pro</h1>
+                <p className="text-sm font-bold text-[#40916c] tracking-wide uppercase">Smart Cash Flow & Asset Suite</p>
               </div>
             </div>
             <p className="text-slate-600 text-sm leading-relaxed max-w-lg pt-1">
-              Pencatatan keuangan rapi dan elegan: 3 Buku Kas (Master, Operasional, Keluarga), Rencana Anggaran Biaya (RAB), Cash Flow tahunan, dan neraca seimbang.
+              Sistem pembukuan kas profesional & manajemen aset: 3 Buku Kas (Master, Operasional, Keluarga), Rencana Anggaran Biaya (RAB), Cash Flow tahunan, dan 13 Sheet Formula Live Excel.
             </p>
           </div>
 
@@ -81,11 +81,11 @@ export default function Login() {
           <div className="bg-white border border-[#e2ece5] rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/4">
             <div className="lg:hidden flex items-center gap-3 mb-6 pb-4 border-b border-[#e2ece5]">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1b4332] to-[#52b788] flex items-center justify-center text-white font-black text-lg shadow-sm">
-                A
+                F
               </div>
               <div>
-                <h1 className="font-extrabold text-lg text-[#132a22] tracking-tight">Anggy Keuangan</h1>
-                <p className="text-xs text-[#40916c] font-bold">Asset & Cash Flow Workspace</p>
+                <h1 className="font-black text-lg text-[#132a22] tracking-tight">FinSheet Pro</h1>
+                <p className="text-xs text-[#40916c] font-bold">Smart Cash Flow & Asset</p>
               </div>
             </div>
 

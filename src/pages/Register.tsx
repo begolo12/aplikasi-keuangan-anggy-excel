@@ -43,11 +43,11 @@ export default function Register() {
       <div className="relative z-10 w-full max-w-md bg-white border border-[#e2ece5] rounded-3xl p-6 sm:p-8 shadow-xl shadow-emerald-950/4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#1b4332] to-[#52b788] flex items-center justify-center text-white font-black text-xl shadow-sm">
-            A
+            F
           </div>
           <div>
-            <h1 className="font-extrabold text-lg text-[#132a22] tracking-tight leading-none">Anggy Keuangan</h1>
-            <p className="text-xs text-[#40916c] font-bold mt-1">Multi-Ledger & Asset Suite</p>
+            <h1 className="font-black text-lg text-[#132a22] tracking-tight leading-none">FinSheet Pro</h1>
+            <p className="text-xs text-[#40916c] font-bold mt-1">Smart Cash Flow & Asset Suite</p>
           </div>
         </div>
 

@@ -101,7 +101,7 @@ export function RariView({ store: s }: RariViewProps) {
           </thead>
           <tbody className="divide-y divide-slate-100">
             <tr>
-              <td className="px-4 py-3.5 font-bold text-slate-800">1. Pengeluaran Operasional (Anggy)</td>
+              <td className="px-4 py-3.5 font-bold text-slate-800">1. Pengeluaran Operasional</td>
               <td className="px-4 py-3.5 text-right font-bold text-slate-700 num">Rp {formatRibuan(raOp)}</td>
               <td className="px-4 py-3.5 text-right font-bold text-rose-700 num">Rp {formatRibuan(riOp)}</td>
               <td className={`px-4 py-3.5 text-right font-black num ${devOp >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>

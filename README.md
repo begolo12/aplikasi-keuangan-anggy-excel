@@ -1,6 +1,6 @@
-# Anggy Keuangan
+# FinSheet Pro — Smart Cash Flow & Asset Management
 
-Aplikasi manajemen keuangan pribadi berbasis cloud dengan database **Neon PostgreSQL**, sistem autentikasi **JWT Session**, dan 3-Ledger cash flow management.
+Aplikasi manajemen keuangan pribadi & operasional berbasis cloud dengan database **Neon PostgreSQL**, sistem autentikasi **JWT Session**, dan 3-Ledger cash flow management.
 
 ## Fitur Utama
 
@@ -13,7 +13,8 @@ Aplikasi manajemen keuangan pribadi berbasis cloud dengan database **Neon Postgr
 - **RAB Anggaran & Cash Flow 12 Bulan:** Proyeksi mingguan W-1 s.d. W-4 dan evaluasi realisasi (RARI) otomatis.
 - **Aset & Fasilitas Kredit:** Perhitungan KPR properti, cicilan bulanan, sisa hutang pokok, dan capital gain.
 - **Depresiasi Garis Lurus:** Monitoring nilai buku aset bergerak (kendaraan & gadget).
-- **Export Excel 13 Sheet:** Menghasilkan file workbook `.xlsx` lengkap dengan format ribuan dan formula `SUM`.
+- **Export Excel 13 Sheet Live Formula:** Menghasilkan file workbook `.xlsx` lengkap dengan format ribuan dan formula Excel native.
+- **Mobile-First Responsive UI:** Dilengkapi Bottom Navigation Bar dan tampilan Card khusus smartphone.
 - **Backup & Restore JSON:** Snapshot data lokal untuk arsip mandiri.
 
 ---
