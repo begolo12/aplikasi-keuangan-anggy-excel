@@ -54,7 +54,7 @@ export async function exportExcel(args: {
   saldoAwal: number
 }) {
   const wb = new ExcelJS.Workbook()
-  wb.creator = 'Anggy Keuangan'
+  wb.creator = 'FinSheet Pro'
   wb.created = new Date()
 
   // ==========================================
@@ -1407,7 +1407,7 @@ export async function exportExcel(args: {
   const buf = await wb.xlsx.writeBuffer()
   saveAs(
     new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-    `Anggy-Keuangan-Aset-Management-${args.year}.xlsx`
+    `FinSheet-Pro-Asset-Management-${args.year}.xlsx`
   )
 }
 

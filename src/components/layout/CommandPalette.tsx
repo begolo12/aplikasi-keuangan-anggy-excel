@@ -70,7 +70,7 @@ export function CommandPalette({
     { id: 'export', label: 'Export Seluruh Sheet ke Format Excel (.xlsx)', icon: <Download size={16} className="text-emerald-600" />, run: () => { onClose(); onExportExcel() } },
     { id: 'nav-dash', label: 'Buka Dashboard Finansial', icon: <LayoutDashboard size={16} />, run: () => { onClose(); onSelectTab('dashboard') } },
     { id: 'nav-tx', label: 'Buka Buku Kas (3 Ledger)', icon: <ArrowLeftRight size={16} />, run: () => { onClose(); onSelectTab('transaksi') } },
-    { id: 'nav-rab', label: 'Buka RAB Anggaran (Anggy & Keluarga)', icon: <Calculator size={16} />, run: () => { onClose(); onSelectTab('rab') } },
+    { id: 'nav-rab', label: 'Buka RAB Anggaran (Operasional & Keluarga)', icon: <Calculator size={16} />, run: () => { onClose(); onSelectTab('rab') } },
     { id: 'nav-cf', label: 'Buka Cash Flow Tahunan', icon: <TrendingUp size={16} />, run: () => { onClose(); onSelectTab('cashflow') } },
     { id: 'nav-rari', label: 'Buka Realisasi vs Anggaran (RA-RI)', icon: <PieChart size={16} />, run: () => { onClose(); onSelectTab('rari') } },
     { id: 'nav-aset', label: 'Buka Monitoring Aset & Properti', icon: <Building2 size={16} />, run: () => { onClose(); onSelectTab('aset') } },

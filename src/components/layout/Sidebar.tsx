@@ -67,15 +67,15 @@ export function Sidebar({
       <div className="h-16 flex items-center justify-between px-4 border-b border-[#dbeae0]">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1c543c] to-[#40916c] flex items-center justify-center text-white font-black text-lg shadow-xs shrink-0">
-            A
+            F
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <h1 className="font-extrabold text-[#0f291e] text-base tracking-tight leading-none truncate">
-                Anggy Keuangan
+              <h1 className="font-black text-[#0f291e] text-base tracking-tight leading-none truncate">
+                FinSheet Pro
               </h1>
               <p className="text-[10px] text-[#2d6a4f] font-extrabold tracking-wider uppercase mt-1">
-                Asset & Cash Flow
+                Cash Flow & Asset
               </p>
             </div>
           )}
