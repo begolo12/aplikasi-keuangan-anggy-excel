@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { z } from 'zod'
-import { db } from '../../lib/db'
-import { verifyPassword, createSessionToken } from '../../lib/auth'
+import { db } from '../../lib/db.js'
+import { verifyPassword, createSessionToken } from '../../lib/auth.js'
 
 const loginSchema = z.object({
   email: z.string().email(),
