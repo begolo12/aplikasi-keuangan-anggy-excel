@@ -645,12 +645,12 @@ export async function exportExcel(args: {
     ws.getColumn(20).width = 12
 
     ws.mergeCells('B1:T1')
-    ws.getCell('B1').value = `MONITORING CASH FLOW — ${args.year}`
+    ws.getCell('B1').value = `MONITORING CASH FLOW | ${args.year}`
     ws.getCell('B1').font = { bold: true, size: 12, color: { argb: 'FF1E40AF' } }
     ws.getCell('B1').alignment = { horizontal: 'center' }
 
     ws.mergeCells('B2:T2')
-    ws.getCell('B2').value = 'ANGGY PERMANA PUTRA — GROWTH, COMMITMENT & PERSISTENCE'
+    ws.getCell('B2').value = 'ANGGY PERMANA PUTRA | GROWTH, COMMITMENT & PERSISTENCE'
     ws.getCell('B2').font = { italic: true, size: 9, color: { argb: 'FF64748B' } }
     ws.getCell('B2').alignment = { horizontal: 'center' }
 
@@ -1280,7 +1280,7 @@ export async function exportExcel(args: {
   {
     const ws = wb.addWorksheet('NERACA-TOTAL')
     ws.mergeCells('B2:Q2')
-    ws.getCell('B2').value = 'NERACA KEUANGAN — AKTIVA VS PASSIVA'
+    ws.getCell('B2').value = 'NERACA KEUANGAN | AKTIVA VS PASSIVA'
     ws.getCell('B2').font = { bold: true, size: 12, color: { argb: 'FF1E40AF' } }
     ws.getCell('B2').alignment = { horizontal: 'center' }
 
