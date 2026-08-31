@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { verifySessionToken, parseCookies } from '../lib/auth'
-import { db } from '../lib/db'
-import { transactions, rabRows, piutangs, assets, deps, schedules, settings } from '../lib/schema'
+import { verifySessionToken, parseCookies } from '../lib/auth.js'
+import { db } from '../lib/db.js'
+import { transactions, rabRows, piutangs, assets, deps, schedules, settings } from '../lib/schema.js'
 import { eq } from 'drizzle-orm'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

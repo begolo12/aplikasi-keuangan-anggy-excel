@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { z } from 'zod'
-import { db } from '../../lib/db'
-import { users, workspaces, settings } from '../../lib/schema'
-import { hashPassword, createSessionToken } from '../../lib/auth'
+import { db } from '../../lib/db.js'
+import { users, workspaces, settings } from '../../lib/schema.js'
+import { hashPassword, createSessionToken } from '../../lib/auth.js'
 
 const registerSchema = z.object({
   email: z.string().email(),
