@@ -67,6 +67,13 @@ export default function App() {
     // Dipanggil sekali saat mount; getState() stabil dan tidak butuh dep.
   }, [])
 
+  // PUT yang gagal (offline/error) dicoba ulang saat koneksi kembali.
+  useEffect(() => {
+    const onOnline = () => useStore.getState().retrySync()
+    window.addEventListener('online', onOnline)
+    return () => window.removeEventListener('online', onOnline)
+  }, [])
+
   const handleToggleSidebar = () => {
     setSidebarCollapsed((prev) => {
       const next = !prev

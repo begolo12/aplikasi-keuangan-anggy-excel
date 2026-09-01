@@ -78,8 +78,6 @@ export const uid = () => {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-export const SCHEMA_VERSION = 2
-
 const txSchema = z.object({
   tanggal: z.string().refine(isValidDate, 'tanggal tidak valid'),
   uraian: z.string().trim().min(1).max(300),
@@ -177,6 +175,7 @@ export type State = StateData & {
 
   loadFromServer: () => Promise<void>
   syncToServer: () => Promise<void>
+  retrySync: () => void
 
   addTx: (t: Omit<Tx, 'id'>) => void
   delTx: (id: string) => void
@@ -230,6 +229,14 @@ export const useStore = create<State>()(
       setSyncStatus: (syncStatus) => set({ syncStatus }),
 
       loadFromServer: async () => {
+        // Jangan timpa state lokal yang belum sempat tersinkron (offline/error).
+        // Dua tab: yang ke-2 reload datanya dari server lewat GET, tab asli yang
+        // punya perubahan belum-persist mempertahankan miliknya sampai PUT sukses.
+        const before = get()
+        if (before.syncStatus === 'error' || before.syncStatus === 'offline') {
+          void before.syncToServer()
+          return
+        }
         set({ syncStatus: 'syncing' })
         try {
           const res = await fetch('/api/state')
@@ -274,6 +281,12 @@ export const useStore = create<State>()(
         } catch {
           set({ syncStatus: 'offline' })
         }
+      },
+
+      retrySync: () => {
+        const s = get()
+        if (s.syncStatus === 'synced') return
+        queueSync(get)
       },
 
       addTx: (t) => {

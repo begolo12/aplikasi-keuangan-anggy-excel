@@ -135,7 +135,7 @@ export async function exportExcel(args: {
     groups.forEach((g, gi) => {
       const rows = combinedRab.filter((x) => x.group === g)
       ws.getCell(`B${r}`).value = gi + 1
-      ws.getCell(`D${r}`).value = g
+      ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
 
       const start = r + 1
@@ -162,9 +162,9 @@ export async function exportExcel(args: {
 
       rows.forEach((rr) => {
         ws.getCell(`B${r}`).value = '-'
-        ws.getCell(`C${r}`).value = rr.plot
+        ws.getCell(`C${r}`).value = safeStr(rr.plot)
         ws.getCell(`D${r}`).value = safeStr(rr.uraian)
-        ws.getCell(`E${r}`).value = rr.sat
+        ws.getCell(`E${r}`).value = safeStr(rr.sat)
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
         ws.getCell(`G${r}`).numFmt = fmt
@@ -249,7 +249,7 @@ export async function exportExcel(args: {
     groups.forEach((g, gi) => {
       const rows = args.rabAnggy.filter((x) => x.group === g)
       ws.getCell(`B${r}`).value = gi + 1
-      ws.getCell(`D${r}`).value = g
+      ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
       ws.getCell(`E${r}`).value = 'bln'
       ws.getCell(`F${r}`).value = 1
@@ -271,7 +271,7 @@ export async function exportExcel(args: {
         ws.getCell(`B${r}`).value = '-'
         ws.getCell(`C${r}`).value = 'ANGGY'
         ws.getCell(`D${r}`).value = safeStr(rr.uraian)
-        ws.getCell(`E${r}`).value = rr.sat
+        ws.getCell(`E${r}`).value = safeStr(rr.sat)
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
         ws.getCell(`G${r}`).numFmt = fmt
@@ -339,7 +339,7 @@ export async function exportExcel(args: {
     groups.forEach((g, gi) => {
       const rows = args.rabKeluarga.filter((x) => x.group === g)
       ws.getCell(`B${r}`).value = gi + 1
-      ws.getCell(`D${r}`).value = g
+      ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
       ws.getCell(`E${r}`).value = 'bln'
       ws.getCell(`F${r}`).value = 1
@@ -361,7 +361,7 @@ export async function exportExcel(args: {
         ws.getCell(`B${r}`).value = '-'
         ws.getCell(`C${r}`).value = 'ISTRI'
         ws.getCell(`D${r}`).value = safeStr(rr.uraian)
-        ws.getCell(`E${r}`).value = rr.sat
+        ws.getCell(`E${r}`).value = safeStr(rr.sat)
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
         ws.getCell(`G${r}`).numFmt = fmt
