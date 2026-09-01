@@ -1,33 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-
-export type AuthUser = {
-  id: string
-  email: string
-  name: string
-}
-
-export type Workspace = {
-  id: string
-  name: string
-}
-
-type AuthContextType = {
-  user: AuthUser | null
-  workspace: Workspace | null
-  loading: boolean
-  login: (email: string, pass: string) => Promise<{ ok: boolean; error?: string }>
-  register: (email: string, pass: string, name?: string) => Promise<{ ok: boolean; error?: string }>
-  logout: () => Promise<void>
-  refresh: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextType | null>(null)
+import React, { useState, useEffect, useCallback } from 'react'
+import { AuthContext } from './auth-context-values'
+import type { AuthUser, Workspace } from './auth-context-values'
+export type { AuthUser, Workspace } from './auth-context-values'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // refresh dipanggil dari event (login/logout) dan sekali saat mount via effect;
+  // setState terjadi di dalam async callback setelah await, bukan sinkron saat render.
   const refresh = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me')
@@ -48,8 +30,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    void refresh()
-  }, [refresh])
+    let alive = true
+    void (async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (!alive) return
+        if (res.ok) {
+          const data = await res.json()
+          setUser(data.user)
+          setWorkspace(data.workspace)
+        } else {
+          setUser(null)
+          setWorkspace(null)
+        }
+      } catch {
+        if (!alive) return
+        setUser(null)
+        setWorkspace(null)
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [])
 
   const login = async (email: string, pass: string) => {
     try {
@@ -58,15 +63,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pass }),
       })
-      const data = await res.json()
+      const data: { user?: AuthUser; workspace?: Workspace; error?: string } = await res.json()
       if (!res.ok) {
         return { ok: false, error: data.error || 'Gagal login' }
       }
-      setUser(data.user)
-      setWorkspace(data.workspace)
+      if (data.user) setUser(data.user)
+      if (data.workspace) setWorkspace(data.workspace)
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message || 'Koneksi gagal' }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Koneksi gagal'
+      return { ok: false, error: message }
     }
   }
 
@@ -77,15 +83,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pass, name }),
       })
-      const data = await res.json()
+      const data: { user?: AuthUser; workspace?: Workspace; error?: string } = await res.json()
       if (!res.ok) {
         return { ok: false, error: data.error || 'Gagal mendaftar' }
       }
-      setUser(data.user)
-      setWorkspace(data.workspace)
+      if (data.user) setUser(data.user)
+      if (data.workspace) setWorkspace(data.workspace)
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message || 'Koneksi gagal' }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Koneksi gagal'
+      return { ok: false, error: message }
     }
   }
 
@@ -93,6 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
     } finally {
+      // Buang cache keuangan lokal supaya data tidak tertinggal di komputer bersama.
+      localStorage.removeItem('anggy-keu-v2')
       setUser(null)
       setWorkspace(null)
     }
@@ -105,8 +114,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within an AuthProvider')
-  return ctx
-}

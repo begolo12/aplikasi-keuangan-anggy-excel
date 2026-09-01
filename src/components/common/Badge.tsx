@@ -17,20 +17,21 @@ interface BadgeProps {
 }
 
 export function Badge({ children, variant = 'neutral', className = '' }: BadgeProps) {
+  // Material 3 tonal & status chips style
   const variantStyles: Record<BadgeVariant, string> = {
-    brand: 'bg-[#e7f4ec] text-[#1c543c] border-[#c7e4d2] font-bold',
-    success: 'bg-[#e4f6ef] text-[#136149] border-[#bfe8d7] font-bold',
-    danger: 'bg-rose-50 text-rose-700 border-rose-200/80 font-bold',
-    warning: 'bg-amber-50 text-amber-800 border-amber-200/80 font-bold',
-    neutral: 'bg-slate-100 text-slate-700 border-slate-200/80 font-semibold',
-    accent: 'bg-[#d6f0df] text-[#0f3d2a] border-[#b5e4c4] font-extrabold',
-    indigo: 'bg-[#e0f1ee] text-[#164e43] border-[#bee3db] font-bold',
-    pastel: 'bg-[#edf7f1] text-[#1c543c] border-[#d2eadb] font-bold',
+    brand: 'bg-[#e8f0fe] text-[#1a73e8] border border-[#d2e3fc] font-medium',
+    success: 'bg-[#e6f4ea] text-[#137333] border border-[#ceead6] font-medium',
+    danger: 'bg-[#fce8e6] text-[#c5221f] border border-[#fad2cf] font-medium',
+    warning: 'bg-[#fef7e0] text-[#b06000] border border-[#feefc3] font-medium',
+    neutral: 'bg-[#f1f3f4] text-[#444746] border border-[#e0e2e0] font-medium',
+    accent: 'bg-[#f3e8fd] text-[#9334e6] border border-[#e9d2fd] font-medium',
+    indigo: 'bg-[#e8eaed] text-[#3c4043] border border-[#dadce0] font-medium',
+    pastel: 'bg-[#e6f4ea] text-[#137333] border border-[#ceead6] font-medium',
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] border tracking-tight transition ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] leading-tight tracking-tight ${variantStyles[variant]} ${className}`}
     >
       {children}
     </span>

@@ -1,17 +1,5 @@
-import React, { useState, useEffect } from 'react'
-
-export function formatRibuan(v: number | string | undefined | null): string {
-  if (v === '' || v === undefined || v === null) return ''
-  const num = typeof v === 'number' ? v : parseFloat(String(v).replace(/\D/g, ''))
-  if (isNaN(num) || num === 0) return ''
-  return new Intl.NumberFormat('id-ID').format(num)
-}
-
-export function parseRibuan(str: string): number {
-  if (!str) return 0
-  const clean = String(str).replace(/\D/g, '')
-  return clean ? parseInt(clean, 10) : 0
-}
+import React, { useState } from 'react'
+import { formatRibuan } from './format'
 
 interface RupiahInputProps {
   value?: number | string
@@ -37,10 +25,11 @@ export function RupiahInput({
   autoFocus = false,
 }: RupiahInputProps) {
   const [displayVal, setDisplayVal] = useState(() => formatRibuan(value))
-
-  useEffect(() => {
+  const [lastProp, setLastProp] = useState(value)
+  if (value !== lastProp) {
+    setLastProp(value)
     setDisplayVal(formatRibuan(value))
-  }, [value])
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '')

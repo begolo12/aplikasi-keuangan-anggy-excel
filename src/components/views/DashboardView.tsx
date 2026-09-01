@@ -6,11 +6,16 @@ import {
   ArrowLeftRight,
   ChevronRight,
   CreditCard,
+  BarChart3,
+  PieChart as PieChartIcon,
 } from 'lucide-react'
 import { Card } from '../common/Card'
+import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
-import { formatRibuan } from '../common/RupiahInput'
+import { formatRibuan } from '../common/format'
+import { BarChart, DonutChart, type MonthBarData, type CategoryDonutData } from '../common/Charts'
 import type { State, Ledger } from '../../store'
+import type { TabKey } from '../layout/Sidebar'
 import {
   consolidatedExpense,
   consolidatedIncome,
@@ -19,11 +24,12 @@ import {
   outstandingPiutang,
   rabMonthlyTotals,
   yearTransactions,
+  monthlyTotals,
 } from '../../finance'
 
 interface DashboardViewProps {
   store: State
-  onNavigate: (tab: any) => void
+  onNavigate: (tab: TabKey) => void
   onOpenQuickTx: (defaultLedger?: Ledger) => void
   onOpenTransfer: () => void
 }
@@ -39,7 +45,6 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
 
   const totalIncome = consolidatedIncome(txCurrentYear)
   const totalExpense = consolidatedExpense(txCurrentYear)
-
   const totalPiutang = outstandingPiutang(s.piutangs)
 
   const riOperasional = txCurrentYear
@@ -60,323 +65,200 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
 
   const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
 
+  const mTotals = monthlyTotals(s.txs, s.year)
+
+  const barData: MonthBarData[] = monthNames.map((name, i) => ({
+    month: name,
+    income: mTotals.income[i] || 0,
+    expense: mTotals.expense[i] || 0,
+  }))
+
+  // Category breakdown for donut chart
+  const categoryMap = new Map<string, number>()
+  txCurrentYear.forEach((tx) => {
+    if (tx.pengeluaran > 0 && !isTransfer(tx)) {
+      const kat = tx.kategori || 'LAIN-LAIN'
+      categoryMap.set(kat, (categoryMap.get(kat) || 0) + tx.pengeluaran)
+    }
+  })
+
+  const palette = ['#1c543c', '#2d6a4f', '#40916c', '#52b788', '#e11d48', '#f59e0b', '#64748b']
+  const donutData: CategoryDonutData[] = Array.from(categoryMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value], idx) => ({
+      label,
+      value,
+      color: palette[idx % palette.length],
+    }))
+
+  const opPercent = raOperasional > 0 ? Math.min(100, Math.round((riOperasional / raOperasional) * 100)) : 0
+  const kelPercent = raKeluarga > 0 ? Math.min(100, Math.round((riKeluarga / raKeluarga) * 100)) : 0
+
   return (
-    <div className="space-y-4 sm:space-y-6 animate-in">
-      {/* 1. Header Overview Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#dbeae0] shadow-xs">
+    <div className="space-y-5 sm:space-y-6 animate-in">
+      {/* Page intro */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#e8f5ec] text-[#1c543c] text-[10px] sm:text-[11px] font-black border border-[#c6e3d0]">
-              Tahun Fiskal {s.year}
-            </span>
-            <span className="text-[11px] sm:text-xs font-bold text-slate-500">Bulan: {monthNames[currentMonthIdx]}</span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-flex items-center px-3 py-0.5 rounded-full bg-[#e8f0fe] text-[#1a73e8] text-[11px] font-medium tracking-wide">Tahun Buku {s.year}</span>
+            <span className="text-xs text-[#747775]">{monthNames[currentMonthIdx]} · {s.year}</span>
           </div>
-          <h1 className="mt-1 text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-[#0f291e]">
-            Ikhtisar Keuangan & Kas
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            Monitoring saldo 3 buku kas, realisasi anggaran belanja, dan aset.
-          </p>
+          <h1 className="text-[24px] sm:text-[28px] font-medium tracking-tight text-[#1f1f1f] leading-none">Ringkasan Keuangan</h1>
+          <p className="text-[13px] text-[#747775] mt-1.5 max-w-xl">Pantau posisi ledger kas, realisasi anggaran bulanan, dan aset secara real-time.</p>
         </div>
-
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 pt-1 sm:pt-0">
-          <button
-            onClick={onOpenTransfer}
-            className="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#f4f9f6] hover:bg-[#e6f2eb] text-[#1c543c] border border-[#dbeae0] text-xs font-bold transition flex items-center gap-1.5 active:scale-95"
-          >
-            <ArrowLeftRight size={14} />
-            <span>Transfer</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={onOpenTransfer} className="px-4 py-2 rounded-full border border-[#747775] bg-white hover:bg-[#f1f3f4] text-[#1f1f1f] text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
+            <ArrowLeftRight size={14} /> Transfer Kas
           </button>
-          <button
-            onClick={() => onOpenQuickTx('master')}
-            className="flex-1 sm:flex-none justify-center px-4 py-2 sm:px-4.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#1c543c] hover:bg-[#15422f] text-white font-black text-xs shadow-xs transition flex items-center gap-1.5 active:scale-95"
-          >
-            <Plus size={15} />
-            <span>Catat Mutasi</span>
+          <button onClick={() => onOpenQuickTx('master')} className="px-5 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition inline-flex items-center gap-1.5 cursor-pointer">
+            <Plus size={16} /> Tambah Transaksi
           </button>
         </div>
       </div>
 
-      {/* 2. 4-Column Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Stat 1: Total Likuiditas Kas */}
-        <Card className="p-4 sm:p-5 border-[#c7e8d5] bg-gradient-to-br from-white via-white to-[#f0f9f3]">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Kas Tersedia</span>
-            <div className="p-1.5 sm:p-2 rounded-xl bg-[#e8f5ec] text-[#1c543c] border border-[#c6e3d0]">
-              <CreditCard size={16} />
-            </div>
+      {/* Hero + stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-5 bg-[#001d35] rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden md-elevation-2">
+          <div className="absolute -right-8 -top-8 w-36 h-36 bg-[#1a73e8]/20 rounded-full blur-3xl pointer-events-none" />
+          <div>
+            <p className="text-[11px] font-medium tracking-wider text-[#c2e7ff] uppercase flex items-center gap-2">
+              <CreditCard size={14} /> Total Kas Tersedia
+            </p>
+            <p className="mt-3 text-[30px] sm:text-[34px] font-bold tracking-tight num leading-none text-white">Rp {formatRibuan(totalKasTersedia) || '0'}</p>
+            <p className="mt-2 text-xs text-[#a8c7fa]">Akumulasi 3 kas · per {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
           </div>
-          <h3 className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-black text-[#0f291e] num truncate">
-            Rp {formatRibuan(totalKasTersedia) || '0'}
-          </h3>
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">3 Ledger Aktif</span>
-            <span className="font-bold text-[#1c543c] bg-[#eaf5ee] px-2 py-0.5 rounded-md text-[10px]">
-              Likuid 100%
-            </span>
-          </div>
-        </Card>
-
-        {/* Stat 2: Total Penerimaan */}
-        <Card className="p-4 sm:p-5 border-[#cde5d6] bg-gradient-to-br from-white via-white to-[#f4faf6]">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Penerimaan</span>
-            <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <ArrowDownRight size={16} />
-            </div>
-          </div>
-          <h3 className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-black text-emerald-700 num truncate">
-            Rp {formatRibuan(totalIncome) || '0'}
-          </h3>
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Tahun {s.year}</span>
-            <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px]">
-              Cash In
-            </span>
-          </div>
-        </Card>
-
-        {/* Stat 3: Total Pengeluaran */}
-        <Card className="p-4 sm:p-5 border-rose-200 bg-gradient-to-br from-white via-white to-rose-50/30">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Pengeluaran</span>
-            <div className="p-1.5 sm:p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
-              <ArrowUpRight size={16} />
-            </div>
-          </div>
-          <h3 className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-black text-rose-700 num truncate">
-            Rp {formatRibuan(totalExpense) || '0'}
-          </h3>
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Tahun {s.year}</span>
-            <span className="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md text-[10px]">
-              Cash Out
-            </span>
-          </div>
-        </Card>
-
-        {/* Stat 4: Piutang Tertagih */}
-        <Card className="p-4 sm:p-5 border-amber-200 bg-gradient-to-br from-white via-white to-amber-50/30">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Piutang Aktif</span>
-            <div className="p-1.5 sm:p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
-              <HandCoins size={16} />
-            </div>
-          </div>
-          <h3 className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-black text-amber-800 num truncate">
-            Rp {formatRibuan(totalPiutang) || '0'}
-          </h3>
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">
-              {s.piutangs.filter((p) => p.terbit > p.lunas).length} catatan aktif
-            </span>
-            <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md text-[10px]">
-              Outstanding
-            </span>
-          </div>
-        </Card>
-      </div>
-
-      {/* 3. 3 Ledgers Cards Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
-        <Card className="p-4 sm:p-5 border-[#cde5d6] bg-white">
-          <div className="flex items-center justify-between">
-            <Badge variant="brand">0 — Master</Badge>
-            <span className="text-[11px] font-bold text-slate-400">Pusat Dropping</span>
-          </div>
-          <p className="mt-2.5 sm:mt-3 text-xs font-semibold text-slate-500">Saldo Master</p>
-          <h3 className="mt-1 text-xl sm:text-2xl font-black text-[#0f291e] num truncate">
-            Rp {formatRibuan(balMaster) || '0'}
-          </h3>
-          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <button
-              onClick={() => onNavigate('transaksi')}
-              className="font-bold text-[#1c543c] hover:underline inline-flex items-center gap-1"
-            >
-              Lihat Mutasi <ChevronRight size={14} />
-            </button>
-            <button
-              onClick={() => onOpenQuickTx('master')}
-              className="px-2.5 py-1 bg-[#eaf5ee] hover:bg-[#d8eedf] rounded-lg font-bold text-[#1c543c] text-[11px]"
-            >
-              + Catat
-            </button>
-          </div>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-[#c2e4d2] bg-white">
-          <div className="flex items-center justify-between">
-            <Badge variant="success">1 — Operasional</Badge>
-            <span className="text-[11px] font-bold text-slate-400">RAB Anggy</span>
-          </div>
-          <p className="mt-2.5 sm:mt-3 text-xs font-semibold text-slate-500">Saldo Operasional</p>
-          <h3 className="mt-1 text-xl sm:text-2xl font-black text-[#0f291e] num truncate">
-            Rp {formatRibuan(balOperasional) || '0'}
-          </h3>
-          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <button
-              onClick={() => onNavigate('transaksi')}
-              className="font-bold text-[#136149] hover:underline inline-flex items-center gap-1"
-            >
-              Lihat Mutasi <ChevronRight size={14} />
-            </button>
-            <button
-              onClick={() => onOpenQuickTx('operasional')}
-              className="px-2.5 py-1 bg-[#e4f6ef] hover:bg-[#d0f0e3] rounded-lg font-bold text-[#136149] text-[11px]"
-            >
-              + Catat
-            </button>
-          </div>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-[#cbe6d5] bg-white">
-          <div className="flex items-center justify-between">
-            <Badge variant="accent">2 — Keluarga</Badge>
-            <span className="text-[11px] font-bold text-slate-400">RAB Keluarga</span>
-          </div>
-          <p className="mt-2.5 sm:mt-3 text-xs font-semibold text-slate-500">Saldo Keluarga</p>
-          <h3 className="mt-1 text-xl sm:text-2xl font-black text-[#0f291e] num truncate">
-            Rp {formatRibuan(balKeluarga) || '0'}
-          </h3>
-          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-[#edf4ef] flex items-center justify-between text-xs">
-            <button
-              onClick={() => onNavigate('transaksi')}
-              className="font-bold text-[#2d6a4f] hover:underline inline-flex items-center gap-1"
-            >
-              Lihat Mutasi <ChevronRight size={14} />
-            </button>
-            <button
-              onClick={() => onOpenQuickTx('keluarga')}
-              className="px-2.5 py-1 bg-[#eaf5ee] hover:bg-[#d8eedf] rounded-lg font-bold text-[#1c543c] text-[11px]"
-            >
-              + Catat
-            </button>
-          </div>
-        </Card>
-      </div>
-
-      {/* 4. Budget Comparison & Recent Transactions */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        <div className="lg:col-span-5 space-y-4">
-          <Card className="p-4 sm:p-6 border-[#dbeae0]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#edf4ef]">
-              <div>
-                <h3 className="font-black text-sm sm:text-base text-[#0f291e]">
-                  Anggaran Bulan {monthNames[currentMonthIdx]}
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">Realisasi (RI) vs Rencana Anggaran (RA)</p>
+          <div className="mt-6 grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
+            {[
+              { label: 'Master', value: balMaster },
+              { label: 'Operasional', value: balOperasional },
+              { label: 'Keluarga', value: balKeluarga },
+            ].map((r) => (
+              <div key={r.label}>
+                <p className="text-[10px] font-medium tracking-wider text-[#c2e7ff] uppercase">{r.label}</p>
+                <p className="mt-1 text-[13px] font-semibold num truncate">Rp {formatRibuan(r.value) || '0'}</p>
               </div>
-              <button
-                onClick={() => onNavigate('rari')}
-                className="text-xs font-bold text-[#1c543c] hover:underline"
-              >
-                Detail
+            ))}
+          </div>
+        </div>
+        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard title="Total Masuk" value={`Rp ${formatRibuan(totalIncome) || '0'}`} subtitle={`Jan–Des ${s.year}`} variant="income" icon={<ArrowDownRight size={18} />} />
+          <StatCard title="Total Keluar" value={`Rp ${formatRibuan(totalExpense) || '0'}`} subtitle={`Jan–Des ${s.year}`} variant="expense" icon={<ArrowUpRight size={18} />} />
+          <StatCard title="Piutang Berjalan" value={`Rp ${formatRibuan(totalPiutang) || '0'}`} subtitle={`${s.piutangs.filter((p) => p.terbit > p.lunas).length} tagihan aktif`} variant="warning" icon={<HandCoins size={18} />} />
+        </div>
+      </div>
+
+      {/* Ledger ringkas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { id: 'master' as const, badge: 'Master', desc: 'Kas pusat', value: balMaster, hint: 'Sumber pindah saldo' },
+          { id: 'operasional' as const, badge: 'Operasional', desc: 'Anggaran operasional', value: balOperasional, hint: 'RAB Usaha' },
+          { id: 'keluarga' as const, badge: 'Keluarga', desc: 'Anggaran keluarga', value: balKeluarga, hint: 'RAB Keluarga' },
+        ].map((c) => (
+          <Card key={c.id} className="p-5">
+            <div className="flex items-center justify-between">
+              <Badge variant="brand">{c.badge}</Badge>
+              <span className="text-[11px] text-[#747775]">{c.hint}</span>
+            </div>
+            <p className="mt-3 text-xs text-[#747775]">{c.desc}</p>
+            <p className="mt-1 text-[22px] font-bold tracking-tight num truncate text-[#1f1f1f]">Rp {formatRibuan(c.value) || '0'}</p>
+            <div className="mt-4 pt-3 border-t border-[#f1f3f4] flex items-center justify-between">
+              <button onClick={() => onNavigate('transaksi')} className="text-xs font-medium text-[#1a73e8] hover:underline inline-flex items-center gap-1 cursor-pointer">
+                Lihat transaksi <ChevronRight size={14} />
+              </button>
+              <button onClick={() => onOpenQuickTx(c.id)} className="px-3 py-1 rounded-full bg-[#f1f3f4] hover:bg-[#e0e2e0] text-[#1f1f1f] text-xs font-medium cursor-pointer">
+                Tambah
               </button>
             </div>
+          </Card>
+        ))}
+      </div>
 
-            <div className="mt-4 space-y-4">
+      {/* Tren & komposisi */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-7">
+          <Card className="p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div>
-                <div className="flex justify-between text-xs font-bold mb-1">
-                  <span className="text-slate-700">Operasional (Anggy)</span>
-                  <span className="text-[#0f291e] num">
-                    Rp {formatRibuan(riOperasional)} / {formatRibuan(raOperasional)}
-                  </span>
-                </div>
-                <div className="w-full bg-[#eef5f0] rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      raOperasional > 0 && riOperasional > raOperasional ? 'bg-rose-500' : 'bg-[#40916c]'
-                    }`}
-                    style={{ width: `${Math.min(100, raOperasional > 0 ? (riOperasional / raOperasional) * 100 : 0)}%` }}
-                  />
-                </div>
-                <div className="mt-1 flex justify-between text-[11px] font-semibold text-slate-500">
-                  <span>Deviasi:</span>
-                  <span className={devOp >= 0 ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold'}>
-                    {devOp >= 0 ? `Surplus Rp ${formatRibuan(devOp)}` : `Overbudget Rp ${formatRibuan(Math.abs(devOp))}`}
-                  </span>
-                </div>
+                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><BarChart3 size={14} className="text-slate-500" /> Arus Kas Bulanan</h3>
+                <p className="text-xs font-medium text-slate-500">Perbandingan kas masuk dan keluar · {s.year}</p>
               </div>
+            </div>
+            <BarChart data={barData} height={210} />
+          </Card>
+        </div>
+        <div className="lg:col-span-5">
+          <Card className="p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><PieChartIcon size={14} className="text-slate-500" /> Komposisi Pengeluaran</h3>
+                <p className="text-xs font-medium text-slate-500">Distribusi kategori · {s.year}</p>
+              </div>
+            </div>
+            <DonutChart data={donutData} size={150} />
+          </Card>
+        </div>
+      </div>
 
+      {/* Anggaran & transaksi terbaru */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-5">
+          <Card className="p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <div className="flex justify-between text-xs font-bold mb-1">
-                  <span className="text-slate-700">Keluarga</span>
-                  <span className="text-[#0f291e] num">
-                    Rp {formatRibuan(riKeluarga)} / {formatRibuan(raKeluarga)}
-                  </span>
-                </div>
-                <div className="w-full bg-[#eef5f0] rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      raKeluarga > 0 && riKeluarga > raKeluarga ? 'bg-rose-500' : 'bg-[#52b788]'
-                    }`}
-                    style={{ width: `${Math.min(100, raKeluarga > 0 ? (riKeluarga / raKeluarga) * 100 : 0)}%` }}
-                  />
-                </div>
-                <div className="mt-1 flex justify-between text-[11px] font-semibold text-slate-500">
-                  <span>Deviasi:</span>
-                  <span className={devKel >= 0 ? 'text-emerald-700 font-bold' : 'text-rose-600 font-bold'}>
-                    {devKel >= 0 ? `Surplus Rp ${formatRibuan(devKel)}` : `Overbudget Rp ${formatRibuan(Math.abs(devKel))}`}
-                  </span>
-                </div>
+                <h3 className="text-sm font-semibold text-slate-900">Anggaran · {monthNames[currentMonthIdx]}</h3>
+                <p className="text-xs font-medium text-slate-500">Realisasi vs rencana</p>
               </div>
+              <button onClick={() => onNavigate('rari')} className="text-xs font-semibold text-slate-700 hover:text-slate-900 cursor-pointer">Detail</button>
+            </div>
+            <div className="mt-4 space-y-5">
+              {[
+                { label: 'Operasional', ri: riOperasional, ra: raOperasional, pct: opPercent, dev: devOp },
+                { label: 'Keluarga', ri: riKeluarga, ra: raKeluarga, pct: kelPercent, dev: devKel },
+              ].map((r) => (
+                <div key={r.label}>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="font-medium text-slate-700">{r.label}</span>
+                    <span className="font-semibold num text-slate-900">Rp {formatRibuan(r.ri)} / {formatRibuan(r.ra)} · {r.pct}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div className={`h-full rounded-full ${r.ra > 0 && r.ri > r.ra ? 'bg-rose-500' : 'bg-slate-900'}`} style={{ width: `${Math.min(100, r.ra > 0 ? (r.ri / r.ra) * 100 : 0)}%` }} />
+                  </div>
+                  <div className="mt-1 flex justify-between text-[11px] font-medium text-slate-500">
+                    <span>Sisa anggaran</span>
+                    <span className={r.dev >= 0 ? 'text-emerald-700 font-semibold' : 'text-rose-600 font-semibold'}>{r.dev >= 0 ? `+ Rp ${formatRibuan(r.dev)}` : `- Rp ${formatRibuan(Math.abs(r.dev))}`}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
-
-        <div className="lg:col-span-7 space-y-4">
-          <Card className="p-4 sm:p-6 border-[#dbeae0]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#edf4ef]">
+        <div className="lg:col-span-7">
+          <Card className="p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
-                <h3 className="font-black text-sm sm:text-base text-[#0f291e]">Mutasi Kas Terbaru</h3>
-                <p className="text-xs text-slate-500 font-medium">Histori transaksi kas keluar & masuk</p>
+                <h3 className="text-sm font-semibold text-slate-900">Transaksi Terbaru</h3>
+                <p className="text-xs font-medium text-slate-500">Aktivitas kas terkini</p>
               </div>
-              <button
-                onClick={() => onNavigate('transaksi')}
-                className="text-xs font-bold text-[#1c543c] hover:underline inline-flex items-center gap-1"
-              >
-                Lihat Semua <ChevronRight size={14} />
-              </button>
+              <button onClick={() => onNavigate('transaksi')} className="text-xs font-semibold text-slate-700 hover:text-slate-900 inline-flex items-center gap-1 cursor-pointer">Lihat semua <ChevronRight size={14} /></button>
             </div>
-
-            <div className="mt-3 divide-y divide-[#f2f7f4]">
+            <div className="mt-3 divide-y divide-slate-100">
               {recentTxs.length === 0 ? (
-                <div className="py-8 text-center text-xs font-medium text-slate-400">
-                  Belum ada transaksi di tahun {s.year}.
-                </div>
+                <div className="py-10 text-center text-xs font-medium text-slate-500">Belum ada transaksi di tahun {s.year}.</div>
               ) : (
                 recentTxs.map((tx) => {
                   const isIncome = tx.penerimaan > 0
                   return (
-                    <div key={tx.id} className="py-2.5 sm:py-3 flex items-center justify-between gap-3 text-xs">
-                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                        <div
-                          className={`w-7 sm:w-8 h-7 sm:h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                            isIncome ? 'bg-[#e4f6ef] text-[#136149]' : 'bg-rose-50 text-rose-600'
-                          }`}
-                        >
-                          {isIncome ? <ArrowDownRight size={15} /> : <ArrowUpRight size={15} />}
+                    <div key={tx.id} className="py-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${isIncome ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`}>
+                          {isIncome ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-slate-900 truncate">{tx.uraian}</p>
-                          <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 text-[10px] sm:text-[11px] text-slate-400 font-medium">
-                            <span>{tx.tanggal}</span>
-                            <span>•</span>
-                            <span className="uppercase font-bold text-[#1c543c]">{tx.ledger}</span>
-                          </div>
+                          <p className="text-[13px] font-semibold text-slate-900 truncate">{tx.uraian}</p>
+                          <p className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">{tx.tanggal} · <span className="uppercase tracking-wide font-semibold">{tx.ledger}</span></p>
                         </div>
                       </div>
-
-                      <div className="text-right shrink-0">
-                        <p
-                          className={`font-black num text-xs sm:text-sm ${
-                            isIncome ? 'text-emerald-700' : 'text-rose-700'
-                          }`}
-                        >
-                          {isIncome ? `+Rp ${formatRibuan(tx.penerimaan)}` : `-Rp ${formatRibuan(tx.pengeluaran)}`}
-                        </p>
-                      </div>
+                      <p className={`text-[13px] font-semibold num shrink-0 ${isIncome ? 'text-emerald-700' : 'text-slate-900'}`}>{isIncome ? `+ Rp ${formatRibuan(tx.penerimaan)}` : `- Rp ${formatRibuan(tx.pengeluaran)}`}</p>
                     </div>
                   )
                 })

@@ -1,6 +1,5 @@
 import {
   Menu,
-  Sparkles,
   Download,
   Calendar,
   Cloud,
@@ -9,9 +8,12 @@ import {
   LogOut,
   Plus,
   ArrowLeftRight,
+  Printer,
+  Search,
 } from 'lucide-react'
 import type { SyncStatus } from '../../store'
 import type { TabKey } from './Sidebar'
+import { printCurrentReport } from '../../print'
 
 interface HeaderProps {
   activeTab: TabKey
@@ -45,135 +47,119 @@ export function Header({
   onLogout,
 }: HeaderProps) {
   const titles: Record<TabKey, { title: string; subtitle: string }> = {
-    dashboard: { title: 'Dashboard', subtitle: 'Ikhtisar kas, mutasi, dan posisi aset' },
-    transaksi: { title: 'Buku Kas (3 Ledger)', subtitle: 'Pencatatan mutasi Master, Operasional, Keluarga' },
-    rab: { title: 'RAB Anggaran', subtitle: 'Alokasi budget mingguan & bulanan tahun berjalan' },
-    cashflow: { title: 'Cash Flow Tahunan', subtitle: 'Monitoring arus kas Jan — Des beserta deviasi' },
-    rari: { title: 'Realisasi vs Anggaran', subtitle: 'Evaluasi deviasi realisasi anggaran bulan aktif' },
-    aset: { title: 'Monitoring Aset', subtitle: 'Daftar aset tetap, nilai pasar, dan cicilan' },
-    depresiasi: { title: 'Penyusutan Aset', subtitle: 'Metode depresiasi garis lurus untuk kendaraan & gadget' },
-    schedule: { title: 'Jadwal Pajak & Servis', subtitle: 'Kalender checklist pemeliharaan dan pajak berkala' },
-    piutang: { title: 'Buku Piutang', subtitle: 'Daftar pinjaman pihak lain & histori pelunasan' },
-    neraca: { title: 'Neraca Keuangan', subtitle: 'Validasi keseimbangan Aktiva (Harta) vs Passiva' },
+    dashboard: { title: 'Ringkasan', subtitle: 'Ringkasan uang masuk, keluar, dan sisa kas' },
+    transaksi: { title: 'Keluar Masuk Uang', subtitle: 'Catat setiap uang masuk dan keluar di 3 kas' },
+    rab: { title: 'Rencana Anggaran', subtitle: 'Atur rencana pengeluaran bulanan' },
+    cashflow: { title: 'Arus Kas', subtitle: 'Lihat uang masuk dan keluar setiap bulan' },
+    rari: { title: 'Anggaran vs Realisasi', subtitle: 'Bandingkan rencana dengan yang benar-benar keluar' },
+    aset: { title: 'Daftar Aset', subtitle: 'Rumah, kendaraan, dan barang berharga yang dimiliki' },
+    depresiasi: { title: 'Penyusutan Aset', subtitle: 'Lihat penurunan nilai barang dari waktu ke waktu' },
+    schedule: { title: 'Jadwal & Pajak', subtitle: 'Pengingat bayar pajak dan servis rutin' },
+    piutang: { title: 'Piutang', subtitle: 'Uang yang dipinjamkan ke orang lain dan status kembalinya' },
+    neraca: { title: 'Kekayaan Bersih', subtitle: 'Total harta dikurangi total hutang' },
+    settings: { title: 'Pengaturan Master Data', subtitle: 'Kelola daftar nasabah, pos/kategori transaksi, dan dompet kas' },
   }
 
   const { title, subtitle } = titles[activeTab] || titles.dashboard
 
   return (
-    <header className="h-14 sm:h-16 lg:h-20 bg-white/90 backdrop-blur-md border-b border-[#dbeae0] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 sticky top-0 z-30">
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+    <header className="h-[64px] bg-white border-b border-[#e0e2e0] px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-1.5 sm:p-2 rounded-xl text-slate-600 hover:bg-[#edf6f0] transition shrink-0"
-          aria-label="Buka menu navigasi"
+          className="lg:hidden p-2 rounded-full text-[#444746] hover:bg-[#f1f3f4] hover:text-[#1f1f1f] transition shrink-0 cursor-pointer"
+          aria-label="Buka menu"
         >
           <Menu size={20} />
         </button>
-
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <h2 className="font-black text-[#0f291e] text-sm sm:text-lg lg:text-xl tracking-tight truncate">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-[19px] font-medium tracking-tight text-[#1f1f1f] leading-none truncate">
               {title}
             </h2>
             <button
               onClick={onOpenYearModal}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#eaf5ee] hover:bg-[#ddede2] text-[#1c543c] text-[11px] sm:text-xs font-black transition shrink-0 border border-[#d2eadb]"
-              title="Ganti Tahun Fiskal"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f1f3f4] hover:bg-[#e0e2e0] text-[#1f1f1f] text-xs font-medium transition shrink-0 cursor-pointer"
+              title="Pilih tahun buku"
             >
-              <Calendar size={11} className="text-[#2d6a4f]" />
+              <Calendar size={13} className="text-[#444746]" />
               <span>{currentYear}</span>
             </button>
+            <span
+              className={`hidden sm:inline-flex w-2.5 h-2.5 rounded-full shrink-0 ${
+                syncStatus === 'synced' ? 'bg-[#137333]' : syncStatus === 'syncing' ? 'bg-[#f29900] animate-pulse' : syncStatus === 'offline' ? 'bg-[#bdc1c6]' : 'bg-[#c5221f]'
+              }`}
+              title={syncStatus}
+            />
           </div>
-          <p className="hidden md:block text-xs text-slate-500 font-medium truncate mt-0.5">{subtitle}</p>
+          <p className="hidden md:block text-[12px] text-[#747775] leading-none mt-1 truncate">{subtitle}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        {/* Quick Search Shortcut (Desktop/Tablet) */}
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onOpenCmd}
-          className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-[#dbeae0] bg-[#f8faf9] hover:bg-[#edf6f0] text-slate-600 text-xs font-semibold transition"
-          title="Buka Command Palette (Ctrl+K)"
+          className="hidden lg:flex items-center gap-2.5 pl-3 pr-2.5 py-1.5 rounded-full bg-[#f1f3f4] hover:bg-[#e8eaed] text-[#444746] text-xs font-medium transition cursor-pointer border-none"
         >
-          <Sparkles size={13} className="text-[#1c543c]" />
-          <span>Cari</span>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-white border border-[#dbeae0] rounded-md text-slate-500">
-            Ctrl+K
-          </kbd>
+          <Search size={14} className="text-[#747775]" />
+          <span>Cari fitur / menu</span>
+          <kbd className="ml-1 px-2 py-0.5 text-[10px] font-semibold bg-white rounded-md text-[#444746] shadow-xs">⌘K</kbd>
         </button>
 
-        {/* Cloud Sync Status Pill */}
         <button
           onClick={onSyncManual}
-          className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold transition active:scale-95 ${
-            syncStatus === 'synced'
-              ? 'bg-[#eaf5ee] text-[#1c543c] border-[#c7e4d2] hover:bg-[#ddede2]'
-              : syncStatus === 'syncing'
-              ? 'bg-teal-50 text-teal-800 border-teal-200 animate-pulse'
-              : syncStatus === 'offline'
-              ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
-              : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-          }`}
-          title="Status Sinkronisasi Database"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-[#f1f3f4] text-[#444746] text-xs font-medium transition cursor-pointer"
+          title="Sinkronisasi"
         >
-          {syncStatus === 'syncing' ? (
-            <RefreshCw size={13} className="animate-spin text-teal-600" />
-          ) : syncStatus === 'synced' ? (
-            <Cloud size={13} className="text-[#1c543c]" />
-          ) : (
-            <CloudOff size={13} className="text-slate-500" />
-          )}
-          <span className="hidden sm:inline">
-            {syncStatus === 'syncing'
-              ? 'Sinkron…'
-              : syncStatus === 'synced'
-              ? 'Tersinkron'
-              : syncStatus === 'offline'
-              ? 'Offline'
-              : 'Gagal Sync'}
+          {syncStatus === 'syncing' ? <RefreshCw size={15} className="animate-spin" /> : syncStatus === 'synced' ? <Cloud size={15} className="text-[#137333]" /> : <CloudOff size={15} />}
+          <span className="hidden xl:inline">
+            {syncStatus === 'syncing' ? 'Menyinkronkan' : syncStatus === 'synced' ? 'Tersinkron' : syncStatus === 'offline' ? 'Offline' : 'Gagal'}
           </span>
         </button>
 
-        {/* Transfer Button (Desktop/Tablet) */}
-        <button
-          onClick={onOpenTransfer}
-          className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#edf6f0] hover:bg-[#ddede2] text-[#1c543c] border border-[#d2eadb] rounded-xl text-xs font-bold transition active:scale-95"
-          title="Transfer Dropping Antar Ledger"
-        >
-          <ArrowLeftRight size={13} />
-          <span>Transfer</span>
-        </button>
+        <div className="hidden sm:flex items-center gap-1">
+          <button
+            onClick={onOpenTransfer}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#747775] hover:bg-[#f1f3f4] text-[#1f1f1f] text-xs font-medium transition cursor-pointer"
+          >
+            <ArrowLeftRight size={14} />
+            Transfer
+          </button>
+          <button
+            onClick={printCurrentReport}
+            className="p-2 rounded-full hover:bg-[#f1f3f4] text-[#444746] hover:text-[#1f1f1f] transition cursor-pointer"
+            title="Cetak"
+          >
+            <Printer size={17} />
+          </button>
+          <button
+            onClick={onExportExcel}
+            disabled={isExporting}
+            className="p-2 rounded-full hover:bg-[#f1f3f4] text-[#444746] hover:text-[#1f1f1f] transition disabled:opacity-50 cursor-pointer"
+            title="Export Excel"
+          >
+            <Download size={17} />
+          </button>
+        </div>
 
-        {/* Quick Add Mutation Button (Desktop) */}
+        {/* Material Filled Button with Ripple feel */}
         <button
           onClick={onOpenQuickTx}
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1c543c] hover:bg-[#15422f] text-white rounded-xl text-xs font-black shadow-xs transition active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition-all cursor-pointer"
         >
-          <Plus size={14} />
-          <span>Catat Mutasi</span>
+          <Plus size={16} />
+          <span className="hidden sm:inline">Tambah Transaksi</span>
+          <span className="sm:hidden">Tambah</span>
         </button>
 
-        {/* Excel Export */}
-        <button
-          onClick={onExportExcel}
-          disabled={isExporting}
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#c7e4d2] bg-[#eaf5ee] hover:bg-[#ddede2] text-[#1c543c] text-xs font-bold flex items-center gap-1.5 transition disabled:opacity-60 shrink-0"
-          title="Export ke Format Excel (13 Sheet Live Formula)"
-        >
-          <Download size={14} />
-          <span className="hidden md:inline">{isExporting ? 'Ekspor…' : 'Export Excel'}</span>
-        </button>
-
-        <div className="h-5 w-px bg-[#dbeae0] mx-0.5 hidden sm:block" />
-
-        {/* Logout */}
+        <div className="h-6 w-px bg-[#e0e2e0] mx-1 hidden sm:block" />
         <button
           onClick={onLogout}
-          className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0"
-          title={`Keluar (${userEmail || 'Akun'})`}
-          aria-label="Keluar akun"
+          className="p-2 rounded-full text-[#747775] hover:text-[#1f1f1f] hover:bg-[#f1f3f4] transition cursor-pointer"
+          title={userEmail || 'Keluar'}
+          aria-label="Keluar"
         >
-          <LogOut size={16} />
+          <LogOut size={17} />
         </button>
       </div>
     </header>

@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { z } from 'zod'
+import { isValidDate } from './finance'
 
 export type Ledger = 'master' | 'operasional' | 'keluarga'
 
@@ -78,10 +80,18 @@ export const uid = () => {
 
 export const SCHEMA_VERSION = 2
 
+const txSchema = z.object({
+  tanggal: z.string().refine(isValidDate, 'tanggal tidak valid'),
+  uraian: z.string().trim().min(1).max(300),
+  nsb: z.string().trim().min(1).max(80),
+  pos: z.string().trim().min(1).max(80),
+  penerimaan: z.number().min(0).max(1e15),
+  pengeluaran: z.number().min(0).max(1e15),
+  ledger: z.enum(['master', 'operasional', 'keluarga']),
+})
+
 function emptySeed(): StateData {
   return {
-    schemaVersion: SCHEMA_VERSION,
-    demoMode: false,
     txs: [],
     rabAnggy: [],
     rabKeluarga: [],
@@ -91,6 +101,13 @@ function emptySeed(): StateData {
     scheds: [],
     year: 2026,
     saldoAwal: 0,
+    customNsbList: ['ANGGY', 'KELUARGA', 'OPERASIONAL', 'PLN', 'BCA', 'MANDIRI', 'BRI'],
+    customPosList: ['RUTIN', 'PINDAH SALDO', 'GAJI', 'BELANJA', 'ASET', 'PIUTANG', 'PAJAK', 'SERVIS', 'OPERASIONAL', 'KONSUMSI'],
+    ledgerLabels: {
+      master: 'Kas Utama',
+      operasional: 'Kas Usaha',
+      keluarga: 'Kas Keluarga',
+    },
   }
 }
 
@@ -112,8 +129,6 @@ function normalizeState(data: Partial<StateData>): StateData {
   return {
     ...base,
     ...data,
-    schemaVersion: SCHEMA_VERSION,
-    demoMode: Boolean(data.demoMode),
     txs,
     rabAnggy: Array.isArray(data.rabAnggy) ? data.rabAnggy : base.rabAnggy,
     rabKeluarga: Array.isArray(data.rabKeluarga) ? data.rabKeluarga : base.rabKeluarga,
@@ -129,12 +144,13 @@ function normalizeState(data: Partial<StateData>): StateData {
       : base.scheds,
     year: Number.isFinite(Number(data.year)) ? Math.round(Number(data.year)) : base.year,
     saldoAwal: Math.max(0, Number(data.saldoAwal) || 0),
+    customNsbList: Array.isArray(data.customNsbList) && data.customNsbList.length ? data.customNsbList : base.customNsbList,
+    customPosList: Array.isArray(data.customPosList) && data.customPosList.length ? data.customPosList : base.customPosList,
+    ledgerLabels: data.ledgerLabels ? { ...base.ledgerLabels, ...data.ledgerLabels } : base.ledgerLabels,
   }
 }
 
 export type StateData = {
-  schemaVersion: number
-  demoMode: boolean
   txs: Tx[]
   rabAnggy: RabRow[]
   rabKeluarga: RabRow[]
@@ -144,6 +160,13 @@ export type StateData = {
   scheds: SchedRow[]
   year: number
   saldoAwal: number
+  customNsbList?: string[]
+  customPosList?: string[]
+  ledgerLabels?: {
+    master: string
+    operasional: string
+    keluarga: string
+  }
 }
 
 export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error'
@@ -184,12 +207,14 @@ export type State = StateData & {
 
   setYear: (y: number) => void
   setSaldoAwal: (nominal: number) => void
-  setDemoMode: (value: boolean) => void
-  importState: (data: StateData) => void
-  reset: () => void
+  setLedgerLabels: (labels: { master: string; operasional: string; keluarga: string }) => void
+  addCustomNsb: (name: string) => void
+  delCustomNsb: (name: string) => void
+  addCustomPos: (name: string) => void
+  delCustomPos: (name: string) => void
 }
 
-let syncTimeout: any = null
+let syncTimeout: NodeJS.Timeout | number | null = null
 function queueSync(get: () => State) {
   if (syncTimeout) clearTimeout(syncTimeout)
   syncTimeout = setTimeout(() => {
@@ -227,8 +252,6 @@ export const useStore = create<State>()(
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              schemaVersion: s.schemaVersion,
-              demoMode: s.demoMode,
               year: s.year,
               saldoAwal: s.saldoAwal,
               txs: s.txs,
@@ -238,6 +261,9 @@ export const useStore = create<State>()(
               assets: s.assets,
               deps: s.deps,
               scheds: s.scheds,
+              customNsbList: s.customNsbList,
+              customPosList: s.customPosList,
+              ledgerLabels: s.ledgerLabels,
             }),
           })
           if (res.ok) {
@@ -253,25 +279,33 @@ export const useStore = create<State>()(
       addTx: (t) => {
         const penerimaan = Number(t.penerimaan) || 0
         const pengeluaran = Number(t.pengeluaran) || 0
-        if (!t.tanggal || !t.uraian.trim() || penerimaan < 0 || pengeluaran < 0 || (penerimaan > 0 && pengeluaran > 0)) return
-        set((s) => ({ txs: [...s.txs, { ...t, penerimaan, pengeluaran, id: uid() }], demoMode: false }))
+        const parsed = txSchema.safeParse({ ...t, penerimaan, pengeluaran })
+        if (!parsed.success || (penerimaan > 0 && pengeluaran > 0) || (penerimaan === 0 && pengeluaran === 0)) return
+        set((s) => ({ txs: [...s.txs, { ...parsed.data, id: uid(), kategori: t.kategori, transferId: t.transferId, receivableId: t.receivableId }] }))
         queueSync(get)
       },
       delTx: (id) => {
-        set((s) => ({ txs: s.txs.filter((x) => x.id !== id), demoMode: false }))
+        set((s) => ({ txs: s.txs.filter((x) => x.id !== id) }))
         queueSync(get)
       },
       updTx: (id, patch) => {
-        set((s) => ({ txs: s.txs.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        const cur = get().txs.find((x) => x.id === id)
+        if (!cur) return
+        const merged = { ...cur, ...patch }
+        const penerimaan = Number(merged.penerimaan) || 0
+        const pengeluaran = Number(merged.pengeluaran) || 0
+        if (penerimaan > 0 && pengeluaran > 0) return
+        if (penerimaan === 0 && pengeluaran === 0) return
+        if (patch.tanggal !== undefined && !isValidDate(String(patch.tanggal))) return
+        if (patch.ledger !== undefined && !['master', 'operasional', 'keluarga'].includes(String(patch.ledger))) return
+        set((s) => ({ txs: s.txs.map((x) => (x.id === id ? { ...x, ...patch, penerimaan, pengeluaran } : x)) }))
         queueSync(get)
       },
 
       transferDropping: (from, to, amount, tanggal, uraian) => {
         const s = get()
-        const targetYear = Number(tanggal.slice(0, 4)) || s.year
-        const currentMasterBal = s.saldoAwal + s.txs
-          .filter((x) => x.ledger === from && x.tanggal.startsWith(`${targetYear}-`))
-          .reduce((sum, x) => sum + x.penerimaan - x.pengeluaran, 0)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal)) return
+        const currentMasterBal = s.saldoAwal + s.txs.filter((x) => x.ledger === from).reduce((sum, x) => sum + x.penerimaan - x.pengeluaran, 0)
 
         if (from !== 'master' || !['operasional', 'keluarga'].includes(to) || !Number.isFinite(amount) || amount <= 0 || amount > currentMasterBal) return
         const transferId = uid()
@@ -279,8 +313,8 @@ export const useStore = create<State>()(
           id: uid(),
           tanggal,
           nsb: 'ANGGY',
-          pos: 'DROPPING',
-          uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
+          pos: 'PINDAH SALDO',
+          uraian: uraian || `Pindah saldo ke ${to === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}`,
           penerimaan: 0,
           pengeluaran: amount,
           ledger: 'master',
@@ -290,52 +324,52 @@ export const useStore = create<State>()(
           id: uid(),
           tanggal,
           nsb: 'ANGGY',
-          pos: 'DROPPING',
-          uraian: uraian || `DROPPING - ${to.toUpperCase()}`,
+          pos: 'PINDAH SALDO',
+          uraian: uraian || `Pindah saldo ke ${to === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}`,
           penerimaan: amount,
           pengeluaran: 0,
           ledger: to,
           transferId,
         }
-        set((state) => ({ txs: [...state.txs, t1, t2], demoMode: false }))
+        set((state) => ({ txs: [...state.txs, t1, t2] }))
         queueSync(get)
       },
 
       addRab: (which, r) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: [...s.rabAnggy, { ...r, id: uid() }], demoMode: false }
-            : { rabKeluarga: [...s.rabKeluarga, { ...r, id: uid() }], demoMode: false }
+            ? { rabAnggy: [...s.rabAnggy, { ...r, id: uid() }] }
+            : { rabKeluarga: [...s.rabKeluarga, { ...r, id: uid() }] }
         )
         queueSync(get)
       },
       delRab: (which, id) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: s.rabAnggy.filter((x) => x.id !== id), demoMode: false }
-            : { rabKeluarga: s.rabKeluarga.filter((x) => x.id !== id), demoMode: false }
+            ? { rabAnggy: s.rabAnggy.filter((x) => x.id !== id) }
+            : { rabKeluarga: s.rabKeluarga.filter((x) => x.id !== id) }
         )
         queueSync(get)
       },
       updRab: (which, id, patch) => {
         set((s) =>
           which === 'anggy'
-            ? { rabAnggy: s.rabAnggy.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }
-            : { rabKeluarga: s.rabKeluarga.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }
+            ? { rabAnggy: s.rabAnggy.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
+            : { rabKeluarga: s.rabKeluarga.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
         )
         queueSync(get)
       },
 
       addPiutang: (p) => {
-        set((s) => ({ piutangs: [...s.piutangs, { ...p, id: uid() }], demoMode: false }))
+        set((s) => ({ piutangs: [...s.piutangs, { ...p, id: uid() }] }))
         queueSync(get)
       },
       delPiutang: (id) => {
-        set((s) => ({ piutangs: s.piutangs.filter((x) => x.id !== id), demoMode: false }))
+        set((s) => ({ piutangs: s.piutangs.filter((x) => x.id !== id) }))
         queueSync(get)
       },
       updPiutang: (id, patch) => {
-        set((s) => ({ piutangs: s.piutangs.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        set((s) => ({ piutangs: s.piutangs.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
       },
       catatPelunasan: (id, nominal, tanggal) => {
@@ -364,49 +398,48 @@ export const useStore = create<State>()(
           ledger: 'master',
           receivableId: id,
         }
-        set((state) => ({ piutangs: [...state.piutangs, newEntry], txs: [...state.txs, newTx], demoMode: false }))
+        set((state) => ({ piutangs: [...state.piutangs, newEntry], txs: [...state.txs, newTx] }))
         queueSync(get)
       },
 
       addAsset: (a) => {
-        set((s) => ({ assets: [...s.assets, { ...a, id: uid() }], demoMode: false }))
+        set((s) => ({ assets: [...s.assets, { ...a, id: uid() }] }))
         queueSync(get)
       },
       delAsset: (id) => {
-        set((s) => ({ assets: s.assets.filter((x) => x.id !== id), demoMode: false }))
+        set((s) => ({ assets: s.assets.filter((x) => x.id !== id) }))
         queueSync(get)
       },
       updAsset: (id, patch) => {
-        set((s) => ({ assets: s.assets.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        set((s) => ({ assets: s.assets.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
       },
 
       addDep: (d) => {
-        set((s) => ({ deps: [...s.deps, { ...d, id: uid() }], demoMode: false }))
+        set((s) => ({ deps: [...s.deps, { ...d, id: uid() }] }))
         queueSync(get)
       },
       delDep: (id) => {
-        set((s) => ({ deps: s.deps.filter((x) => x.id !== id), demoMode: false }))
+        set((s) => ({ deps: s.deps.filter((x) => x.id !== id) }))
         queueSync(get)
       },
       updDep: (id, patch) => {
-        set((s) => ({ deps: s.deps.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        set((s) => ({ deps: s.deps.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
       },
 
       addSched: (sc) => {
         set((s) => ({
           scheds: [...s.scheds, { ...sc, months: sc.months.length === 12 ? sc.months : Array(12).fill(0), id: uid() }],
-          demoMode: false,
         }))
         queueSync(get)
       },
       delSched: (id) => {
-        set((s) => ({ scheds: s.scheds.filter((x) => x.id !== id), demoMode: false }))
+        set((s) => ({ scheds: s.scheds.filter((x) => x.id !== id) }))
         queueSync(get)
       },
       updSched: (id, patch) => {
-        set((s) => ({ scheds: s.scheds.map((x) => (x.id === id ? { ...x, ...patch } : x)), demoMode: false }))
+        set((s) => ({ scheds: s.scheds.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
       },
       toggleSchedMonth: (id, monthIdx, customAmount) => {
@@ -417,29 +450,52 @@ export const useStore = create<State>()(
             newMonths[monthIdx] = newMonths[monthIdx] > 0 ? 0 : Math.max(0, customAmount ?? item.hs)
             return { ...item, months: newMonths, total: newMonths.reduce((sum, value) => sum + value, 0) }
           }),
-          demoMode: false,
         }))
         queueSync(get)
       },
 
+      setLedgerLabels: (labels) => {
+        set({ ledgerLabels: labels })
+        queueSync(get)
+      },
+      addCustomNsb: (name) => {
+        const clean = name.trim().toUpperCase()
+        if (!clean) return
+        const current = get().customNsbList || []
+        if (current.includes(clean)) return
+        set({ customNsbList: [...current, clean] })
+        queueSync(get)
+      },
+      delCustomNsb: (name) => {
+        const clean = name.trim().toUpperCase()
+        const current = get().customNsbList || []
+        set({ customNsbList: current.filter((x) => x !== clean) })
+        queueSync(get)
+      },
+      addCustomPos: (name) => {
+        const clean = name.trim().toUpperCase()
+        if (!clean) return
+        const current = get().customPosList || []
+        if (current.includes(clean)) return
+        set({ customPosList: [...current, clean] })
+        queueSync(get)
+      },
+      delCustomPos: (name) => {
+        const clean = name.trim().toUpperCase()
+        const current = get().customPosList || []
+        set({ customPosList: current.filter((x) => x !== clean) })
+        queueSync(get)
+      },
       setYear: (y) => {
-        set({ year: Math.round(y) })
+        const ny = Math.round(Number(y))
+        if (!Number.isFinite(ny) || ny < 2000 || ny > 2100) return
+        set({ year: ny })
         queueSync(get)
       },
       setSaldoAwal: (nominal) => {
-        set({ saldoAwal: Math.max(0, Number(nominal) || 0), demoMode: false })
-        queueSync(get)
-      },
-      setDemoMode: (value) => {
-        set({ demoMode: value })
-        queueSync(get)
-      },
-      importState: (data) => {
-        set(normalizeState(data))
-        queueSync(get)
-      },
-      reset: () => {
-        set(emptySeed())
+        const n = Number(nominal)
+        if (!Number.isFinite(n) || n < 0 || n > 1e15) return
+        set({ saldoAwal: Math.max(0, n) })
         queueSync(get)
       },
     }),

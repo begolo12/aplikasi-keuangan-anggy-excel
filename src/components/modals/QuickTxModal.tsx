@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { X, PlusCircle } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
-import type { Ledger, Tx } from '../../store'
+import { Autocomplete } from '../common/Autocomplete'
+import { todayLocal } from '../../finance'
+import { useStore, type Ledger, type Tx } from '../../store'
 
 interface QuickTxModalProps {
   open: boolean
@@ -11,20 +13,37 @@ interface QuickTxModalProps {
 }
 
 export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx }: QuickTxModalProps) {
-  const [tanggal, setTanggal] = useState(() => new Date().toISOString().slice(0, 10))
+  const [tanggal, setTanggal] = useState(() => todayLocal())
   const [ledger, setLedger] = useState<Ledger>(defaultLedger)
   const [jenis, setJenis] = useState<'masuk' | 'keluar'>('keluar')
   const [nsb, setNsb] = useState('ANGGY')
   const [pos, setPos] = useState('')
   const [uraian, setUraian] = useState('')
   const [nominal, setNominal] = useState(0)
+  const store = useStore()
 
-  useEffect(() => {
+  const nsbSuggestions = useMemo(() => {
+    const fromTx = store.txs.map((t) => t.nsb)
+    const fromPiutang = store.piutangs.map((p) => p.nsb)
+    const fromAsset = store.assets.map((a) => a.atasNama)
+    const fromCustom = store.customNsbList || []
+    return Array.from(new Set([...fromCustom, ...fromTx, ...fromPiutang, ...fromAsset])).filter(Boolean)
+  }, [store.txs, store.piutangs, store.assets, store.customNsbList])
+
+  const posSuggestions = useMemo(() => {
+    const fromTx = store.txs.map((t) => t.pos)
+    const fromCustom = store.customPosList || []
+    return Array.from(new Set([...fromCustom, ...fromTx, 'RUTIN', 'PINDAH SALDO', 'GAJI', 'BELANJA', 'ASET', 'PIUTANG', 'PAJAK', 'SERVIS'])).filter(Boolean)
+  }, [store.txs, store.customPosList])
+
+  const [lastOpen, setLastOpen] = useState(open)
+  if (open !== lastOpen || (open && ledger !== defaultLedger)) {
+    setLastOpen(open)
     if (open) {
       setLedger(defaultLedger)
-      setTanggal(new Date().toISOString().slice(0, 10))
+      setTanggal(todayLocal())
     }
-  }, [open, defaultLedger])
+  }
 
   if (!open) return null
 
@@ -50,54 +69,58 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-xl border border-[#dbeae0] p-5 sm:p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-[#edf4ef]">
-          <div className="flex items-center gap-2">
-            <PlusCircle className="text-[#1c543c]" size={20} />
-            <h3 className="font-black text-base sm:text-lg text-[#0f291e] tracking-tight">Catat Mutasi Kas Baru</h3>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
+      <div className="relative bg-white w-full max-w-lg rounded-3xl md-elevation-3 p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-3 border-b border-[#e0e2e0]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center">
+              <PlusCircle size={18} />
+            </div>
+            <h3 className="font-medium text-base text-[#1f1f1f] tracking-tight">Tambah Transaksi Baru</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 transition">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#f1f3f4] text-[#747775] transition">
             <X size={18} />
           </button>
         </div>
+        <p className="mt-3 text-xs text-[#747775]">Pilih dompet kas tujuan, lalu isi pihak terkait dan keperluannya.</p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">Buku Kas (Ledger)</label>
+              <label className="text-xs font-medium text-[#444746] block mb-1">Simpan di</label>
               <select
                 value={ledger}
                 onChange={(e) => setLedger(e.target.value as Ledger)}
-                className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs font-normal outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 transition"
               >
-                <option value="master">0 — Master (Kas Utama)</option>
-                <option value="operasional">1 — Operasional (RAB Anggy)</option>
-                <option value="keluarga">2 — Keluarga (RAB Keluarga)</option>
+                <option value="master">{store.ledgerLabels?.master || 'Kas Utama'} — uang masuk pertama</option>
+                <option value="operasional">{store.ledgerLabels?.operasional || 'Kas Usaha'} — untuk operasional</option>
+                <option value="keluarga">{store.ledgerLabels?.keluarga || 'Kas Keluarga'} — untuk rumah tangga</option>
               </select>
+              <p className="mt-1 text-[11px] text-[#747775]">Kas Utama = pusat, bisa dipindah ke Usaha/Keluarga</p>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">Tanggal Mutasi</label>
+              <label className="text-xs font-medium text-[#444746] block mb-1">Tanggal</label>
               <input
                 type="date"
                 required
                 value={tanggal}
                 onChange={(e) => setTanggal(e.target.value)}
-                className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                className="w-full px-3.5 py-2 bg-white border border-[#747775] rounded-xl text-xs font-normal outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-600 block mb-1">Jenis Transaksi</label>
-            <div className="grid grid-cols-2 gap-2">
+            <label className="text-xs font-medium text-[#444746] block mb-1.5">Jenis Transaksi</label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-[#f1f3f4] rounded-full">
               <button
                 type="button"
                 onClick={() => setJenis('keluar')}
-                className={`py-2.5 rounded-xl text-xs font-bold transition active:scale-98 ${
+                className={`py-2 rounded-full text-xs font-medium transition cursor-pointer ${
                   jenis === 'keluar'
-                    ? 'bg-rose-600 text-white shadow-xs'
-                    : 'bg-[#f8faf9] text-slate-600 hover:bg-slate-100 border border-[#dbeae0]'
+                    ? 'bg-[#c5221f] text-white shadow-xs'
+                    : 'text-[#444746] hover:text-[#1f1f1f]'
                 }`}
               >
                 Pengeluaran (-)
@@ -105,10 +128,10 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
               <button
                 type="button"
                 onClick={() => setJenis('masuk')}
-                className={`py-2.5 rounded-xl text-xs font-bold transition active:scale-98 ${
+                className={`py-2 rounded-full text-xs font-medium transition cursor-pointer ${
                   jenis === 'masuk'
-                    ? 'bg-[#1c543c] text-white shadow-xs'
-                    : 'bg-[#f8faf9] text-slate-600 hover:bg-slate-100 border border-[#dbeae0]'
+                    ? 'bg-[#137333] text-white shadow-xs'
+                    : 'text-[#444746] hover:text-[#1f1f1f]'
                 }`}
               >
                 Pemasukan (+)
@@ -118,61 +141,51 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">NSB (Nama Sumber / Orang)</label>
-              <input
-                type="text"
-                value={nsb}
-                onChange={(e) => setNsb(e.target.value)}
-                placeholder="ANGGY / IBU / DLL"
-                className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-              />
+              <label className="text-xs font-medium text-[#444746] block mb-1">Siapa yang terlibat? <span className="text-[#c5221f]">*</span></label>
+              <Autocomplete value={nsb} onChange={setNsb} suggestions={nsbSuggestions} placeholder="Ketik nama orang — mis. ANGGY" />
+              <p className="mt-1 text-[11px] text-[#747775]">Nama orang yang mengeluarkan/menerima</p>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">Pos / Kategori</label>
-              <input
-                type="text"
-                value={pos}
-                onChange={(e) => setPos(e.target.value)}
-                placeholder="RUTIN / ASSET / DLL"
-                className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-              />
+              <label className="text-xs font-medium text-[#444746] block mb-1">Kategori</label>
+              <Autocomplete value={pos} onChange={setPos} suggestions={posSuggestions} placeholder="Mis. GAJI, BELANJA, RUTIN" allowCreate />
+              <p className="mt-1 text-[11px] text-[#747775]">Kelompok pos pengeluaran/pemasukan</p>
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-600 block mb-1">Uraian Transaksi</label>
+            <label className="text-xs font-medium text-[#444746] block mb-1">Keterangan</label>
             <input
               type="text"
               required
               value={uraian}
               onChange={(e) => setUraian(e.target.value)}
               placeholder="Contoh: Belanja bahan dapur / Bensin"
-              className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs font-normal outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 transition"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-600 block mb-1">Nominal (Rp)</label>
+            <label className="text-xs font-medium text-[#444746] block mb-1">Jumlah Uang (Rp)</label>
             <RupiahInput
               required
               value={nominal}
               onChange={setNominal}
               placeholder="0"
-              className="w-full px-3 py-2.5 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-sm font-bold num text-[#0f291e] outline-none focus:bg-white focus:border-[#1c543c]"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-sm font-medium num text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 transition"
             />
           </div>
 
-          <div className="pt-3 flex gap-2 sm:gap-3">
+          <div className="pt-3 flex justify-end gap-2 border-t border-[#e0e2e0]">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-[#dbeae0] bg-[#f8faf9] hover:bg-slate-100 text-slate-700 text-xs font-bold transition"
+              className="px-5 py-2.5 rounded-full text-xs font-medium text-[#1a73e8] hover:bg-[#e8f0fe] transition cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-xl bg-[#1c543c] hover:bg-[#15422f] text-white text-xs font-black shadow-xs transition active:scale-95"
+              className="px-6 py-2.5 rounded-full text-xs font-medium bg-[#1a73e8] hover:bg-[#1557b0] text-white md-elevation-1 hover:md-elevation-2 transition cursor-pointer"
             >
               Simpan Transaksi
             </button>

@@ -4,7 +4,6 @@ import { config } from 'dotenv'
 
 // Load server-side env (DATABASE_URL, JWT_SECRET) before any handler imports lib/db
 config({ path: '.env.local' })
-config()
 
 /**
  * Dev-only plugin that serves the Vercel-style serverless handlers in /api
@@ -61,9 +60,19 @@ export function apiDevPlugin(): Plugin {
           return
         }
 
-        // Read request body (JSON) before invoking the handler
+        // Read request body (JSON) before invoking the handler — cap 2MB
         const chunks: Buffer[] = []
-        for await (const chunk of req) chunks.push(chunk as Buffer)
+        let total = 0
+        for await (const chunk of req) {
+          total += (chunk as Buffer).length
+          if (total > 2_000_000) {
+            res.statusCode = 413
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'Payload terlalu besar' }))
+            return
+          }
+          chunks.push(chunk as Buffer)
+        }
         let body: any = undefined
         if (chunks.length > 0) {
           const raw = Buffer.concat(chunks).toString('utf8')

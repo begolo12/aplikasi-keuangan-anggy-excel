@@ -42,22 +42,22 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 z-10 animate-scale border border-slate-200">
-        <h3 className="font-extrabold text-lg text-slate-900 tracking-tight">{title}</h3>
-        <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">{message}</p>
-        <div className="mt-6 flex gap-3">
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onCancel} />
+      <div className="relative bg-white w-full max-w-md rounded-3xl md-elevation-3 p-6 z-10 animate-scale">
+        <h3 className="font-medium text-lg text-[#1f1f1f] tracking-tight">{title}</h3>
+        <p className="text-xs sm:text-sm text-[#444746] mt-2 leading-relaxed">{message}</p>
+        <div className="mt-6 flex justify-end gap-2">
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold transition"
+            className="px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-[#1a73e8] hover:bg-[#e8f0fe] transition cursor-pointer"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white shadow-sm transition active:scale-95 ${
-              variant === 'danger' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#1E3A5F] hover:bg-[#152a45]'
+            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white transition cursor-pointer ${
+              variant === 'danger' ? 'bg-[#c5221f] hover:bg-[#a50e0e]' : 'bg-[#1a73e8] hover:bg-[#1557b0]'
             }`}
           >
             {confirmLabel}

@@ -20,4 +20,4 @@ assert.deepEqual(rabMonthlyTotals([rab]).slice(0, 3), [100, 200, 0])
 const receivable = [{ id: 'p', tgl: '2026-01-01', nsb: 'B', uraian: 'Pinjaman', terbit: 1000, lunas: 250 }] satisfies PiutangRow[]
 assert.equal(outstandingPiutang(receivable), 750)
 assert.deepEqual(straightLineValue({ id: 'd', nama: 'Laptop', tgl: '2025-01-01', nilai: 1200, umur: 12, nilaiTaksir: 0, kat: 'GADGET' }, '2026-01-01'), { monthsElapsed: 12, accumulated: 1200, bookValue: 0 })
-console.log('finance self-check passed')
+process.stdout.write('finance self-check passed\n')

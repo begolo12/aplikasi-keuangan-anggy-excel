@@ -25,81 +25,44 @@ export function BottomNav({
   const isOtherActive = !['dashboard', 'transaksi', 'rab'].includes(activeTab)
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#dbeae0] px-2 py-1.5 shadow-lg safe-area-bottom">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e0e2e0] px-1 py-1.5 safe-area-bottom md-elevation-2">
       <div className="flex items-center justify-around max-w-md mx-auto">
-        {/* 1. Dashboard */}
-        <button
-          onClick={() => onSelectTab('dashboard')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl min-w-[58px] transition ${
-            activeTab === 'dashboard'
-              ? 'text-[#1c543c] font-black'
-              : 'text-slate-500 font-semibold hover:text-slate-800'
-          }`}
-        >
-          <div className={`p-1 rounded-lg ${activeTab === 'dashboard' ? 'bg-[#eaf5ee]' : ''}`}>
-            <LayoutDashboard size={20} />
-          </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">Dashboard</span>
+        {([
+          { id: 'dashboard' as const, icon: <LayoutDashboard size={20} />, label: 'Ringkasan' },
+          { id: 'transaksi' as const, icon: <ArrowLeftRight size={20} />, label: 'Transaksi', dot: txCount > 0 },
+          { id: 'rab' as const, icon: <Calculator size={20} />, label: 'Anggaran' },
+        ] as const).map((tab) => {
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onSelectTab(tab.id as TabKey)}
+              className="flex flex-col items-center justify-center py-1 px-3 min-w-[64px] relative transition cursor-pointer"
+            >
+              <span className={`px-3.5 py-1 rounded-full transition-colors ${isActive ? 'bg-[#c2e7ff] text-[#001d35]' : 'text-[#444746]'}`}>
+                {tab.icon}
+              </span>
+              <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'font-semibold text-[#001d35]' : 'font-medium text-[#747775]'}`}>
+                {tab.label}
+              </span>
+              {'dot' in tab && tab.dot && <span className="absolute top-1 right-3.5 w-2 h-2 bg-[#137333] rounded-full border border-white" />}
+            </button>
+          )
+        })}
+        <button onClick={onOpenQuickTx} className="flex flex-col items-center justify-center gap-0.5 -mt-3 cursor-pointer">
+          <span className="w-12 h-12 rounded-2xl bg-[#1a73e8] hover:bg-[#1557b0] text-white flex items-center justify-center md-elevation-2 active:scale-95 transition-transform"><Plus size={22} /></span>
+          <span className="text-[10px] font-medium text-[#1a73e8]">Tambah</span>
         </button>
-
-        {/* 2. Transaksi */}
-        <button
-          onClick={() => onSelectTab('transaksi')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl min-w-[58px] relative transition ${
-            activeTab === 'transaksi'
-              ? 'text-[#1c543c] font-black'
-              : 'text-slate-500 font-semibold hover:text-slate-800'
-          }`}
-        >
-          <div className={`p-1 rounded-lg ${activeTab === 'transaksi' ? 'bg-[#eaf5ee]' : ''}`}>
-            <ArrowLeftRight size={20} />
-          </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">Buku Kas</span>
-          {txCount > 0 && (
-            <span className="absolute top-1 right-2 w-2 h-2 bg-emerald-600 rounded-full" />
-          )}
-        </button>
-
-        {/* 3. Floating Quick Add Mutasi Button */}
-        <div className="flex flex-col items-center justify-center -mt-5">
-          <button
-            onClick={onOpenQuickTx}
-            className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1c543c] to-[#2d6a4f] text-white flex items-center justify-center shadow-md active:scale-90 transition transform"
-            aria-label="Catat Mutasi Kas"
-          >
-            <Plus size={24} strokeWidth={2.5} />
-          </button>
-          <span className="text-[10px] mt-1 font-bold text-[#1c543c]">Catat</span>
-        </div>
-
-        {/* 4. RAB */}
-        <button
-          onClick={() => onSelectTab('rab')}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl min-w-[58px] transition ${
-            activeTab === 'rab'
-              ? 'text-[#1c543c] font-black'
-              : 'text-slate-500 font-semibold hover:text-slate-800'
-          }`}
-        >
-          <div className={`p-1 rounded-lg ${activeTab === 'rab' ? 'bg-[#eaf5ee]' : ''}`}>
-            <Calculator size={20} />
-          </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">RAB</span>
-        </button>
-
-        {/* 5. Menu Lainnya */}
         <button
           onClick={onOpenMobileMenu}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl min-w-[58px] transition ${
-            isOtherActive
-              ? 'text-[#1c543c] font-black'
-              : 'text-slate-500 font-semibold hover:text-slate-800'
-          }`}
+          className="flex flex-col items-center justify-center py-1 px-3 min-w-[64px] transition cursor-pointer"
         >
-          <div className={`p-1 rounded-lg ${isOtherActive ? 'bg-[#eaf5ee]' : ''}`}>
+          <span className={`px-3.5 py-1 rounded-full transition-colors ${isOtherActive ? 'bg-[#c2e7ff] text-[#001d35]' : 'text-[#444746]'}`}>
             <Menu size={20} />
-          </div>
-          <span className="text-[10px] mt-0.5 tracking-tight">Lainnya</span>
+          </span>
+          <span className={`text-[10px] mt-0.5 tracking-tight ${isOtherActive ? 'font-semibold text-[#001d35]' : 'font-medium text-[#747775]'}`}>
+            Menu
+          </span>
         </button>
       </div>
     </div>

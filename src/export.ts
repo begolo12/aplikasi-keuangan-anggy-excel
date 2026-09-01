@@ -8,6 +8,10 @@ const fmtRp = '"Rp" #,##0'
 const thin = { style: 'thin', color: { argb: 'FFD1D5DB' } } as const
 const border = { top: thin, left: thin, bottom: thin, right: thin }
 
+function safeStr(v: string): string {
+  return /^[=+\-@\t\r]/.test(v) ? `'${v}` : v
+}
+
 function hdr(ws: ExcelJS.Worksheet, row: number, cols: string[], color = '1E40AF') {
   const r = ws.getRow(row)
   cols.forEach((c, i) => {
@@ -159,7 +163,7 @@ export async function exportExcel(args: {
       rows.forEach((rr) => {
         ws.getCell(`B${r}`).value = '-'
         ws.getCell(`C${r}`).value = rr.plot
-        ws.getCell(`D${r}`).value = rr.uraian
+        ws.getCell(`D${r}`).value = safeStr(rr.uraian)
         ws.getCell(`E${r}`).value = rr.sat
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
@@ -266,7 +270,7 @@ export async function exportExcel(args: {
       rows.forEach((rr) => {
         ws.getCell(`B${r}`).value = '-'
         ws.getCell(`C${r}`).value = 'ANGGY'
-        ws.getCell(`D${r}`).value = rr.uraian
+        ws.getCell(`D${r}`).value = safeStr(rr.uraian)
         ws.getCell(`E${r}`).value = rr.sat
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
@@ -356,7 +360,7 @@ export async function exportExcel(args: {
       rows.forEach((rr) => {
         ws.getCell(`B${r}`).value = '-'
         ws.getCell(`C${r}`).value = 'ISTRI'
-        ws.getCell(`D${r}`).value = rr.uraian
+        ws.getCell(`D${r}`).value = safeStr(rr.uraian)
         ws.getCell(`E${r}`).value = rr.sat
         ws.getCell(`F${r}`).value = rr.vol
         ws.getCell(`G${r}`).value = rr.hs
@@ -446,11 +450,11 @@ export async function exportExcel(args: {
       ws.getCell(`C${r}`).value = new Date(t.tanggal)
       ws.getCell(`C${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`D${r}`).value = { formula: `MONTH(C${r})&"-"&YEAR(C${r})` } as never
-      ws.getCell(`E${r}`).value = t.nsb
-      ws.getCell(`F${r}`).value = t.pos
+      ws.getCell(`E${r}`).value = safeStr(t.nsb)
+      ws.getCell(`F${r}`).value = safeStr(t.pos)
 
       if (ledger === 'master') {
-        ws.getCell(`G${r}`).value = t.uraian
+        ws.getCell(`G${r}`).value = safeStr(t.uraian)
         ws.getCell(`I${r}`).value = t.penerimaan || null
         ws.getCell(`J${r}`).value = t.pengeluaran || null
         ws.getCell(`I${r}`).numFmt = fmt
@@ -458,7 +462,7 @@ export async function exportExcel(args: {
         ws.getCell(`K${r}`).value = { formula: `K${r - 1}+I${r}-J${r}` } as never
         ws.getCell(`K${r}`).numFmt = fmt
       } else {
-        ws.getCell(`G${r}`).value = t.uraian
+        ws.getCell(`G${r}`).value = safeStr(t.uraian)
         ws.getCell(`H${r}`).value = t.penerimaan || null
         ws.getCell(`I${r}`).value = t.pengeluaran || null
         ws.getCell(`H${r}`).numFmt = fmt
@@ -887,7 +891,7 @@ export async function exportExcel(args: {
     const kend = args.deps.filter((d) => d.kat === 'KENDARAAN')
     kend.forEach((d, i) => {
       ws.getCell(`B${r}`).value = i + 1
-      ws.getCell(`C${r}`).value = d.nama
+      ws.getCell(`C${r}`).value = safeStr(d.nama)
       ws.getCell(`D${r}`).value = new Date(d.tgl)
       ws.getCell(`D${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`E${r}`).value = d.nilai
@@ -952,7 +956,7 @@ export async function exportExcel(args: {
     const startG = r
     gad.forEach((d, i) => {
       ws.getCell(`B${r}`).value = i + 1
-      ws.getCell(`C${r}`).value = d.nama
+      ws.getCell(`C${r}`).value = safeStr(d.nama)
       ws.getCell(`D${r}`).value = new Date(d.tgl)
       ws.getCell(`D${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`E${r}`).value = d.nilai
@@ -1054,7 +1058,7 @@ export async function exportExcel(args: {
       r++
       rows.forEach((row, i) => {
         ws.getCell(`B${r}`).value = i + 1
-        ws.getCell(`C${r}`).value = row.nama
+        ws.getCell(`C${r}`).value = safeStr(row.nama)
         ws.getCell(`D${r}`).value = row.hs
         ws.getCell(`D${r}`).numFmt = fmt
         ws.getCell(`E${r}`).value = { formula: `COUNT(G${r}:R${r})` } as never
@@ -1132,12 +1136,12 @@ export async function exportExcel(args: {
       ws.getCell(`B${r}`).value = i + 1
       ws.getCell(`C${r}`).value = new Date(p.tgl)
       ws.getCell(`C${r}`).numFmt = 'dd-mmm-yyyy'
-      ws.getCell(`D${r}`).value = p.nsb
-      ws.getCell(`E${r}`).value = p.uraian
+      ws.getCell(`D${r}`).value = safeStr(p.nsb)
+      ws.getCell(`E${r}`).value = safeStr(p.uraian)
       ws.getCell(`F${r}`).value = p.terbit || null
       ws.getCell(`G${r}`).value = p.lunas || null
       ws.getCell(`H${r}`).value = saldo
-      ws.getCell(`I${r}`).value = p.keterangan || ''
+      ws.getCell(`I${r}`).value = safeStr(p.keterangan || '')
       ;['F', 'G', 'H'].forEach((l) => (ws.getCell(`${l}${r}`).numFmt = fmt))
       styleRow(ws, r, 9)
       r++
@@ -1227,8 +1231,8 @@ export async function exportExcel(args: {
       ws.getCell(`B${r}`).value = 'I'
       ws.getCell(`C${r}`).value = a.jenis
       ws.getCell(`D${r}`).value = 1
-      ws.getCell(`E${r}`).value = a.nama
-      ws.getCell(`F${r}`).value = a.atasNama
+      ws.getCell(`E${r}`).value = safeStr(a.nama)
+      ws.getCell(`F${r}`).value = safeStr(a.atasNama)
       ws.getCell(`H${r}`).value = new Date(a.tgl)
       ws.getCell(`H${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`I${r}`).value = a.nilai

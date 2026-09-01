@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
-import { Plus, Trash2, HandCoins } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Trash2, HandCoins, CheckCircle2, Clock } from 'lucide-react'
+import { useMemo } from 'react'
 import { Card } from '../common/Card'
+import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
-import { RupiahInput, formatRibuan } from '../common/RupiahInput'
+import { RupiahInput } from '../common/RupiahInput'
+import { formatRibuan } from '../common/format'
+import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { PelunasanModal } from '../modals/PelunasanModal'
 import type { State, PiutangRow } from '../../store'
@@ -30,10 +34,19 @@ export function PiutangView({ store: s }: PiutangViewProps) {
   const totalTerbit = s.piutangs.reduce((sum, p) => sum + p.terbit, 0)
   const totalLunas = s.piutangs.reduce((sum, p) => sum + p.lunas, 0)
 
+  const nsbSuggestions = useMemo(() => {
+    const fromPiutang = s.piutangs.map((p) => p.nsb)
+    const fromTx = s.txs.map((t) => t.nsb)
+    const fromAsset = s.assets.map((a) => a.atasNama)
+    const fromCustom = s.customNsbList || []
+    return Array.from(new Set([...fromCustom, ...fromPiutang, ...fromTx, ...fromAsset])).filter(Boolean)
+  }, [s.piutangs, s.txs, s.assets, s.customNsbList])
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newPiutang.nsb.trim() || !newPiutang.uraian.trim() || newPiutang.terbit <= 0) return
-    s.addPiutang(newPiutang)
+    const normalizedNsb = newPiutang.nsb.trim().toUpperCase()
+    if (!normalizedNsb || !newPiutang.uraian.trim() || newPiutang.terbit <= 0) return
+    s.addPiutang({ ...newPiutang, nsb: normalizedNsb })
     setIsAdding(false)
     setNewPiutang({
       tgl: new Date().toISOString().slice(0, 10),
@@ -49,43 +62,19 @@ export function PiutangView({ store: s }: PiutangViewProps) {
     <div className="space-y-4 sm:space-y-6 animate-in">
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="p-4 sm:p-5 border-[#c7e4d2] bg-gradient-to-br from-white via-white to-[#f0f9f3]">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Piutang Diterbitkan</p>
-          <h3 className="mt-1 text-2xl font-black text-[#0f291e] num">
-            Rp {formatRibuan(totalTerbit) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">{s.piutangs.length} catatan total</p>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-emerald-200/80 bg-gradient-to-br from-white via-white to-emerald-50/20">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Telah Dilunasi</p>
-          <h3 className="mt-1 text-2xl font-black text-emerald-700 num">
-            Rp {formatRibuan(totalLunas) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Tercatat masuk kembali ke kas</p>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-amber-200/80 bg-gradient-to-br from-white via-white to-amber-50/20">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sisa Piutang Tertagih</p>
-          <h3 className="mt-1 text-2xl font-black text-amber-800 num">
-            Rp {formatRibuan(totalOutstanding) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Saldo hak tagih aktif</p>
-        </Card>
+        <StatCard title="Total Dipinjamkan" value={`Rp ${formatRibuan(totalTerbit) || '0'}`} subtitle={`${s.piutangs.length} pinjaman`} variant="brand" icon={<HandCoins size={16} />} />
+        <StatCard title="Sudah Kembali" value={`Rp ${formatRibuan(totalLunas) || '0'}`} subtitle="Uang yang sudah dibayar kembali" variant="income" icon={<CheckCircle2 size={16} />} />
+        <StatCard title="Sisa Belum Kembali" value={`Rp ${formatRibuan(totalOutstanding) || '0'}`} subtitle="Masih dipinjam orang lain" variant="warning" icon={<Clock size={16} />} />
       </div>
 
-      <Card className="p-4 sm:p-5 border-[#dbeae0]">
+      <Card className="p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-black text-base sm:text-lg text-[#0f291e]">Buku Piutang Pribadi</h3>
-            <p className="text-xs text-slate-500 font-medium">Tracking pinjaman yang diberikan ke pihak lain & status pelunasan</p>
+            <h3 className="text-sm font-semibold text-slate-900">Piutang — Uang Dipinjamkan</h3>
+            <p className="text-xs font-medium text-slate-500">Catat siapa yang pinjam, berapa, dan sudah dibayar berapa</p>
           </div>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-[#1c543c] hover:bg-[#15422f] text-white text-xs font-black shadow-xs transition active:scale-95 flex items-center gap-1.5"
-          >
-            <Plus size={15} />
-            <span>Terbitkan Piutang</span>
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+            <Plus size={14} /> Catat Pinjaman Baru
           </button>
         </div>
       </Card>
@@ -96,49 +85,43 @@ export function PiutangView({ store: s }: PiutangViewProps) {
           const sisa = Math.max(0, p.terbit - p.lunas)
           const isLunas = sisa === 0 && p.terbit > 0
           return (
-            <Card key={p.id} className="p-4 border-[#dbeae0] bg-white">
+            <Card key={p.id} className="p-4 border-slate-200/80 bg-white">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
                     <Badge variant={isLunas ? 'success' : sisa < p.terbit ? 'warning' : 'danger'}>
                       {isLunas ? 'Lunas' : sisa < p.terbit ? 'Sebagian' : 'Belum Lunas'}
                     </Badge>
-                    <span className="text-[11px] text-slate-400 font-medium">{p.tgl}</span>
+                    <span className="text-[11px] text-slate-500 font-semibold">{p.tgl}</span>
                   </div>
-                  <h4 className="mt-1 text-sm font-black text-[#0f291e]">{p.nsb}</h4>
-                  <p className="text-xs text-slate-600 font-medium mt-0.5">{p.uraian}</p>
+                  <h4 className="mt-1 text-sm font-black text-slate-900">{p.nsb}</h4>
+                  <p className="text-xs text-slate-700 font-medium mt-0.5">{p.uraian}</p>
                 </div>
 
                 <button
                   onClick={() => setDeleteTargetId(p.id)}
-                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
                   title="Hapus Piutang"
                 >
                   <Trash2 size={16} />
                 </button>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-[#edf4ef] grid grid-cols-2 gap-2 text-xs">
+              <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-slate-400 text-[10px] block">Nominal Pinjaman</span>
-                  <span className="font-bold text-slate-800 num">Rp {formatRibuan(p.terbit)}</span>
+                  <span className="text-slate-500 font-medium text-[11px] block">Dipinjamkan</span>
+                  <span className="font-semibold text-slate-900 num">Rp {formatRibuan(p.terbit)}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[10px] block">Sisa Tagihan</span>
-                  <span className={`font-black text-sm num ${isLunas ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    Rp {formatRibuan(sisa)}
-                  </span>
+                  <span className="text-slate-500 font-medium text-[11px] block">Sisa Belum Kembali</span>
+                  <span className={`font-bold text-sm num ${isLunas ? 'text-emerald-700' : 'text-rose-600'}`}>Rp {formatRibuan(sisa)}</span>
                 </div>
               </div>
 
               {!isLunas && (
-                <div className="mt-3 pt-2.5 border-t border-[#edf4ef]">
-                  <button
-                    onClick={() => setPelunasanTarget(p)}
-                    className="w-full py-2 px-3 bg-[#eaf5ee] hover:bg-[#d8eedf] text-[#1c543c] border border-[#c6e3d0] rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 active:scale-98"
-                  >
-                    <HandCoins size={14} />
-                    <span>Catat Pembayaran / Pelunasan</span>
+                <div className="mt-3 pt-2.5 border-t border-slate-100">
+                  <button onClick={() => setPelunasanTarget(p)} className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <HandCoins size={14} /> Catat Pembayaran Kembali
                   </button>
                 </div>
               )}
@@ -148,17 +131,17 @@ export function PiutangView({ store: s }: PiutangViewProps) {
       </div>
 
       {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-[#dbeae0]">
+      <Card className="hidden md:block overflow-hidden border border-slate-200/80">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#f8faf9] border-b border-[#dbeae0] text-slate-600 font-bold text-[11px] uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
                 <th className="px-4 py-3">Tanggal</th>
                 <th className="px-4 py-3">Nama Peminjam</th>
-                <th className="px-4 py-3">Uraian / Keperluan</th>
-                <th className="px-4 py-3 text-right">Nominal Pinjaman</th>
-                <th className="px-4 py-3 text-right">Total Dilunasi</th>
-                <th className="px-4 py-3 text-right font-black">Sisa Tagihan</th>
+                <th className="px-4 py-3">Keperluan</th>
+                <th className="px-4 py-3 text-right">Dipinjamkan</th>
+                <th className="px-4 py-3 text-right">Sudah Kembali</th>
+                <th className="px-4 py-3 text-right">Sisa Belum Kembali</th>
                 <th className="px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3 text-center">Aksi</th>
               </tr>
@@ -234,56 +217,35 @@ export function PiutangView({ store: s }: PiutangViewProps) {
 
       {isAdding && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-white w-full max-w-md rounded-2xl shadow-xl border border-[#dbeae0] p-5 sm:p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-black text-base sm:text-lg text-[#0f291e] tracking-tight pb-3 border-b border-slate-100">
-              Terbitkan Piutang Baru
-            </h3>
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsAdding(false)} />
+          <div className="relative bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+            <h3 className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Catat Pinjaman Baru</h3>
+            <p className="mt-2 text-xs font-medium text-slate-500">Siapa yang pinjam, untuk apa, dan berapa jumlahnya.</p>
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">Tanggal</label>
-                  <input
-                    type="date"
-                    required
-                    value={newPiutang.tgl}
-                    onChange={(e) => setNewPiutang({ ...newPiutang, tgl: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-                  />
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Tanggal Pinjam</label>
+                  <input type="date" required value={newPiutang.tgl} onChange={(e) => setNewPiutang({ ...newPiutang, tgl: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900" />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">Nama Peminjam</label>
-                  <input
-                    type="text"
-                    required
-                    value={newPiutang.nsb}
-                    onChange={(e) => setNewPiutang({ ...newPiutang, nsb: e.target.value })}
-                    placeholder="Nama pihak/orang"
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-                  />
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Nama Peminjam <span className="text-rose-500">*</span></label>
+                  <Autocomplete value={newPiutang.nsb} onChange={(v) => setNewPiutang({ ...newPiutang, nsb: v })} suggestions={nsbSuggestions} placeholder="Pilih atau ketik nama" />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-600 block mb-1">Uraian / Keperluan Pinjaman</label>
-                <input
-                  type="text"
-                  required
-                  value={newPiutang.uraian}
-                  onChange={(e) => setNewPiutang({ ...newPiutang, uraian: e.target.value })}
-                  placeholder="Contoh: Talangan operasional sementara"
-                  className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-                />
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Untuk keperluan apa?</label>
+                <input type="text" required value={newPiutang.uraian} onChange={(e) => setNewPiutang({ ...newPiutang, uraian: e.target.value })} placeholder="Mis. Talangan usaha sementara" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900" />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-600 block mb-1">Nominal Pinjaman (Rp)</label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Jumlah Dipinjamkan (Rp)</label>
                 <RupiahInput
                   required
                   value={newPiutang.terbit}
                   onChange={(v) => setNewPiutang({ ...newPiutang, terbit: v })}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-[#1c543c]"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                 />
               </div>
 

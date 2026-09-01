@@ -39,12 +39,18 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const [search, setSearch] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const [lastOpen, setLastOpen] = useState(false)
+  if (open && !lastOpen) {
+    setLastOpen(true)
+    setSearch('')
+  } else if (!open && lastOpen) {
+    setLastOpen(false)
+  }
 
   useEffect(() => {
-    if (open) {
-      setSearch('')
-      setTimeout(() => inputRef.current?.focus(), 50)
-    }
+    if (!open) return
+    const id = setTimeout(() => inputRef.current?.focus(), 50)
+    return () => clearTimeout(id)
   }, [open])
 
   useEffect(() => {
@@ -64,69 +70,61 @@ export function CommandPalette({
   if (!open) return null
 
   const actions = [
-    { id: 'quick-tx', label: 'Catat Mutasi / Transaksi Baru', icon: <Plus size={16} className="text-emerald-600" />, run: () => { onClose(); onOpenQuickTx() } },
-    { id: 'transfer', label: 'Transfer Dropping Kas (Master ke Operasional/Keluarga)', icon: <ArrowLeftRight size={16} className="text-blue-600" />, run: () => { onClose(); onOpenTransfer() } },
-    { id: 'year', label: 'Ganti Tahun Finansial Aktif', icon: <Calendar size={16} className="text-amber-600" />, run: () => { onClose(); onOpenYearModal() } },
-    { id: 'export', label: 'Export Seluruh Sheet ke Format Excel (.xlsx)', icon: <Download size={16} className="text-emerald-600" />, run: () => { onClose(); onExportExcel() } },
-    { id: 'nav-dash', label: 'Buka Dashboard Finansial', icon: <LayoutDashboard size={16} />, run: () => { onClose(); onSelectTab('dashboard') } },
-    { id: 'nav-tx', label: 'Buka Buku Kas (3 Ledger)', icon: <ArrowLeftRight size={16} />, run: () => { onClose(); onSelectTab('transaksi') } },
-    { id: 'nav-rab', label: 'Buka RAB Anggaran (Operasional & Keluarga)', icon: <Calculator size={16} />, run: () => { onClose(); onSelectTab('rab') } },
-    { id: 'nav-cf', label: 'Buka Cash Flow Tahunan', icon: <TrendingUp size={16} />, run: () => { onClose(); onSelectTab('cashflow') } },
-    { id: 'nav-rari', label: 'Buka Realisasi vs Anggaran (RA-RI)', icon: <PieChart size={16} />, run: () => { onClose(); onSelectTab('rari') } },
-    { id: 'nav-aset', label: 'Buka Monitoring Aset & Properti', icon: <Building2 size={16} />, run: () => { onClose(); onSelectTab('aset') } },
-    { id: 'nav-dep', label: 'Buka Depresiasi Nilai Buku Aset', icon: <Scale size={16} />, run: () => { onClose(); onSelectTab('depresiasi') } },
-    { id: 'nav-sched', label: 'Buka Jadwal Pajak & Servis Berkala', icon: <CalendarClock size={16} />, run: () => { onClose(); onSelectTab('schedule') } },
-    { id: 'nav-piutang', label: 'Buka Buku Piutang Pribadi', icon: <HandCoins size={16} />, run: () => { onClose(); onSelectTab('piutang') } },
-    { id: 'nav-neraca', label: 'Buka Neraca Total (Aktiva vs Passiva)', icon: <FileSpreadsheet size={16} />, run: () => { onClose(); onSelectTab('neraca') } },
+    { id: 'quick-tx', label: 'Tambah transaksi baru', icon: <Plus size={18} className="text-[#1a73e8]" />, run: () => { onClose(); onOpenQuickTx() } },
+    { id: 'transfer', label: 'Pindah saldo antar kas', icon: <ArrowLeftRight size={18} className="text-[#444746]" />, run: () => { onClose(); onOpenTransfer() } },
+    { id: 'year', label: 'Ganti tahun buku', icon: <Calendar size={18} className="text-[#b06000]" />, run: () => { onClose(); onOpenYearModal() } },
+    { id: 'export', label: 'Export ke Excel', icon: <Download size={18} className="text-[#137333]" />, run: () => { onClose(); onExportExcel() } },
+    { id: 'nav-dash', label: 'Buka Ringkasan', icon: <LayoutDashboard size={18} />, run: () => { onClose(); onSelectTab('dashboard') } },
+    { id: 'nav-tx', label: 'Buka Keluar Masuk Uang', icon: <ArrowLeftRight size={18} />, run: () => { onClose(); onSelectTab('transaksi') } },
+    { id: 'nav-rab', label: 'Buka Rencana Anggaran', icon: <Calculator size={18} />, run: () => { onClose(); onSelectTab('rab') } },
+    { id: 'nav-cf', label: 'Buka Arus Kas Bulanan', icon: <TrendingUp size={18} />, run: () => { onClose(); onSelectTab('cashflow') } },
+    { id: 'nav-rari', label: 'Buka Anggaran vs Realisasi', icon: <PieChart size={18} />, run: () => { onClose(); onSelectTab('rari') } },
+    { id: 'nav-aset', label: 'Buka Daftar Aset', icon: <Building2 size={18} />, run: () => { onClose(); onSelectTab('aset') } },
+    { id: 'nav-dep', label: 'Buka Penyusutan Aset', icon: <Scale size={18} />, run: () => { onClose(); onSelectTab('depresiasi') } },
+    { id: 'nav-sched', label: 'Buka Jadwal & Pajak', icon: <CalendarClock size={18} />, run: () => { onClose(); onSelectTab('schedule') } },
+    { id: 'nav-piutang', label: 'Buka Piutang', icon: <HandCoins size={18} />, run: () => { onClose(); onSelectTab('piutang') } },
+    { id: 'nav-neraca', label: 'Buka Kekayaan Bersih', icon: <FileSpreadsheet size={18} />, run: () => { onClose(); onSelectTab('neraca') } },
+    { id: 'nav-settings', label: 'Buka Pengaturan Master Data', icon: <Search size={18} />, run: () => { onClose(); onSelectTab('settings') } },
   ]
 
-  const filtered = actions.filter((a) =>
-    a.label.toLowerCase().includes(search.toLowerCase().trim())
-  )
+  const filtered = actions.filter((a) => a.label.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 animate-scale">
-        <div className="p-3.5 border-b border-slate-100 flex items-center gap-3">
-          <Search size={18} className="text-slate-400 ml-1" />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
+      <div className="relative bg-white w-full max-w-xl rounded-3xl md-elevation-3 overflow-hidden z-10 animate-scale">
+        <div className="flex items-center px-4 py-3 border-b border-[#e0e2e0] bg-[#f8f9fa]">
+          <Search size={20} className="text-[#747775] mr-3" />
           <input
             ref={inputRef}
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ketik perintah atau nama modul..."
-            className="flex-1 text-sm font-semibold outline-none bg-transparent text-slate-800 placeholder:text-slate-400"
+            placeholder="Cari perintah atau halaman..."
+            className="w-full bg-transparent border-none outline-none text-sm text-[#1f1f1f] placeholder:text-[#747775]"
           />
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400">
-            <X size={16} />
+          <button onClick={onClose} className="p-1 rounded-full text-[#747775] hover:bg-[#e0e2e0] transition">
+            <X size={18} />
           </button>
         </div>
 
-        <div className="max-h-80 overflow-y-auto p-2 space-y-1">
-          {filtered.length === 0 ? (
-            <div className="p-6 text-center text-xs font-semibold text-slate-400">
-              Tidak ada hasil yang cocok dengan &quot;{search}&quot;
-            </div>
-          ) : (
+        <div className="max-h-80 overflow-y-auto p-2">
+          {filtered.length > 0 ? (
             filtered.map((action) => (
               <button
                 key={action.id}
                 onClick={action.run}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition group"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-[#f1f3f4] text-left transition cursor-pointer text-[#1f1f1f] text-xs font-medium"
               >
-                <span className="p-1.5 rounded-lg bg-slate-100 group-hover:bg-white text-slate-600 group-hover:text-blue-700 transition">
+                <div className="w-8 h-8 rounded-full bg-[#f1f3f4] flex items-center justify-center text-[#444746] shrink-0">
                   {action.icon}
-                </span>
-                <span className="flex-1 truncate">{action.label}</span>
+                </div>
+                <span className="flex-1">{action.label}</span>
               </button>
             ))
+          ) : (
+            <div className="p-6 text-center text-xs text-[#747775]">Tidak ada hasil pencarian.</div>
           )}
-        </div>
-
-        <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-semibold px-4">
-          <span>Navigasi Cepat</span>
-          <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-500 font-bold">ESC untuk tutup</kbd>
         </div>
       </div>
     </div>

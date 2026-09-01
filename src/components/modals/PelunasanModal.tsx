@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { X, CheckCircle2, HandCoins } from 'lucide-react'
-import { RupiahInput, formatRibuan } from '../common/RupiahInput'
+import { RupiahInput } from '../common/RupiahInput'
+import { formatRibuan } from '../common/format'
 import type { PiutangRow } from '../../store'
 
 interface PelunasanModalProps {
@@ -28,7 +29,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-xl border border-[#dbeae0] p-5 sm:p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-[#edf4ef] pb-3">
           <div className="flex items-center gap-2 text-[#0f291e]">
             <HandCoins size={18} className="text-[#1c543c]" />
@@ -40,7 +41,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="p-3.5 bg-[#f8faf9] border border-[#dbeae0] rounded-xl space-y-1 text-xs">
+          <div className="p-3.5 bg-white border border-slate-200 rounded-lg space-y-1 text-xs">
             <div className="flex justify-between">
               <span className="text-slate-500 font-semibold">Peminjam:</span>
               <span className="font-black text-[#0f291e]">{piutang.nsb}</span>
@@ -64,7 +65,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
               required
               value={tanggal}
               onChange={(e) => setTanggal(e.target.value)}
-              className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
           </div>
 
@@ -84,7 +85,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
               value={nominal}
               onChange={(v) => setNominal(v)}
               placeholder="0"
-              className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs sm:text-sm font-bold num text-[#0f291e] outline-none focus:bg-white focus:border-[#1c543c]"
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-bold num text-[#0f291e] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
             />
           </div>
 
@@ -92,7 +93,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-[#dbeae0] bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
             >
               Batal
             </button>

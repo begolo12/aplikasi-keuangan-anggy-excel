@@ -11,10 +11,10 @@ import {
   Scale,
   PieChart,
   X,
-  ShieldCheck,
   Plus,
+  Settings,
 } from 'lucide-react'
-import type { TabKey } from './Sidebar'
+import { NAV_GROUPS, type TabKey } from './navConfig'
 
 interface MobileNavProps {
   open: boolean
@@ -24,6 +24,20 @@ interface MobileNavProps {
   txCount: number
   unpaidPiutangCount: number
   onOpenQuickTx: () => void
+}
+
+const TAB_ICONS: Record<TabKey, React.ReactNode> = {
+  dashboard: <LayoutDashboard size={20} />,
+  transaksi: <ArrowLeftRight size={20} />,
+  rab: <Calculator size={20} />,
+  cashflow: <TrendingUp size={20} />,
+  rari: <PieChart size={20} />,
+  aset: <Building2 size={20} />,
+  depresiasi: <Scale size={20} />,
+  schedule: <CalendarClock size={20} />,
+  piutang: <HandCoins size={20} />,
+  neraca: <FileSpreadsheet size={20} />,
+  settings: <Settings size={20} />,
 }
 
 export function MobileNav({
@@ -37,99 +51,59 @@ export function MobileNav({
 }: MobileNavProps) {
   if (!open) return null
 
-  const menuItems: { id: TabKey; label: string; icon: React.ReactNode; badge?: number; group?: string }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'transaksi', label: 'Buku Kas (3 Ledger)', icon: <ArrowLeftRight size={18} />, badge: txCount },
-    { id: 'rab', label: 'RAB Anggaran', icon: <Calculator size={18} /> },
-    { id: 'cashflow', label: 'Cash Flow Tahunan', icon: <TrendingUp size={18} /> },
-    { id: 'rari', label: 'Realisasi vs Anggaran', icon: <PieChart size={18} /> },
-    { id: 'aset', label: 'Monitoring Aset', icon: <Building2 size={18} /> },
-    { id: 'depresiasi', label: 'Depresiasi Aset', icon: <Scale size={18} /> },
-    { id: 'schedule', label: 'Jadwal Pajak & Servis', icon: <CalendarClock size={18} /> },
-    { id: 'piutang', label: 'Buku Piutang', icon: <HandCoins size={18} />, badge: unpaidPiutangCount },
-    { id: 'neraca', label: 'Neraca Keuangan', icon: <FileSpreadsheet size={18} /> },
-  ]
+  const getBadgeValue = (key?: 'txCount' | 'unpaidPiutangCount') => {
+    if (key === 'txCount' && txCount > 0) return txCount
+    if (key === 'unpaidPiutangCount' && unpaidPiutangCount > 0) return unpaidPiutangCount
+    return undefined
+  }
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-[#0f291e]/60 backdrop-blur-xs transition-opacity" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
 
-      {/* Drawer Container */}
-      <div className="relative w-4/5 max-w-xs bg-white text-slate-800 h-full flex flex-col shadow-2xl z-10 animate-in border-r border-[#dbeae0]">
-        <div className="h-16 flex items-center justify-between px-4 border-b border-[#dbeae0]">
+      {/* Material Modal Navigation Drawer */}
+      <div className="relative w-[320px] max-w-[85vw] bg-white h-full flex flex-col shadow-2xl z-10 animate-in rounded-r-3xl border-r border-[#e0e2e0]">
+        <div className="h-[64px] flex items-center justify-between px-5 border-b border-[#e0e2e0] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1c543c] to-[#40916c] flex items-center justify-center text-white font-black text-base shadow-xs">
-              F
-            </div>
+            <div className="w-10 h-10 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center font-bold text-base">F</div>
             <div>
-              <h2 className="font-black text-[#0f291e] text-sm tracking-tight">FinSheet Pro</h2>
-              <p className="text-[10px] text-[#2d6a4f] font-extrabold tracking-wider uppercase">Cash Flow & Asset</p>
+              <h2 className="text-[17px] font-medium tracking-tight text-[#1f1f1f] leading-none">FinSheet <span className="text-[#1a73e8]">PRO</span></h2>
+              <p className="text-[11px] text-[#747775] leading-none mt-1">Keuangan & Aset Terpadu</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-[#edf6f0] transition"
-            aria-label="Tutup menu"
-          >
-            <X size={18} />
+          <button onClick={onClose} className="p-2 rounded-full text-[#444746] hover:bg-[#f1f3f4] transition cursor-pointer" aria-label="Tutup">
+            <X size={20} />
           </button>
         </div>
 
-        {/* Quick Add CTA inside Drawer */}
-        <div className="p-3 border-b border-[#edf4ef]">
-          <button
-            onClick={() => {
-              onClose()
-              onOpenQuickTx()
-            }}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#1c543c] text-white text-xs font-black flex items-center justify-center gap-2 shadow-xs active:scale-98 transition"
-          >
-            <Plus size={16} />
-            <span>Catat Mutasi Kas Baru</span>
+        <div className="p-4">
+          <button onClick={() => { onClose(); onOpenQuickTx() }} className="w-full py-3 px-4 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer">
+            <Plus size={18} /> Tambah Transaksi
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          <div className="px-3 py-1 text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
-            Semua Modul
-          </div>
-          {menuItems.map((item) => {
-            const isActive = activeTab === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onSelectTab(item.id)
-                  onClose()
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
-                  isActive
-                    ? 'bg-[#e7f4ec] text-[#123828] font-black border border-[#c5e4d1] shadow-xs'
-                    : 'text-slate-600 hover:bg-[#f4f9f6] hover:text-[#1c543c]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={isActive ? 'text-[#1c543c]' : 'text-slate-400'}>{item.icon}</span>
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                      isActive ? 'bg-[#1c543c] text-white' : 'bg-[#eaf5ee] text-[#1c543c] border border-[#d2eadb]'
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="p-3.5 border-t border-[#dbeae0] bg-[#f8faf9] flex items-center gap-2 text-[11px] text-[#1c543c] font-bold">
-          <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
-          <span>Formula Excel 100% Valid</span>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-6 space-y-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.title}>
+              <div className="px-3 mb-1.5 text-[11px] font-medium tracking-wider text-[#747775] uppercase">{group.title}</div>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = activeTab === item.id
+                  const badge = getBadgeValue(item.badgeKey)
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { onSelectTab(item.id); onClose() }}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-[13px] transition cursor-pointer ${isActive ? 'bg-[#c2e7ff] text-[#001d35] font-semibold' : 'text-[#444746] hover:bg-[#f1f3f4] hover:text-[#1f1f1f] font-medium'}`}
+                    >
+                      <span className="flex items-center gap-3"><span className={isActive ? 'text-[#001d35]' : 'text-[#444746]'}>{TAB_ICONS[item.id]}</span>{item.label}</span>
+                      {badge !== undefined && <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${isActive ? 'bg-[#001d35] text-white' : 'bg-[#e0e2e0] text-[#1f1f1f]'}`}>{badge}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

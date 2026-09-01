@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, numeric, integer, boolean, jsonb, index } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, numeric, integer, boolean, jsonb, index, primaryKey } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -18,7 +18,7 @@ export const workspaces = pgTable('workspaces', {
 ])
 
 export const transactions = pgTable('transactions', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   tanggal: text('tanggal').notNull(),
   nsb: text('nsb').notNull().default(''),
@@ -32,12 +32,12 @@ export const transactions = pgTable('transactions', {
   receivableId: text('receivable_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('tx_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
   index('tx_workspace_tanggal_idx').on(t.workspaceId, t.tanggal),
 ])
 
 export const rabRows = pgTable('rab_rows', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   target: text('target').notNull(), // 'anggy' | 'keluarga'
   group: text('group').notNull(),
@@ -50,11 +50,11 @@ export const rabRows = pgTable('rab_rows', {
   total: numeric('total', { precision: 19, scale: 2 }).notNull().default('0'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('rab_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
 ])
 
 export const piutangs = pgTable('piutangs', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   tgl: text('tgl').notNull(),
   nsb: text('nsb').notNull(),
@@ -64,11 +64,11 @@ export const piutangs = pgTable('piutangs', {
   keterangan: text('keterangan'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('piutang_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
 ])
 
 export const assets = pgTable('assets', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   jenis: text('jenis').notNull().default('PROPERTY'),
   nama: text('nama').notNull(),
@@ -82,11 +82,11 @@ export const assets = pgTable('assets', {
   tambah: numeric('tambah', { precision: 19, scale: 2 }).notNull().default('0'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('asset_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
 ])
 
 export const deps = pgTable('deps', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   nama: text('nama').notNull(),
   tgl: text('tgl').notNull(),
@@ -96,11 +96,11 @@ export const deps = pgTable('deps', {
   kat: text('kat').notNull().default('KENDARAAN'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('dep_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
 ])
 
 export const schedules = pgTable('schedules', {
-  id: text('id').primaryKey(),
+  id: text('id').notNull(),
   workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   nama: text('nama').notNull(),
   hs: numeric('hs', { precision: 19, scale: 2 }).notNull().default('0'),
@@ -108,7 +108,7 @@ export const schedules = pgTable('schedules', {
   kat: text('kat').notNull().default('service'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
-  index('sched_workspace_idx').on(t.workspaceId),
+  primaryKey({ columns: [t.workspaceId, t.id] }),
 ])
 
 export const settings = pgTable('settings', {
@@ -116,5 +116,6 @@ export const settings = pgTable('settings', {
   year: integer('year').notNull().default(2026),
   saldoAwal: numeric('saldo_awal', { precision: 19, scale: 2 }).notNull().default('0'),
   demoMode: boolean('demo_mode').notNull().default(false),
+  masterData: jsonb('master_data'), // { customNsbList, customPosList, ledgerLabels }
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

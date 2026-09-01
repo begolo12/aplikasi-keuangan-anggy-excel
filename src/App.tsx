@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react'
 import { useStore, type Ledger } from './store'
-import { useAuth } from './lib/auth-context'
-import { exportExcel } from './export'
+import { useAuth } from './lib/use-auth'
 import { ledgerBalance, yearTransactions } from './finance'
 
 import { Sidebar, type TabKey } from './components/layout/Sidebar'
@@ -16,16 +15,17 @@ import { YearModal } from './components/modals/YearModal'
 
 import { ToastStack, type ToastItem } from './components/common/ToastStack'
 
-import { DashboardView } from './components/views/DashboardView'
-import { TransaksiView } from './components/views/TransaksiView'
-import { RabView } from './components/views/RabView'
-import { CashflowView } from './components/views/CashflowView'
-import { RariView } from './components/views/RariView'
-import { AssetView } from './components/views/AssetView'
-import { DepresiasiView } from './components/views/DepresiasiView'
-import { ScheduleView } from './components/views/ScheduleView'
-import { PiutangView } from './components/views/PiutangView'
-import { NeracaView } from './components/views/NeracaView'
+const DashboardView = lazy(() => import('./components/views/DashboardView').then((m) => ({ default: m.DashboardView })))
+const TransaksiView = lazy(() => import('./components/views/TransaksiView').then((m) => ({ default: m.TransaksiView })))
+const RabView = lazy(() => import('./components/views/RabView').then((m) => ({ default: m.RabView })))
+const CashflowView = lazy(() => import('./components/views/CashflowView').then((m) => ({ default: m.CashflowView })))
+const RariView = lazy(() => import('./components/views/RariView').then((m) => ({ default: m.RariView })))
+const AssetView = lazy(() => import('./components/views/AssetView').then((m) => ({ default: m.AssetView })))
+const DepresiasiView = lazy(() => import('./components/views/DepresiasiView').then((m) => ({ default: m.DepresiasiView })))
+const ScheduleView = lazy(() => import('./components/views/ScheduleView').then((m) => ({ default: m.ScheduleView })))
+const PiutangView = lazy(() => import('./components/views/PiutangView').then((m) => ({ default: m.PiutangView })))
+const NeracaView = lazy(() => import('./components/views/NeracaView').then((m) => ({ default: m.NeracaView })))
+const SettingsView = lazy(() => import('./components/views/SettingsView').then((m) => ({ default: m.SettingsView })))
 
 export default function App() {
   const store = useStore()
@@ -63,7 +63,8 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    void store.loadFromServer()
+    void useStore.getState().loadFromServer()
+    // Dipanggil sekali saat mount; getState() stabil dan tidak butuh dep.
   }, [])
 
   const handleToggleSidebar = () => {
@@ -85,6 +86,14 @@ export default function App() {
     () => ledgerBalance(txCurrentYear, 'master', store.saldoAwal),
     [txCurrentYear, store.saldoAwal]
   )
+  const opBalance = useMemo(
+    () => ledgerBalance(txCurrentYear, 'operasional', 0),
+    [txCurrentYear]
+  )
+  const kelBalance = useMemo(
+    () => ledgerBalance(txCurrentYear, 'keluarga', 0),
+    [txCurrentYear]
+  )
 
   const handleOpenQuickTx = (defaultLedger: Ledger = 'master') => {
     setDefaultQuickTxLedger(defaultLedger)
@@ -94,6 +103,7 @@ export default function App() {
   const handleExportExcel = async () => {
     setIsExporting(true)
     try {
+      const { exportExcel } = await import('./export')
       await exportExcel({
         txs: store.txs,
         rabAnggy: store.rabAnggy,
@@ -106,16 +116,16 @@ export default function App() {
         saldoAwal: store.saldoAwal,
       })
       addToast('File Excel berhasil diekspor dengan 13 sheet live formula!', 'success')
-    } catch (err: any) {
-      console.error('Export error:', err)
-      addToast('Gagal mengekspor file Excel: ' + (err?.message || 'Unknown error'), 'error')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      addToast(`Gagal mengekspor file Excel: ${message}`, 'error')
     } finally {
       setIsExporting(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f8f5] flex text-slate-800 antialiased font-sans selection:bg-emerald-700 selection:text-white">
+    <div className="min-h-screen bg-slate-50 flex text-slate-800 antialiased font-sans selection:bg-slate-900 selection:text-white">
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -123,6 +133,10 @@ export default function App() {
         onToggleCollapse={handleToggleSidebar}
         txCount={txCurrentYear.length}
         unpaidPiutangCount={unpaidPiutangCount}
+        masterBalance={masterBalance}
+        opBalance={opBalance}
+        kelBalance={kelBalance}
+        ledgerLabels={store.ledgerLabels}
       />
 
       <MobileNav
@@ -152,32 +166,20 @@ export default function App() {
           onLogout={logout}
         />
 
-        <main className="flex-1 p-3 sm:p-5 lg:p-8 max-w-7xl w-full mx-auto">
-          {activeTab === 'dashboard' && (
-            <DashboardView
-              store={store}
-              onNavigate={setActiveTab}
-              onOpenQuickTx={handleOpenQuickTx}
-              onOpenTransfer={() => setTransferOpen(true)}
-            />
-          )}
-
-          {activeTab === 'transaksi' && (
-            <TransaksiView
-              store={store}
-              onOpenQuickTx={handleOpenQuickTx}
-              onOpenTransfer={() => setTransferOpen(true)}
-            />
-          )}
-
-          {activeTab === 'rab' && <RabView store={store} />}
-          {activeTab === 'cashflow' && <CashflowView store={store} />}
-          {activeTab === 'rari' && <RariView store={store} />}
-          {activeTab === 'aset' && <AssetView store={store} />}
-          {activeTab === 'depresiasi' && <DepresiasiView store={store} />}
-          {activeTab === 'schedule' && <ScheduleView store={store} />}
-          {activeTab === 'piutang' && <PiutangView store={store} />}
-          {activeTab === 'neraca' && <NeracaView store={store} />}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1280px] w-full mx-auto">
+          <Suspense fallback={<div className="p-8 text-center text-xs font-medium text-slate-400 animate-pulse">Memuat...</div>}>
+            {activeTab === 'dashboard' && <DashboardView store={store} onNavigate={setActiveTab} onOpenQuickTx={handleOpenQuickTx} onOpenTransfer={() => setTransferOpen(true)} />}
+            {activeTab === 'transaksi' && <TransaksiView store={store} onOpenQuickTx={handleOpenQuickTx} onOpenTransfer={() => setTransferOpen(true)} />}
+            {activeTab === 'rab' && <RabView store={store} />}
+            {activeTab === 'cashflow' && <CashflowView store={store} />}
+            {activeTab === 'rari' && <RariView store={store} />}
+            {activeTab === 'aset' && <AssetView store={store} />}
+            {activeTab === 'depresiasi' && <DepresiasiView store={store} />}
+            {activeTab === 'schedule' && <ScheduleView store={store} />}
+            {activeTab === 'piutang' && <PiutangView store={store} />}
+            {activeTab === 'neraca' && <NeracaView store={store} />}
+            {activeTab === 'settings' && <SettingsView store={store} />}
+          </Suspense>
         </main>
       </div>
 
@@ -195,7 +197,8 @@ export default function App() {
         defaultLedger={defaultQuickTxLedger}
         onAddTx={(tx) => {
           store.addTx(tx)
-          addToast(`Transaksi berhasil dicatat ke Ledger ${tx.ledger.toUpperCase()}`, 'success')
+          const kasLabel = tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'
+          addToast(`Transaksi berhasil dicatat di ${kasLabel}`, 'success')
         }}
       />
 
@@ -205,7 +208,8 @@ export default function App() {
         maxMasterBalance={masterBalance}
         onTransfer={(to, amount, tanggal, uraian) => {
           store.transferDropping('master', to, amount, tanggal, uraian)
-          addToast(`Dropping kas Rp ${new Intl.NumberFormat('id-ID').format(amount)} ke Ledger ${to.toUpperCase()} berhasil!`, 'success')
+          const tujuan = to === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'
+          addToast(`Pindah saldo Rp ${new Intl.NumberFormat('id-ID').format(amount)} ke ${tujuan} berhasil`, 'success')
         }}
       />
 
@@ -217,7 +221,7 @@ export default function App() {
         onSave={(year, saldoAwal) => {
           store.setYear(year)
           store.setSaldoAwal(saldoAwal)
-          addToast(`Pengaturan tahun fiskal ${year} dan saldo awal berhasil disimpan.`, 'success')
+          addToast(`Tahun buku ${year} dan saldo awal berhasil disimpan.`, 'success')
         }}
       />
 
@@ -235,3 +239,4 @@ export default function App() {
     </div>
   )
 }
+// ponytail: typography now 700/600 hierarchy, Bahasa diseragamkan untuk kesan premium siap jual

@@ -12,20 +12,13 @@ import {
   PieChart,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
+  Wallet,
+  Settings,
 } from 'lucide-react'
+import { NAV_GROUPS, type TabKey } from './navConfig'
+import { formatRibuan } from '../common/format'
 
-export type TabKey =
-  | 'dashboard'
-  | 'transaksi'
-  | 'rab'
-  | 'cashflow'
-  | 'rari'
-  | 'aset'
-  | 'depresiasi'
-  | 'schedule'
-  | 'piutang'
-  | 'neraca'
+export type { TabKey }
 
 interface SidebarProps {
   activeTab: TabKey
@@ -34,6 +27,28 @@ interface SidebarProps {
   onToggleCollapse: () => void
   txCount: number
   unpaidPiutangCount: number
+  masterBalance?: number
+  opBalance?: number
+  kelBalance?: number
+  ledgerLabels?: {
+    master: string
+    operasional: string
+    keluarga: string
+  }
+}
+
+const TAB_ICONS: Record<TabKey, React.ReactNode> = {
+  dashboard: <LayoutDashboard size={20} />,
+  transaksi: <ArrowLeftRight size={20} />,
+  rab: <Calculator size={20} />,
+  cashflow: <TrendingUp size={20} />,
+  rari: <PieChart size={20} />,
+  aset: <Building2 size={20} />,
+  depresiasi: <Scale size={20} />,
+  schedule: <CalendarClock size={20} />,
+  piutang: <HandCoins size={20} />,
+  neraca: <FileSpreadsheet size={20} />,
+  settings: <Settings size={20} />,
 }
 
 export function Sidebar({
@@ -43,106 +58,146 @@ export function Sidebar({
   onToggleCollapse,
   txCount,
   unpaidPiutangCount,
+  masterBalance = 0,
+  opBalance = 0,
+  kelBalance = 0,
+  ledgerLabels = { master: 'Kas Utama', operasional: 'Kas Usaha', keluarga: 'Kas Keluarga' },
 }: SidebarProps) {
-  const menuItems: { id: TabKey; label: string; icon: React.ReactNode; badge?: string | number }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'transaksi', label: 'Buku Kas (3 Ledger)', icon: <ArrowLeftRight size={18} />, badge: txCount > 0 ? txCount : undefined },
-    { id: 'rab', label: 'RAB Anggaran', icon: <Calculator size={18} /> },
-    { id: 'cashflow', label: 'Cash Flow Tahunan', icon: <TrendingUp size={18} /> },
-    { id: 'rari', label: 'Realisasi vs Anggaran', icon: <PieChart size={18} /> },
-    { id: 'aset', label: 'Monitoring Aset', icon: <Building2 size={18} /> },
-    { id: 'depresiasi', label: 'Depresiasi Aset', icon: <Scale size={18} /> },
-    { id: 'schedule', label: 'Jadwal Pajak & Servis', icon: <CalendarClock size={18} /> },
-    { id: 'piutang', label: 'Buku Piutang', icon: <HandCoins size={18} />, badge: unpaidPiutangCount > 0 ? unpaidPiutangCount : undefined },
-    { id: 'neraca', label: 'Neraca Keuangan', icon: <FileSpreadsheet size={18} /> },
-  ]
+  const getBadgeValue = (key?: 'txCount' | 'unpaidPiutangCount') => {
+    if (key === 'txCount' && txCount > 0) return txCount
+    if (key === 'unpaidPiutangCount' && unpaidPiutangCount > 0) return unpaidPiutangCount
+    return undefined
+  }
+  const totalKas = masterBalance + opBalance + kelBalance
 
   return (
     <aside
-      className={`hidden lg:flex flex-col bg-white text-slate-700 border-r border-[#dbeae0] transition-all duration-300 relative select-none ${
-        collapsed ? 'w-[72px]' : 'w-64'
+      className={`hidden lg:flex flex-col h-screen sticky top-0 overflow-y-auto overscroll-contain bg-white border-r border-[#e0e2e0] transition-all duration-200 select-none shrink-0 ${
+        collapsed ? 'w-[72px]' : 'w-[264px]'
       }`}
     >
-      {/* Brand Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-[#dbeae0]">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1c543c] to-[#40916c] flex items-center justify-center text-white font-black text-lg shadow-xs shrink-0">
-            F
-          </div>
-          {!collapsed && (
-            <div className="min-w-0">
-              <h1 className="font-black text-[#0f291e] text-base tracking-tight leading-none truncate">
-                FinSheet Pro
-              </h1>
-              <p className="text-[10px] text-[#2d6a4f] font-extrabold tracking-wider uppercase mt-1">
-                Cash Flow & Asset
-              </p>
+      {/* Material 3 App Header */}
+      <div className="h-[64px] flex items-center gap-3 px-4 shrink-0">
+        <div className="w-10 h-10 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center font-bold text-base tracking-tight shrink-0">
+          F
+        </div>
+        {!collapsed && (
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-[17px] font-medium tracking-tight text-[#1f1f1f] leading-none">FinSheet</h1>
+              <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-1.5 py-0.5 rounded-md">PRO</span>
             </div>
-          )}
+            <p className="text-[11px] text-[#747775] leading-none mt-1 truncate">
+              Manajemen Kas & Aset
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Material 3 Cash Card Widget */}
+      {!collapsed ? (
+        <div className="px-3 pb-2 shrink-0">
+          <div className="rounded-2xl bg-[#f8f9fa] border border-[#e0e2e0] p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider text-[#747775] uppercase">
+                <Wallet size={13} className="text-[#747775]" />
+                Posisi Kas
+              </span>
+              <span className="text-[11px] font-semibold text-[#1a73e8]">{totalKas > 0 ? `Rp ${formatRibuan(totalKas)}` : '—'}</span>
+            </div>
+            <div className="space-y-1.5">
+              {[
+                { label: ledgerLabels.master, hint: 'Uang utama / kas pusat', value: masterBalance, dot: 'bg-[#1a73e8]' },
+                { label: ledgerLabels.operasional, hint: 'Untuk operasional / usaha', value: opBalance, dot: 'bg-[#137333]' },
+                { label: ledgerLabels.keluarga, hint: 'Untuk keluarga / rumah tangga', value: kelBalance, dot: 'bg-[#b06000]' },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between text-xs" title={row.hint}>
+                  <span className="flex items-center gap-2 text-[#444746] truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${row.dot}`} />
+                    <span className="truncate">{row.label}</span>
+                  </span>
+                  <span className="font-semibold text-[#1f1f1f] num shrink-0">
+                    {row.value ? `Rp ${formatRibuan(row.value)}` : 'Rp 0'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-2 border-b border-[#e0e2e0] flex flex-col items-center gap-1 text-[10px] font-semibold text-[#747775] shrink-0">
+          <Wallet size={14} className="text-[#747775]" />
+          <span className="num text-xs font-semibold text-[#1f1f1f]">{totalKas ? formatRibuan(totalKas).slice(0, 5) : '0'}</span>
+        </div>
+      )}
+
+      {/* Material Navigation Rail / Drawer */}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-2 px-2">
+        <div className="space-y-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.title}>
+              {!collapsed ? (
+                <div className="px-3 mb-1.5 text-[11px] font-medium tracking-wider text-[#747775] uppercase">
+                  {group.title}
+                </div>
+              ) : (
+                <div className="mx-2 mb-1.5 h-px bg-[#e0e2e0]" />
+              )}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = activeTab === item.id
+                  const badge = getBadgeValue(item.badgeKey)
+                  return (
+                    <div key={item.id} className="relative group">
+                      <button
+                        onClick={() => onSelectTab(item.id)}
+                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-[13px] font-medium transition-all duration-150 cursor-pointer ${
+                          isActive
+                            ? 'bg-[#c2e7ff] text-[#001d35] font-semibold'
+                            : 'text-[#444746] hover:bg-[#f1f3f4] hover:text-[#1f1f1f]'
+                        } ${collapsed ? 'justify-center !px-0' : 'justify-between'}`}
+                      >
+                        <span className="flex items-center gap-3 min-w-0">
+                          <span className={`shrink-0 ${isActive ? 'text-[#001d35]' : 'text-[#444746]'}`}>
+                            {TAB_ICONS[item.id]}
+                          </span>
+                          {!collapsed && <span className="truncate">{item.label}</span>}
+                        </span>
+                        {!collapsed && badge !== undefined && (
+                          <span
+                            className={`text-[11px] px-2 py-0.5 rounded-full font-medium leading-none shrink-0 ${
+                              isActive ? 'bg-[#001d35] text-white' : 'bg-[#e0e2e0] text-[#1f1f1f]'
+                            }`}
+                          >
+                            {badge}
+                          </span>
+                        )}
+                      </button>
+                      {collapsed && (
+                        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#1f1f1f] text-white text-xs font-medium rounded-lg shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50">
+                          {item.label}
+                          {badge !== undefined && (
+                            <span className="ml-2 px-1.5 py-0.5 bg-white/20 rounded-full text-[10px]">{badge}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Nav Menu */}
-      <div className="flex-1 overflow-y-auto py-4 px-2 space-y-1 scrollbar-thin">
-        {!collapsed && (
-          <div className="px-3 pb-1.5 text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
-            Menu Utama
-          </div>
-        )}
-
-        {menuItems.map((item) => {
-          const isActive = activeTab === item.id
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSelectTab(item.id)}
-              title={collapsed ? item.label : undefined}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 group relative ${
-                isActive
-                  ? 'bg-[#e7f4ec] text-[#123828] font-black shadow-xs border border-[#c5e4d1]'
-                  : 'text-slate-600 hover:bg-[#f2f8f4] hover:text-[#1c543c]'
-              } ${collapsed ? 'justify-center' : 'justify-between'}`}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className={`shrink-0 ${isActive ? 'text-[#1c543c]' : 'text-slate-400 group-hover:text-[#2d6a4f]'}`}>
-                  {item.icon}
-                </span>
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </div>
-
-              {!collapsed && item.badge !== undefined && (
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-black shrink-0 ${
-                    isActive ? 'bg-[#1c543c] text-white' : 'bg-[#eaf5ee] text-[#1c543c] border border-[#d2eadb]'
-                  }`}
-                >
-                  {item.badge}
-                </span>
-              )}
-
-              {collapsed && isActive && (
-                <div className="absolute left-0 top-2 bottom-2 w-1 bg-[#1c543c] rounded-r-full" />
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Footer */}
-      <div className="p-3 border-t border-[#dbeae0] space-y-2">
-        {!collapsed && (
-          <div className="p-2.5 rounded-xl bg-[#f4f9f6] border border-[#dbeae0] flex items-center gap-2 text-[11px] text-[#1c543c] font-bold">
-            <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
-            <span className="truncate">Formula Excel 100% Valid</span>
-          </div>
-        )}
-
+      {/* Collapse Toggle */}
+      <div className="p-2 border-t border-[#e0e2e0] shrink-0">
         <button
           onClick={onToggleCollapse}
-          className="w-full flex items-center justify-center gap-2 p-2 rounded-xl hover:bg-[#edf6f0] text-slate-500 hover:text-[#1c543c] transition text-xs font-semibold"
-          aria-label={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-full hover:bg-[#f1f3f4] text-[#444746] hover:text-[#1f1f1f] transition text-xs font-medium cursor-pointer"
+          aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
         >
-          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>Ciutkan</span></>}
+          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>Ringkas Menu</span></>}
         </button>
       </div>
     </aside>

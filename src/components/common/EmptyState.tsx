@@ -11,18 +11,15 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
-    <div className="p-8 sm:p-12 text-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 my-4 animate-in">
-      <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center mx-auto text-slate-500">
+    <div className="p-8 sm:p-10 text-center rounded-3xl border border-dashed border-[#c4c7c5] bg-white my-3 animate-in">
+      <div className="w-12 h-12 rounded-full bg-[#f1f3f4] flex items-center justify-center mx-auto text-[#444746]">
         {icon}
       </div>
-      <h3 className="mt-3.5 font-bold text-slate-800 text-base">{title}</h3>
-      <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">{description}</p>
+      <h3 className="mt-4 text-base font-medium text-[#1f1f1f]">{title}</h3>
+      <p className="mt-1.5 text-xs text-[#747775] max-w-sm mx-auto leading-relaxed">{description}</p>
       {actionLabel && onAction && (
-        <button
-          onClick={onAction}
-          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#1E3A5F] hover:bg-[#152a45] text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95"
-        >
-          <Plus size={14} />
+        <button onClick={onAction} className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-full text-xs font-medium md-elevation-1 transition cursor-pointer">
+          <Plus size={16} />
           {actionLabel}
         </button>
       )}

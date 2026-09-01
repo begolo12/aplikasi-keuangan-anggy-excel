@@ -3,7 +3,19 @@ import type { AssetRow, DepRow, PiutangRow, RabRow, SchedRow, Tx } from './store
 export const MONTHS = 12
 
 export function isValidDate(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00`))
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [y, m, d] = value.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d))
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d
+}
+
+/** Tanggal hari ini di zona waktu lokal, format YYYY-MM-DD. */
+export function todayLocal(): string {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 export function yearTransactions(txs: Tx[], year: number): Tx[] {
@@ -13,7 +25,8 @@ export function yearTransactions(txs: Tx[], year: number): Tx[] {
 }
 
 export function isTransfer(tx: Tx): boolean {
-  return tx.pos.trim().toUpperCase() === 'DROPPING'
+  const pos = tx.pos.trim().toUpperCase()
+  return pos === 'DROPPING' || pos === 'PINDAH SALDO' || pos === 'PINDAH'
 }
 
 export function ledgerBalance(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0): number {
@@ -33,16 +46,7 @@ export function ledgerExpense(txs: Tx[], ledger: Tx['ledger']): number {
 }
 
 export function runningBalances(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0, year?: number): Map<string, number> {
-  let balance = saldoAwal
-  const result = new Map<string, number>()
-  const targetYear = year ?? (txs.length > 0 ? Number(txs[0].tanggal.slice(0, 4)) : new Date().getFullYear())
-  yearTransactions(txs, targetYear)
-    .filter((tx) => tx.ledger === ledger)
-    .forEach((tx) => {
-      balance += tx.penerimaan - tx.pengeluaran
-      result.set(tx.id, balance)
-    })
-  return result
+  return runningBalancesForYear(txs, ledger, year ?? new Date().getFullYear(), saldoAwal)
 }
 
 export function runningBalancesForYear(txs: Tx[], ledger: Tx['ledger'], year: number, saldoAwal = 0): Map<string, number> {

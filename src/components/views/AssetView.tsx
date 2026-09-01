@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Plus, Trash2, Building2, TrendingUp, CreditCard } from 'lucide-react'
 import { Card } from '../common/Card'
+import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
-import { RupiahInput, formatRibuan } from '../common/RupiahInput'
+import { RupiahInput } from '../common/RupiahInput'
+import { formatRibuan } from '../common/format'
+import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import type { State, AssetRow } from '../../store'
 
@@ -34,11 +37,21 @@ export function AssetView({ store: s }: AssetViewProps) {
     return sum + pokok + bungaTotal
   }, 0)
 
+  const atasNamaSuggestions = useMemo(() => {
+    const fromAsset = s.assets.map((a) => a.atasNama)
+    const fromTx = s.txs.map((t) => t.nsb)
+    const fromPiutang = s.piutangs.map((p) => p.nsb)
+    const fromCustom = s.customNsbList || []
+    return Array.from(new Set([...fromCustom, ...fromAsset, ...fromTx, ...fromPiutang, 'ANGGY'])).filter(Boolean)
+  }, [s.assets, s.txs, s.piutangs, s.customNsbList])
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newAsset.nama.trim() || newAsset.nilai <= 0) return
+    const normalizedAtasNama = newAsset.atasNama.trim().toUpperCase() || 'ANGGY'
     s.addAsset({
       ...newAsset,
+      atasNama: normalizedAtasNama,
       nilaiPasar: newAsset.nilaiPasar || newAsset.nilai,
     })
     setIsAdding(false)
@@ -60,40 +73,18 @@ export function AssetView({ store: s }: AssetViewProps) {
     <div className="space-y-4 sm:space-y-6 animate-in">
       {/* 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="p-4 sm:p-5 border-[#c7e4d2] bg-gradient-to-br from-white via-white to-[#f0f9f3]">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Nilai Perolehan</p>
-          <h3 className="mt-1 text-2xl font-black text-[#0f291e] num">
-            Rp {formatRibuan(totalNilaiPerolehan) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">{s.assets.length} aset terdaftar</p>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-emerald-200/80 bg-gradient-to-br from-white via-white to-emerald-50/20">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Taksiran Nilai Pasar</p>
-          <h3 className="mt-1 text-2xl font-black text-emerald-700 num">
-            Rp {formatRibuan(totalNilaiPasar) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Estimasi valuasi harga saat ini</p>
-        </Card>
-
-        <Card className="p-4 sm:p-5 border-amber-200/80 bg-gradient-to-br from-white via-white to-amber-50/20">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Liabilitas / Hutang</p>
-          <h3 className="mt-1 text-2xl font-black text-amber-800 num">
-            Rp {formatRibuan(totalHutang) || '0'}
-          </h3>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Pokok sisa KPR/KKB + estimasi bunga</p>
-        </Card>
+        <StatCard title="Harga Beli Semua Aset" value={`Rp ${formatRibuan(totalNilaiPerolehan) || '0'}`} subtitle={`${s.assets.length} barang`} variant="brand" icon={<Building2 size={16} />} />
+        <StatCard title="Perkiraan Harga Sekarang" value={`Rp ${formatRibuan(totalNilaiPasar) || '0'}`} subtitle="Jika dijual hari ini" variant="income" icon={<TrendingUp size={16} />} />
+        <StatCard title="Sisa Hutang Aset" value={`Rp ${formatRibuan(totalHutang) || '0'}`} subtitle="Yang masih dicicil" variant="warning" icon={<CreditCard size={16} />} />
       </div>
 
-      <Card className="p-4 sm:p-5 border-[#dbeae0]">
+      <Card className="p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-black text-base sm:text-lg text-[#0f291e]">Daftar Portofolio Aset</h3>
-            <p className="text-xs text-slate-500 font-medium">Pencatatan kepemilikan aset properti, kendaraan, dan gadget</p>
+            <h3 className="text-sm font-semibold text-slate-900">Daftar Aset yang Dimiliki</h3>
+            <p className="text-xs font-medium text-slate-500">Rumah, kendaraan, gadget — siapa pemiliknya dan berapa harganya</p>
           </div>
-          <button
-            onClick={() => setIsAdding(true)}
-            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-[#1c543c] hover:bg-[#15422f] text-white text-xs font-black shadow-xs transition active:scale-95 flex items-center gap-1.5"
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer"
           >
             <Plus size={15} />
             <span>Tambah Aset</span>
@@ -104,43 +95,43 @@ export function AssetView({ store: s }: AssetViewProps) {
       {/* Mobile Card List (< 768px) */}
       <div className="block md:hidden space-y-3">
         {s.assets.map((a) => (
-          <Card key={a.id} className="p-4 border-[#dbeae0] bg-white">
+          <Card key={a.id} className="p-4 border-slate-200/80 bg-white">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <Badge variant={a.jenis === 'PROPERTY' ? 'brand' : a.jenis === 'KENDARAAN' ? 'success' : 'accent'}>
                   {a.jenis}
                 </Badge>
-                <h4 className="mt-1 text-sm font-black text-[#0f291e]">{a.nama}</h4>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                <h4 className="mt-1 text-sm font-black text-slate-900">{a.nama}</h4>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
                   a.n {a.atasNama} • Beli: {a.tgl}
                 </p>
               </div>
 
               <button
                 onClick={() => setDeleteTargetId(a.id)}
-                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
                 title="Hapus Aset"
               >
                 <Trash2 size={16} />
               </button>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-[#edf4ef] grid grid-cols-2 gap-2 text-xs">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-slate-400 text-[10px] block">Nilai Beli</span>
-                <span className="font-bold text-slate-800 num">Rp {formatRibuan(a.nilai)}</span>
+                <span className="text-slate-600 font-semibold text-[11px] block">Nilai Beli</span>
+                <span className="font-bold text-slate-900 num">Rp {formatRibuan(a.nilai)}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Nilai Pasar</span>
-                <span className="font-black text-[#1c543c] num">Rp {formatRibuan(a.nilaiPasar)}</span>
+                <span className="text-slate-600 font-semibold text-[11px] block">Nilai Pasar</span>
+                <span className="font-black text-emerald-800 num">Rp {formatRibuan(a.nilaiPasar)}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">DP / Uang Muka</span>
+                <span className="text-slate-600 font-semibold text-[11px] block">DP / Uang Muka</span>
                 <span className="font-bold text-emerald-700 num">Rp {formatRibuan(a.dp)}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Tenor Cicilan</span>
-                <span className="font-semibold text-slate-700">{a.tenor} bulan</span>
+                <span className="text-slate-600 font-semibold text-[11px] block">Tenor Cicilan</span>
+                <span className="font-bold text-slate-800">{a.tenor} bulan</span>
               </div>
             </div>
           </Card>
@@ -148,11 +139,11 @@ export function AssetView({ store: s }: AssetViewProps) {
       </div>
 
       {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-[#dbeae0]">
+      <Card className="hidden md:block overflow-hidden border border-slate-200/80">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#f8faf9] border-b border-[#dbeae0] text-slate-600 font-bold text-[11px] uppercase tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
                 <th className="px-4 py-3">Jenis</th>
                 <th className="px-4 py-3">Nama Aset</th>
                 <th className="px-4 py-3">Atas Nama</th>
@@ -209,7 +200,7 @@ export function AssetView({ store: s }: AssetViewProps) {
       {isAdding && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-xl border border-[#dbeae0] p-5 sm:p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white w-full max-w-lg rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
             <h3 className="font-black text-base sm:text-lg text-[#0f291e] tracking-tight pb-3 border-b border-slate-100">
               Tambah Aset Baru
             </h3>
@@ -217,11 +208,7 @@ export function AssetView({ store: s }: AssetViewProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-slate-600 block mb-1">Jenis Aset</label>
-                  <select
-                    value={newAsset.jenis}
-                    onChange={(e) => setNewAsset({ ...newAsset, jenis: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-                  >
+                  <select value={newAsset.jenis} onChange={(e) => setNewAsset({ ...newAsset, jenis: e.target.value as AssetRow['jenis'] })} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
                     <option value="PROPERTY">PROPERTY</option>
                     <option value="KENDARAAN">KENDARAAN</option>
                     <option value="GADGET">GADGET</option>
@@ -235,20 +222,15 @@ export function AssetView({ store: s }: AssetViewProps) {
                     placeholder="Contoh: Rumah Cluster Magnolia"
                     value={newAsset.nama}
                     onChange={(e) => setNewAsset({ ...newAsset, nama: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">Atas Nama</label>
-                  <input
-                    type="text"
-                    value={newAsset.atasNama}
-                    onChange={(e) => setNewAsset({ ...newAsset, atasNama: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
-                  />
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Atas Nama <span className="text-rose-500">*</span></label>
+                  <Autocomplete value={newAsset.atasNama} onChange={(v) => setNewAsset({ ...newAsset, atasNama: v })} suggestions={atasNamaSuggestions} placeholder="Pilih pemilik aset" />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-600 block mb-1">Tanggal Perolehan / Beli</label>
@@ -257,7 +239,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     required
                     value={newAsset.tgl}
                     onChange={(e) => setNewAsset({ ...newAsset, tgl: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </div>
@@ -269,7 +251,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     value={newAsset.nilai}
                     onChange={(v) => setNewAsset({ ...newAsset, nilai: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
                 <div>
@@ -278,7 +260,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     value={newAsset.dp}
                     onChange={(v) => setNewAsset({ ...newAsset, dp: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-bold num text-emerald-700 outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold num text-emerald-700 outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </div>
@@ -291,7 +273,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     min="0"
                     value={newAsset.tenor}
                     onChange={(e) => setNewAsset({ ...newAsset, tenor: Number(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
                 <div>
@@ -301,7 +283,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     step="0.01"
                     value={Math.round(newAsset.bunga * 100)}
                     onChange={(e) => setNewAsset({ ...newAsset, bunga: (Number(e.target.value) || 0) / 100 })}
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
                 <div>
@@ -310,7 +292,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                     value={newAsset.nilaiPasar}
                     onChange={(v) => setNewAsset({ ...newAsset, nilaiPasar: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-[#f8faf9] border border-[#dbeae0] rounded-xl text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-[#1c543c]"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </div>
