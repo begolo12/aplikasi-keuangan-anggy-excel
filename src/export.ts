@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import type { Tx, RabRow, DepRow, SchedRow, PiutangRow, AssetRow } from './store'
-import { assetDebt, closingBalance, isAssetConversion, isBudgetRealization, monthlyTotals, rabMonthlyTotals, straightLineValue, yearTransactions } from './finance'
+import { assetDebt, closingBalance, groupHeaderRefs, isAssetConversion, isBudgetRealization, monthlyTotals, rabMonthlyTotals, straightLineValue, yearTransactions } from './finance'
 
 const fmt = '#,##0'
 const fmtRp = '"Rp" #,##0'
@@ -139,9 +139,11 @@ export async function exportExcel(args: {
       ...args.rabKeluarga.map((x) => ({ ...x, plot: 'KELUARGA' })),
     ]
     const groups = [...new Set(combinedRab.map((x) => x.group))]
+    const headerRows: number[] = []
 
     groups.forEach((g, gi) => {
       const rows = combinedRab.filter((x) => x.group === g)
+      headerRows.push(r)
       ws.getCell(`B${r}`).value = gi + 1
       ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
@@ -203,14 +205,14 @@ export async function exportExcel(args: {
     ws.getCell(`D${totalRow}`).font = { bold: true }
     for (let col = 8; col <= 11; col++) {
       const l = String.fromCharCode(64 + col)
-      ws.getCell(`${l}${totalRow}`).value = { formula: `SUM(${l}7:${l}${r - 1})` } as never
+      ws.getCell(`${l}${totalRow}`).value = { formula: groupHeaderRefs(headerRows, l) } as never
       ws.getCell(`${l}${totalRow}`).numFmt = fmt
     }
     ws.getCell(`L${totalRow}`).value = { formula: `SUM(H${totalRow}:K${totalRow})` } as never
     ws.getCell(`L${totalRow}`).numFmt = fmt
     for (let c = 14; c <= 25; c++) {
       const l = String.fromCharCode(64 + c)
-      ws.getCell(`${l}${totalRow}`).value = { formula: `SUM(${l}7:${l}${r - 1})` } as never
+      ws.getCell(`${l}${totalRow}`).value = { formula: groupHeaderRefs(headerRows, l) } as never
       ws.getCell(`${l}${totalRow}`).numFmt = fmt
     }
     ws.getCell(`Z${totalRow}`).value = { formula: `SUM(N${totalRow}:Y${totalRow})` } as never
@@ -254,8 +256,10 @@ export async function exportExcel(args: {
 
     let r = 7
     const groups = [...new Set(args.rabAnggy.map((x) => x.group))]
+    const headerRows: number[] = []
     groups.forEach((g, gi) => {
       const rows = args.rabAnggy.filter((x) => x.group === g)
+      headerRows.push(r)
       ws.getCell(`B${r}`).value = gi + 1
       ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
@@ -298,10 +302,9 @@ export async function exportExcel(args: {
     const tot = r
     ws.getCell(`D${tot}`).value = 'TOTAL'
     ws.getCell(`D${tot}`).font = { bold: true }
-    ws.getCell(`H${tot}`).value = { formula: `SUM(H7:H${r - 1})` } as never
-    ws.getCell(`I${tot}`).value = { formula: `SUM(I7:I${r - 1})` } as never
-    ws.getCell(`J${tot}`).value = { formula: `SUM(J7:J${r - 1})` } as never
-    ws.getCell(`K${tot}`).value = { formula: `SUM(K7:K${r - 1})` } as never
+    ;['H', 'I', 'J', 'K'].forEach((l) => {
+      ws.getCell(`${l}${tot}`).value = { formula: groupHeaderRefs(headerRows, l) } as never
+    })
     ws.getCell(`L${tot}`).value = { formula: `SUM(H${tot}:K${tot})` } as never
     ;['H', 'I', 'J', 'K', 'L'].forEach((l) => (ws.getCell(`${l}${tot}`).numFmt = fmt))
     styleRow(ws, tot, 12, { bold: true, fill: 'DBEAFE' })
@@ -344,8 +347,10 @@ export async function exportExcel(args: {
 
     let r = 7
     const groups = [...new Set(args.rabKeluarga.map((x) => x.group))]
+    const headerRows: number[] = []
     groups.forEach((g, gi) => {
       const rows = args.rabKeluarga.filter((x) => x.group === g)
+      headerRows.push(r)
       ws.getCell(`B${r}`).value = gi + 1
       ws.getCell(`D${r}`).value = safeStr(g)
       ws.getCell(`D${r}`).font = { bold: true }
@@ -388,10 +393,9 @@ export async function exportExcel(args: {
     const tot = r
     ws.getCell(`D${tot}`).value = 'TOTAL'
     ws.getCell(`D${tot}`).font = { bold: true }
-    ws.getCell(`H${tot}`).value = { formula: `SUM(H7:H${r - 1})` } as never
-    ws.getCell(`I${tot}`).value = { formula: `SUM(I7:I${r - 1})` } as never
-    ws.getCell(`J${tot}`).value = { formula: `SUM(J7:J${r - 1})` } as never
-    ws.getCell(`K${tot}`).value = { formula: `SUM(K7:K${r - 1})` } as never
+    ;['H', 'I', 'J', 'K'].forEach((l) => {
+      ws.getCell(`${l}${tot}`).value = { formula: groupHeaderRefs(headerRows, l) } as never
+    })
     ws.getCell(`L${tot}`).value = { formula: `SUM(H${tot}:K${tot})` } as never
     ;['H', 'I', 'J', 'K', 'L'].forEach((l) => (ws.getCell(`${l}${tot}`).numFmt = fmt))
     styleRow(ws, tot, 12, { bold: true, fill: 'DBEAFE' })

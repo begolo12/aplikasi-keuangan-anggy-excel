@@ -31,6 +31,7 @@ export function BottomNav({
             <button
               key={tab.id}
               onClick={() => onSelectTab(tab.id as TabKey)}
+              aria-current={isActive ? 'page' : undefined}
               className="flex flex-col items-center justify-center py-1 px-3 min-w-[64px] relative transition cursor-pointer"
             >
               <span className={`px-3.5 py-1 rounded-full transition-colors ${isActive ? 'bg-[#c2e7ff] text-[#001d35]' : 'text-[#444746]'}`}>

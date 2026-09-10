@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { X, CheckCircle2, HandCoins } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
+import { useModalA11y } from '../../lib/useModalA11y'
 import type { PiutangRow } from '../../store'
 
 interface PelunasanModalProps {
@@ -15,6 +16,8 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
   const [nominal, setNominal] = useState(0)
   const [tanggal, setTanggal] = useState(() => new Date().toISOString().slice(0, 10))
 
+  const dialogRef = useModalA11y(open && Boolean(piutang), onClose)
+
   if (!open || !piutang) return null
 
   const sisa = Math.max(0, piutang.terbit - piutang.lunas)
@@ -27,15 +30,15 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pelunasan-title" ref={dialogRef}>
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={onClose} />
       <div className="relative bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-[#edf4ef] pb-3">
           <div className="flex items-center gap-2 text-[#0f291e]">
             <HandCoins size={18} className="text-[#1c543c]" />
-            <h3 className="font-black text-base sm:text-lg tracking-tight">Catat Pelunasan Piutang</h3>
+            <h3 id="pelunasan-title" className="font-black text-base sm:text-lg tracking-tight">Catat Pelunasan Piutang</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <button onClick={onClose} aria-label="Tutup" className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
             <X size={18} />
           </button>
         </div>

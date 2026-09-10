@@ -52,6 +52,8 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
           viewBox={`0 0 600 ${height}`}
           className="w-full h-auto min-w-[480px]"
           preserveAspectRatio="none"
+          role="img"
+          aria-label={`Grafik pemasukan dan pengeluaran per bulan. ${data.map((d) => `${d.month}: masuk ${d.income}, keluar ${d.expense}`).join('; ')}`}
         >
           {/* Horizontal Gridlines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -89,7 +91,10 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                 key={d.month}
                 onMouseEnter={() => setHoveredIdx(i)}
                 onMouseLeave={() => setHoveredIdx(null)}
-                className="cursor-pointer transition-opacity"
+                onFocus={() => setHoveredIdx(i)}
+                onBlur={() => setHoveredIdx(null)}
+                tabIndex={0}
+                className="cursor-pointer transition-opacity outline-none"
                 opacity={hoveredIdx === null || isHovered ? 1 : 0.45}
               >
                 {/* Background hover pill */}
@@ -198,7 +203,7 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
           {slices.map((slice, i) => (
             <path
               key={i}
@@ -216,6 +221,7 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
         </div>
       </div>
 
+      {/* Legenda ini yang jadi teks alternatif grafik; arc-nya sendiri dekoratif. */}
       <div className="flex-1 space-y-1.5 w-full">
         {data.slice(0, 5).map((d, i) => (
           <div key={i} className="flex items-center justify-between text-xs">

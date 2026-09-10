@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { closingBalance, consolidatedExpense, consolidatedIncome, isAssetConversion, isTransfer, ledgerBalance, monthlyTotals, openingBalance, outstandingPiutang, rabMonthlyTotals, runningBalancesForYear, straightLineValue } from './finance.ts'
+import { closingBalance, consolidatedExpense, consolidatedIncome, groupHeaderRefs, isAssetConversion, isTransfer, ledgerBalance, monthlyTotals, openingBalance, outstandingPiutang, rabMonthlyTotals, runningBalancesForYear, straightLineValue } from './finance.ts'
 import type { PiutangRow, RabRow, Tx } from './store.ts'
 
 const txs: Tx[] = [
@@ -52,4 +52,10 @@ const receivable = [
 ] satisfies PiutangRow[]
 assert.equal(outstandingPiutang(receivable), 750)
 assert.deepEqual(straightLineValue({ id: 'd', nama: 'Laptop', tgl: '2025-01-01', nilai: 1200, umur: 12, nilaiTaksir: 0, kat: 'GADGET' }, '2026-01-01'), { monthsElapsed: 12, accumulated: 1200, bookValue: 0 })
+
+// Total RAB hanya menjumlah baris header grup. Rentang kontigu akan menghitung
+// tiap grup dua kali, karena header sudah berisi SUM detail di bawahnya.
+assert.equal(groupHeaderRefs([7, 9, 12], 'H'), 'SUM(H7,H9,H12)')
+assert.equal(groupHeaderRefs([7], 'N'), 'SUM(N7)')
+assert.equal(groupHeaderRefs([], 'H'), '0')
 process.stdout.write('finance self-check passed\n')

@@ -82,10 +82,6 @@ export function consolidatedExpense(txs: Tx[]): number {
 export function ledgerExpense(txs: Tx[], ledger: Tx['ledger']): number {
   return txs.filter((tx) => tx.ledger === ledger && !isTransfer(tx) && !isAssetConversion(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
 }
-export function runningBalances(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0, year?: number): Map<string, number> {
-  return runningBalancesForYear(txs, ledger, year ?? new Date().getFullYear(), saldoAwal)
-}
-
 export function runningBalancesForYear(txs: Tx[], ledger: Tx['ledger'], year: number, saldoAwal = 0): Map<string, number> {
   let balance = openingBalance(txs, ledger, year, ledger === 'master' ? saldoAwal : 0)
   const result = new Map<string, number>()
@@ -153,4 +149,14 @@ export function assetDebt(row: AssetRow, asOf: string): { principal: number; mon
 
 export function scheduleMonthlyTotals(rows: SchedRow[]): number[] {
   return Array.from({ length: MONTHS }, (_, month) => rows.reduce((sum, row) => sum + (row.months[month] || 0), 0))
+}
+
+/**
+ * Formula total RAB: hanya menjumlah baris header grup.
+ * Baris header sudah berisi SUM detail di bawahnya, jadi menjumlah rentang penuh
+ * (header + detail) menghitung tiap grup dua kali. SUM butuh minimal satu argumen.
+ */
+export function groupHeaderRefs(headerRows: number[], col: string): string {
+  if (headerRows.length === 0) return '0'
+  return `SUM(${headerRows.map((row) => `${col}${row}`).join(',')})`
 }

@@ -11,6 +11,7 @@ import { EmptyState } from '../common/EmptyState'
 import { PelunasanModal } from '../modals/PelunasanModal'
 import type { State, PiutangRow } from '../../store'
 import { outstandingPiutang } from '../../finance'
+import { useModalA11y } from '../../lib/useModalA11y'
 
 interface PiutangViewProps {
   store: State
@@ -20,6 +21,8 @@ export function PiutangView({ store: s }: PiutangViewProps) {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [pelunasanTarget, setPelunasanTarget] = useState<PiutangRow | null>(null)
+
+  const addDialogRef = useModalA11y(isAdding, () => setIsAdding(false))
 
   const [newPiutang, setNewPiutang] = useState<Omit<PiutangRow, 'id'>>({
     tgl: new Date().toISOString().slice(0, 10),
@@ -232,10 +235,10 @@ export function PiutangView({ store: s }: PiutangViewProps) {
       />
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="piutang-add-title" ref={addDialogRef}>
           <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsAdding(false)} />
           <div className="relative bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Catat Pinjaman Baru</h3>
+            <h3 id="piutang-add-title" className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Catat Pinjaman Baru</h3>
             <p className="mt-2 text-xs font-medium text-slate-500">Siapa yang pinjam, untuk apa, dan berapa jumlahnya.</p>
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

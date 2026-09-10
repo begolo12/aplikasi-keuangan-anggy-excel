@@ -172,7 +172,6 @@ export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error'
 export type State = StateData & {
   syncStatus: SyncStatus
   serverRev: string | null
-  setSyncStatus: (s: SyncStatus) => void
 
   loadFromServer: () => Promise<void>
   syncToServer: () => Promise<void>
@@ -185,7 +184,6 @@ export type State = StateData & {
 
   addRab: (which: 'anggy' | 'keluarga', r: Omit<RabRow, 'id'>) => void
   delRab: (which: 'anggy' | 'keluarga', id: string) => void
-  updRab: (which: 'anggy' | 'keluarga', id: string, patch: Partial<RabRow>) => void
 
   addPiutang: (p: Omit<PiutangRow, 'id'>) => void
   delPiutang: (id: string) => void
@@ -202,7 +200,6 @@ export type State = StateData & {
 
   addSched: (sc: Omit<SchedRow, 'id'>) => void
   delSched: (id: string) => void
-  updSched: (id: string, patch: Partial<SchedRow>) => void
   toggleSchedMonth: (id: string, monthIdx: number, customAmount?: number) => void
 
   setYear: (y: number) => void
@@ -222,13 +219,23 @@ function queueSync(get: () => State) {
   }, 500)
 }
 
+/**
+ * Kirim sekarang juga, batalkan debounce. Dipakai saat tab disembunyikan:
+ * tanpa ini, edit dalam jendela 500 ms terakhir hilang saat tab ditutup.
+ */
+export function flushPendingSync(): void {
+  if (!syncTimeout) return
+  clearTimeout(syncTimeout)
+  syncTimeout = null
+  void useStore.getState().syncToServer()
+}
+
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...emptySeed(),
       syncStatus: 'synced' as SyncStatus,
       serverRev: null as string | null,
-      setSyncStatus: (syncStatus) => set({ syncStatus }),
       loadFromServer: async () => {
         if (syncInFlight) return
         syncInFlight = true
@@ -385,14 +392,6 @@ export const useStore = create<State>()(
         )
         queueSync(get)
       },
-      updRab: (which, id, patch) => {
-        set((s) =>
-          which === 'anggy'
-            ? { rabAnggy: s.rabAnggy.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
-            : { rabKeluarga: s.rabKeluarga.map((x) => (x.id === id ? { ...x, ...patch } : x)) }
-        )
-        queueSync(get)
-      },
       addPiutang: (p) => {
         const id = uid()
         const terbit = Math.max(0, Number(p.terbit) || 0)
@@ -413,7 +412,7 @@ export const useStore = create<State>()(
       },
       delPiutang: (id) => {
         set((s) => ({
-          piutangs: s.piutangs.filter((x) => x.id !== id && !(x.terbit === 0 && (x.keterangan || '').includes(id))),
+          piutangs: s.piutangs.filter((x) => x.id !== id),
           txs: s.txs.filter((x) => x.receivableId !== id),
         }))
         queueSync(get)
@@ -426,9 +425,9 @@ export const useStore = create<State>()(
       catatPelunasan: (id, nominal, tanggal) => {
         const s = get()
         const p = s.piutangs.find((x) => x.id === id)
-        if (!p || p.terbit !== undefined && p.terbit === 0 && p.lunas > 0) return
-        const outstanding = p ? Math.max(0, (Number(p.terbit) || 0) - (Number(p.lunas) || 0)) : 0
-        if (!p || !Number.isFinite(nominal) || nominal <= 0 || nominal > outstanding) return
+        if (!p) return
+        const outstanding = Math.max(0, (Number(p.terbit) || 0) - (Number(p.lunas) || 0))
+        if (!Number.isFinite(nominal) || nominal <= 0 || nominal > outstanding) return
         const tglStr = /^\d{4}-\d{2}-\d{2}$/.test(tanggal || '') ? (tanggal as string) : new Date().toISOString().slice(0, 10)
         const newTx: Tx = {
           id: uid(),
@@ -482,10 +481,6 @@ export const useStore = create<State>()(
       },
       delSched: (id) => {
         set((s) => ({ scheds: s.scheds.filter((x) => x.id !== id) }))
-        queueSync(get)
-      },
-      updSched: (id, patch) => {
-        set((s) => ({ scheds: s.scheds.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
       },
       toggleSchedMonth: (id, monthIdx, customAmount) => {

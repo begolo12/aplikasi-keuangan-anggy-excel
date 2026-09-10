@@ -4,6 +4,7 @@ import { Card } from '../common/Card'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { useModalA11y } from '../../lib/useModalA11y'
 import type { State, RabRow } from '../../store'
 
 interface RabViewProps {
@@ -27,6 +28,8 @@ export function RabView({ store: s }: RabViewProps) {
   /** Bangun distribusi bulanan: nominal mengisi N bulan sejak bulan mulai, sisanya 0. */
   const buildMonths = (hs: number, vol: number, start: number, n: number): number[] =>
     Array.from({ length: 12 }, (_, i) => (i >= start && i < start + n ? hs * vol : 0))
+
+  const addDialogRef = useModalA11y(isAdding, () => setIsAdding(false))
   const [newRow, setNewRow] = useState<Omit<RabRow, 'id'>>({
     group: 'RUTIN',
     uraian: '',
@@ -239,10 +242,10 @@ export function RabView({ store: s }: RabViewProps) {
       <ConfirmDialog open={Boolean(deleteTargetId)} title="Hapus rencana" message="Hapus rencana anggaran ini?" confirmLabel="Ya, Hapus" onConfirm={() => { if (deleteTargetId) s.delRab(target, deleteTargetId); setDeleteTargetId(null) }} onCancel={() => setDeleteTargetId(null)} />
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="rab-add-title" ref={addDialogRef}>
           <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setIsAdding(false)} />
           <div className="relative bg-white w-full max-w-lg rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Tambah Rencana Anggaran — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</h3>
+            <h3 id="rab-add-title" className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Tambah Rencana Anggaran — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</h3>
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>

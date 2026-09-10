@@ -64,6 +64,7 @@ export function MobileNav({
                     <button
                       key={item.id}
                       onClick={() => { onSelectTab(item.id); onClose() }}
+                      aria-current={isActive ? 'page' : undefined}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-[13px] transition cursor-pointer ${isActive ? 'bg-[#c2e7ff] text-[#001d35] font-semibold' : 'text-[#444746] hover:bg-[#f1f3f4] hover:text-[#1f1f1f] font-medium'}`}
                     >
                       <span className="flex items-center gap-3"><span className={isActive ? 'text-[#001d35]' : 'text-[#444746]'}>{(() => { const Icon = TAB_ICONS[item.id]; return <Icon size={20} /> })()}</span>{item.label}</span>

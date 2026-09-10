@@ -3,6 +3,7 @@ import { X, ArrowRight, ArrowLeftRight } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { todayLocal } from '../../finance'
+import { useModalA11y } from '../../lib/useModalA11y'
 
 interface TransferModalProps {
   open: boolean
@@ -25,6 +26,8 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
     }
   }, [open])
 
+  const dialogRef = useModalA11y(open, onClose)
+
   if (!open) return null
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,7 +43,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
   const isOverBalance = amount > maxMasterBalance
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="transfer-title" ref={dialogRef}>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
       <div className="relative bg-white w-full max-w-md rounded-3xl md-elevation-3 p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b border-[#e0e2e0] pb-3">
@@ -48,7 +51,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
             <div className="w-8 h-8 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center">
               <ArrowLeftRight size={16} />
             </div>
-            <h3 className="font-medium text-base text-[#1f1f1f] tracking-tight">Pindah Saldo Antar Kas</h3>
+            <h3 id="transfer-title" className="font-medium text-base text-[#1f1f1f] tracking-tight">Pindah Saldo Antar Kas</h3>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-[#f1f3f4] text-[#747775] transition"><X size={18} /></button>
         </div>
