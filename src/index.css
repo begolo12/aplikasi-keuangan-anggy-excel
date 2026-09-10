@@ -1,46 +1,134 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #1a73e8;
-  --color-primary-hover: #1557b0;
-  --color-primary-surface: #e8f0fe;
-  --color-primary-border: #d2e3fc;
+/*
+ * Arah visual: editorial finansial padat.
+ * Latar hampir putih, kartu putih ber-border 1px, radius maksimal 8px, satu
+ * aksen biru dipakai hemat, garis rambut sebagai pemisah, angka tabular di
+ * mana pun uang muncul.
+ *
+ * `@theme inline` sengaja dipakai supaya token merujuk variabel runtime
+ * (`--c-*`) dan nilainya bisa berubah saat `.dark` aktif. Kalau `@theme` biasa,
+ * nilainya dipaku saat build dan dark mode tidak akan bekerja.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --color-brand-950: #0a2540;
-  --color-brand-900: #103b6b;
-  --color-brand-850: #13467f;
-  --color-brand-800: #1557b0;
-  --color-brand-700: #1a73e8;
-  --color-brand-600: #1b66c9;
-  --color-brand-500: #4285f4;
-  --color-brand-400: #669df6;
-  --color-brand-300: #8ab4f8;
-  --color-brand-200: #aecbfa;
-  --color-brand-100: #d2e3fc;
-  --color-brand-50:  #e8f0fe;
-  --color-brand-tint: #f1f6fd;
+@theme inline {
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-sunken: var(--c-surface-sunken);
 
-  --font-sans: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --color-border: var(--c-border);
+  --color-border-strong: var(--c-border-strong);
+
+  --color-text: var(--c-text);
+  --color-text-muted: var(--c-text-muted);
+  --color-text-subtle: var(--c-text-subtle);
+
+  --color-accent: var(--c-accent);
+  --color-accent-hover: var(--c-accent-hover);
+  --color-accent-soft: var(--c-accent-soft);
+
+  --color-positive: var(--c-positive);
+  --color-positive-soft: var(--c-positive-soft);
+  --color-negative: var(--c-negative);
+  --color-negative-soft: var(--c-negative-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+
+  --font-sans: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, monospace;
 
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
-  --radius-3xl: 28px;
+  /* Satu peran, satu nilai. Maksimum 8px: tajam, bukan menggelembung. */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
 }
 
 :root {
-  font-family: var(--font-sans);
   color-scheme: light;
-  --bg-app: #f8f9fa;
-  --text-primary: #1f1f1f;
-  --text-secondary: #444746;
-  --text-muted: #747775;
-  --brand-primary: #1a73e8;
-  --border-soft: #e0e2e0;
+
+  --c-canvas: #f7f8f7;
+  --c-surface: #ffffff;
+  --c-surface-sunken: #f2f4f3;
+
+  --c-border: #e3e6e4;
+  --c-border-strong: #cdd2cf;
+
+  --c-text: #14181a;
+  --c-text-muted: #4a5156;
+  --c-text-subtle: #6b7378;
+
+  --c-accent: #1a73e8;
+  --c-accent-hover: #1557b0;
+  --c-accent-soft: #eaf1fd;
+
+  --c-positive: #0f7a3d;
+  --c-positive-soft: #e6f4ea;
+  --c-negative: #c0261f;
+  --c-negative-soft: #fce8e6;
+  --c-warning: #9a5b00;
+  --c-warning-soft: #fdf3da;
+
+  --c-overlay: rgba(20, 24, 26, 0.45);
+  --c-hover: rgba(20, 24, 26, 0.04);
+  --c-scroll-thumb: #cdd2cf;
+
+  --shadow-overlay: 0 8px 28px -6px rgba(20, 24, 26, 0.22), 0 2px 6px -2px rgba(20, 24, 26, 0.12);
+  --shadow-raised: 0 1px 2px rgba(20, 24, 26, 0.06);
+
+  /* Palet grafik: urutan tetap, dipakai berulang untuk kategori. */
+  --c-chart-1: #1a73e8;
+  --c-chart-2: #0f7a3d;
+  --c-chart-3: #9a5b00;
+  --c-chart-4: #6d4aa8;
+  --c-chart-5: #b02a67;
+  --c-chart-6: #0d7f8a;
+  --c-chart-7: #6b7378;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --c-canvas: #0e1113;
+  --c-surface: #16191c;
+  --c-surface-sunken: #101315;
+
+  --c-border: #262b2f;
+  --c-border-strong: #3a4146;
+
+  --c-text: #e8eaec;
+  --c-text-muted: #a4abb1;
+  --c-text-subtle: #7c848a;
+
+  --c-accent: #6ba4f8;
+  --c-accent-hover: #8ab8fa;
+  --c-accent-soft: #16273d;
+
+  --c-positive: #57c98a;
+  --c-positive-soft: #10261a;
+  --c-negative: #f08078;
+  --c-negative-soft: #2c1614;
+  --c-warning: #e0ab55;
+  --c-warning-soft: #2b2113;
+
+  --c-overlay: rgba(0, 0, 0, 0.62);
+  --c-hover: rgba(255, 255, 255, 0.05);
+  --c-scroll-thumb: #3a4146;
+
+  --shadow-overlay: 0 8px 28px -6px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  --c-chart-1: #6ba4f8;
+  --c-chart-2: #57c98a;
+  --c-chart-3: #e0ab55;
+  --c-chart-4: #b092e8;
+  --c-chart-5: #ef85ae;
+  --c-chart-6: #4fc4d0;
+  --c-chart-7: #9aa2a8;
 }
 
 html {
@@ -50,173 +138,192 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--bg-app);
-  color: var(--text-primary);
+  background-color: var(--c-canvas);
+  color: var(--c-text);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Material Design 3 Typography & Elevations */
+/* Skala tipografi: satu peran, satu nilai. */
 h1 {
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1.25;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--c-text);
 }
 h2 {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.3;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--c-text);
 }
 h3 {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.4;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--c-text);
 }
 h4, h5, h6 {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-.eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.muted {
-  color: var(--text-muted);
+  font-weight: 600;
+  color: var(--c-text);
 }
 
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-subtle);
+}
+.muted {
+  color: var(--c-text-muted);
+}
+
+/* Angka uang: tabular dan lebar tetap supaya kolom tidak bergoyang. */
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
-/* Material Elevations */
+/* Pemisah garis rambut, bukan bayangan. */
+.hairline {
+  border-top: 1px solid var(--c-border);
+}
+
+/* Elevasi hanya untuk lapisan yang benar-benar mengambang (overlay). */
 .md-elevation-0 {
   box-shadow: none;
 }
 .md-elevation-1 {
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+  box-shadow: var(--shadow-raised);
 }
 .md-elevation-2 {
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+  box-shadow: 0 2px 8px -2px rgba(20, 24, 26, 0.16), 0 1px 2px rgba(20, 24, 26, 0.08);
 }
 .md-elevation-3 {
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+  box-shadow: var(--shadow-overlay);
 }
 
-/* Material Ripple / Interaction states */
-.md-ripple {
-  position: relative;
-  overflow: hidden;
+.card-hover {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.md-ripple::after {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
-  background-repeat: no-repeat;
-  background-position: 50%;
-  transform: scale(10, 10);
-  opacity: 0;
-  transition: transform .5s, opacity 1s;
-}
-.md-ripple:active::after {
-  transform: scale(0, 0);
-  opacity: .15;
-  transition: 0s;
+.card-hover:hover {
+  border-color: var(--c-border-strong);
 }
 
-/* Material Inputs & Focus */
 input, select, textarea {
   min-height: 40px;
   font-family: inherit;
+  color-scheme: inherit;
 }
 :focus-visible {
-  outline: 2px solid #1a73e8;
-  outline-offset: 2px;
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+  border-radius: 3px;
 }
 
-/* Material Card Hover */
-.card-hover {
-  transition: box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s;
+/* Scrollbar tipis dipakai lewat class `scrollbar-thin`; sebelum ini class-nya
+ * dipanggil di 7 view tapi tidak pernah didefinisikan. */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-scroll-thumb) transparent;
 }
-.card-hover:hover {
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--c-scroll-thumb);
+  border-radius: 999px;
 }
 
-/* Scrollbars */
+/* Jarak aman home bar iOS. Tanpa ini BottomNav menempel di gesture area. */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #dadce0;
+  background: var(--c-scroll-thumb);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #bdc1c6;
-}
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #dadce0 transparent;
-}
 
-/* Tables */
 table {
   border-collapse: separate;
   border-spacing: 0;
 }
 .table-head {
-  font-size: 12px;
-  font-weight: 500;
-  color: #444746;
-  background-color: #f1f3f4;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-subtle);
+  background-color: var(--c-surface-sunken);
 }
 thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e0e2e0;
+  background: var(--c-surface-sunken);
+  border-bottom: 1px solid var(--c-border);
 }
 tbody tr {
-  transition: background-color 0.15s ease;
+  transition: background-color 0.12s ease;
 }
 tbody tr:hover {
-  background-color: #f1f3f4 !important;
+  background-color: var(--c-hover) !important;
 }
 
 @keyframes mdFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }
 }
 .animate-in {
-  animation: mdFadeIn 0.2s cubic-bezier(0, 0, 0.2, 1);
+  animation: mdFadeIn 0.18s cubic-bezier(0, 0, 0.2, 1);
 }
 
 @keyframes mdScaleIn {
-  from { opacity: 0; transform: scale(0.94); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: none; }
 }
 .animate-scale {
-  animation: mdScaleIn 0.2s cubic-bezier(0, 0, 0.2, 1);
+  animation: mdScaleIn 0.16s cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes mdShimmer {
+  from { opacity: 0.45; }
+  to { opacity: 0.85; }
+}
+.skeleton {
+  background-color: var(--c-surface-sunken);
+  border-radius: 4px;
+  animation: mdShimmer 1.1s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .animate-scale,
+  .skeleton,
+  .card-hover {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @media print {

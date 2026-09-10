@@ -82,7 +82,7 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
     }
   })
 
-  const palette = ['#1c543c', '#2d6a4f', '#40916c', '#52b788', '#e11d48', '#f59e0b', '#64748b']
+  const palette = ['var(--c-chart-1)', 'var(--c-chart-2)', 'var(--c-chart-3)', 'var(--c-chart-4)', 'var(--c-chart-5)', 'var(--c-chart-6)', 'var(--c-chart-7)']
   const donutData: CategoryDonutData[] = Array.from(categoryMap.entries())
     .sort((a, b) => b[1] - a[1])
     .map(([label, value], idx) => ({
@@ -100,17 +100,17 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center px-3 py-0.5 rounded-full bg-[#e8f0fe] text-[#1a73e8] text-[11px] font-medium tracking-wide">Tahun Buku {s.year}</span>
-            <span className="text-xs text-[#747775]">{monthNames[currentMonthIdx]} · {s.year}</span>
+            <span className="inline-flex items-center px-3 py-0.5 rounded-full bg-accent-soft text-accent text-[11px] font-medium tracking-wide">Tahun Buku {s.year}</span>
+            <span className="text-xs text-text-subtle">{monthNames[currentMonthIdx]} · {s.year}</span>
           </div>
-          <h1 className="text-[24px] sm:text-[28px] font-medium tracking-tight text-[#1f1f1f] leading-none">Ringkasan Keuangan</h1>
-          <p className="text-[13px] text-[#747775] mt-1.5 max-w-xl">Pantau posisi ledger kas, realisasi anggaran bulanan, dan aset secara real-time.</p>
+          <h1 className="text-[24px] sm:text-[28px] font-medium tracking-tight text-text leading-none">Ringkasan Keuangan</h1>
+          <p className="text-[13px] text-text-subtle mt-1.5 max-w-xl">Pantau posisi ledger kas, realisasi anggaran bulanan, dan aset secara real-time.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onOpenTransfer} className="px-4 py-2 rounded-full border border-[#747775] bg-white hover:bg-[#f1f3f4] text-[#1f1f1f] text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
+          <button onClick={onOpenTransfer} className="px-4 py-2 rounded-lg border border-border-strong bg-surface hover:bg-surface-sunken text-text text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
             <ArrowLeftRight size={14} /> Transfer Kas
           </button>
-          <button onClick={() => onOpenQuickTx('master')} className="px-5 py-2 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition inline-flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => onOpenQuickTx('master')} className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition inline-flex items-center gap-1.5 cursor-pointer">
             <Plus size={16} /> Tambah Transaksi
           </button>
         </div>
@@ -118,24 +118,23 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
 
       {/* Hero + stats */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-5 bg-[#001d35] rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden md-elevation-2">
-          <div className="absolute -right-8 -top-8 w-36 h-36 bg-[#1a73e8]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="lg:col-span-5 bg-surface border border-border rounded-lg p-5 flex flex-col justify-between">
           <div>
-            <p className="text-[11px] font-medium tracking-wider text-[#c2e7ff] uppercase flex items-center gap-2">
-              <CreditCard size={14} /> Total Kas Tersedia
+            <p className="eyebrow flex items-center gap-2">
+              <CreditCard size={13} /> Total Kas Tersedia
             </p>
-            <p className="mt-3 text-[30px] sm:text-[34px] font-bold tracking-tight num leading-none text-white">Rp {formatRibuan(totalKasTersedia) || '0'}</p>
-            <p className="mt-2 text-xs text-[#a8c7fa]">Akumulasi 3 kas · per {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+            <p className="mt-2.5 text-[28px] sm:text-[32px] font-semibold tracking-tight num leading-none text-text">Rp {formatRibuan(totalKasTersedia) || '0'}</p>
+            <p className="mt-2 text-[11px] text-text-subtle">Akumulasi 3 kas · per {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
           </div>
-          <div className="mt-6 grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
+          <div className="mt-5 grid grid-cols-3 gap-3 pt-3.5 border-t border-border">
             {[
               { label: 'Master', value: balMaster },
               { label: 'Operasional', value: balOperasional },
               { label: 'Keluarga', value: balKeluarga },
             ].map((r) => (
               <div key={r.label}>
-                <p className="text-[10px] font-medium tracking-wider text-[#c2e7ff] uppercase">{r.label}</p>
-                <p className="mt-1 text-[13px] font-semibold num truncate">Rp {formatRibuan(r.value) || '0'}</p>
+                <p className="eyebrow">{r.label}</p>
+                <p className="mt-1 text-xs font-semibold num truncate text-text">Rp {formatRibuan(r.value) || '0'}</p>
               </div>
             ))}
           </div>
@@ -157,15 +156,15 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
           <Card key={c.id} className="p-5">
             <div className="flex items-center justify-between">
               <Badge variant="brand">{c.badge}</Badge>
-              <span className="text-[11px] text-[#747775]">{c.hint}</span>
+              <span className="text-[11px] text-text-subtle">{c.hint}</span>
             </div>
-            <p className="mt-3 text-xs text-[#747775]">{c.desc}</p>
-            <p className="mt-1 text-[22px] font-bold tracking-tight num truncate text-[#1f1f1f]">Rp {formatRibuan(c.value) || '0'}</p>
-            <div className="mt-4 pt-3 border-t border-[#f1f3f4] flex items-center justify-between">
-              <button onClick={() => onNavigate('transaksi')} className="text-xs font-medium text-[#1a73e8] hover:underline inline-flex items-center gap-1 cursor-pointer">
+            <p className="mt-3 text-xs text-text-subtle">{c.desc}</p>
+            <p className="mt-1 text-[22px] font-bold tracking-tight num truncate text-text">Rp {formatRibuan(c.value) || '0'}</p>
+            <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+              <button onClick={() => onNavigate('transaksi')} className="text-xs font-medium text-accent hover:underline inline-flex items-center gap-1 cursor-pointer">
                 Lihat transaksi <ChevronRight size={14} />
               </button>
-              <button onClick={() => onOpenQuickTx(c.id)} className="px-3 py-1 rounded-full bg-[#f1f3f4] hover:bg-[#e0e2e0] text-[#1f1f1f] text-xs font-medium cursor-pointer">
+              <button onClick={() => onOpenQuickTx(c.id)} className="px-3 py-1 rounded-lg bg-surface-sunken hover:bg-border-strong text-text text-xs font-medium cursor-pointer">
                 Tambah
               </button>
             </div>
@@ -177,10 +176,10 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-7">
           <Card className="p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><BarChart3 size={14} className="text-slate-500" /> Arus Kas Bulanan</h3>
-                <p className="text-xs font-medium text-slate-500">Perbandingan kas masuk dan keluar · {s.year}</p>
+                <h3 className="text-sm font-semibold text-text flex items-center gap-2"><BarChart3 size={14} className="text-text-muted" /> Arus Kas Bulanan</h3>
+                <p className="text-xs font-medium text-text-muted">Perbandingan kas masuk dan keluar · {s.year}</p>
               </div>
             </div>
             <BarChart data={barData} height={210} />
@@ -188,10 +187,10 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
         </div>
         <div className="lg:col-span-5">
           <Card className="p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><PieChartIcon size={14} className="text-slate-500" /> Komposisi Pengeluaran</h3>
-                <p className="text-xs font-medium text-slate-500">Distribusi kategori · {s.year}</p>
+                <h3 className="text-sm font-semibold text-text flex items-center gap-2"><PieChartIcon size={14} className="text-text-muted" /> Komposisi Pengeluaran</h3>
+                <p className="text-xs font-medium text-text-muted">Distribusi kategori · {s.year}</p>
               </div>
             </div>
             <DonutChart data={donutData} size={150} />
@@ -203,12 +202,12 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-5">
           <Card className="p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Anggaran · {monthNames[currentMonthIdx]}</h3>
-                <p className="text-xs font-medium text-slate-500">Realisasi vs rencana</p>
+                <h3 className="text-sm font-semibold text-text">Anggaran · {monthNames[currentMonthIdx]}</h3>
+                <p className="text-xs font-medium text-text-muted">Realisasi vs rencana</p>
               </div>
-              <button onClick={() => onNavigate('rari')} className="text-xs font-semibold text-slate-700 hover:text-slate-900 cursor-pointer">Detail</button>
+              <button onClick={() => onNavigate('rari')} className="text-xs font-semibold text-text-muted hover:text-text cursor-pointer">Detail</button>
             </div>
             <div className="mt-4 space-y-5">
               {[
@@ -217,15 +216,15 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
               ].map((r) => (
                 <div key={r.label}>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="font-medium text-slate-700">{r.label}</span>
-                    <span className="font-semibold num text-slate-900">Rp {formatRibuan(r.ri)} / {formatRibuan(r.ra)} · {r.pct}%</span>
+                    <span className="font-medium text-text-muted">{r.label}</span>
+                    <span className="font-semibold num text-text">Rp {formatRibuan(r.ri)} / {formatRibuan(r.ra)} · {r.pct}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className={`h-full rounded-full ${r.ra > 0 && r.ri > r.ra ? 'bg-rose-500' : 'bg-slate-900'}`} style={{ width: `${Math.min(100, r.ra > 0 ? (r.ri / r.ra) * 100 : 0)}%` }} />
+                  <div className="w-full bg-surface-sunken rounded-full h-2 overflow-hidden">
+                    <div className={`h-full rounded-full ${r.ra > 0 && r.ri > r.ra ? 'bg-negative' : 'bg-accent'}`} style={{ width: `${Math.min(100, r.ra > 0 ? (r.ri / r.ra) * 100 : 0)}%` }} />
                   </div>
-                  <div className="mt-1 flex justify-between text-[11px] font-medium text-slate-500">
+                  <div className="mt-1 flex justify-between text-[11px] font-medium text-text-muted">
                     <span>Sisa anggaran</span>
-                    <span className={r.dev >= 0 ? 'text-emerald-700 font-semibold' : 'text-rose-600 font-semibold'}>{r.dev >= 0 ? `+ Rp ${formatRibuan(r.dev)}` : `- Rp ${formatRibuan(Math.abs(r.dev))}`}</span>
+                    <span className={r.dev >= 0 ? 'text-positive font-semibold' : 'text-negative font-semibold'}>{r.dev >= 0 ? `+ Rp ${formatRibuan(r.dev)}` : `- Rp ${formatRibuan(Math.abs(r.dev))}`}</span>
                   </div>
                 </div>
               ))}
@@ -234,31 +233,31 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
         </div>
         <div className="lg:col-span-7">
           <Card className="p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Transaksi Terbaru</h3>
-                <p className="text-xs font-medium text-slate-500">Aktivitas kas terkini</p>
+                <h3 className="text-sm font-semibold text-text">Transaksi Terbaru</h3>
+                <p className="text-xs font-medium text-text-muted">Aktivitas kas terkini</p>
               </div>
-              <button onClick={() => onNavigate('transaksi')} className="text-xs font-semibold text-slate-700 hover:text-slate-900 inline-flex items-center gap-1 cursor-pointer">Lihat semua <ChevronRight size={14} /></button>
+              <button onClick={() => onNavigate('transaksi')} className="text-xs font-semibold text-text-muted hover:text-text inline-flex items-center gap-1 cursor-pointer">Lihat semua <ChevronRight size={14} /></button>
             </div>
-            <div className="mt-3 divide-y divide-slate-100">
+            <div className="mt-3 divide-y divide-border">
               {recentTxs.length === 0 ? (
-                <div className="py-10 text-center text-xs font-medium text-slate-500">Belum ada transaksi di tahun {s.year}.</div>
+                <div className="py-10 text-center text-xs font-medium text-text-muted">Belum ada transaksi di tahun {s.year}.</div>
               ) : (
                 recentTxs.map((tx) => {
                   const isIncome = tx.penerimaan > 0
                   return (
                     <div key={tx.id} className="py-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${isIncome ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${isIncome ? 'bg-positive-soft text-positive border-positive' : 'bg-negative-soft text-negative border-negative'}`}>
                           {isIncome ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-[13px] font-semibold text-slate-900 truncate">{tx.uraian}</p>
-                          <p className="text-[11px] font-medium text-slate-500 mt-0.5 truncate">{tx.tanggal} · <span className="uppercase tracking-wide font-semibold">{tx.ledger}</span></p>
+                          <p className="text-[13px] font-semibold text-text truncate">{tx.uraian}</p>
+                          <p className="text-[11px] font-medium text-text-muted mt-0.5 truncate">{tx.tanggal} · <span className="uppercase tracking-wide font-semibold">{tx.ledger}</span></p>
                         </div>
                       </div>
-                      <p className={`text-[13px] font-semibold num shrink-0 ${isIncome ? 'text-emerald-700' : 'text-slate-900'}`}>{isIncome ? `+ Rp ${formatRibuan(tx.penerimaan)}` : `- Rp ${formatRibuan(tx.pengeluaran)}`}</p>
+                      <p className={`text-[13px] font-semibold num shrink-0 ${isIncome ? 'text-positive' : 'text-text'}`}>{isIncome ? `+ Rp ${formatRibuan(tx.penerimaan)}` : `- Rp ${formatRibuan(tx.pengeluaran)}`}</p>
                     </div>
                   )
                 })

@@ -7,12 +7,12 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1E3A5F] text-white flex items-center justify-center font-bold animate-pulse">
+          <div className="w-10 h-10 rounded-lg bg-accent text-white flex items-center justify-center font-bold animate-pulse">
             A
           </div>
-          <span className="text-xs font-semibold text-slate-500">Memuat sesi...</span>
+          <span className="text-xs font-semibold text-text-muted">Memuat sesi...</span>
         </div>
       </div>
     )

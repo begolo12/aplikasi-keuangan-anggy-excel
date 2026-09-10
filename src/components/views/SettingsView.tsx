@@ -79,13 +79,13 @@ export function SettingsView({ store: s }: SettingsViewProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight text-[#1f1f1f]">Pengaturan Master Data</h1>
-          <p className="text-xs text-[#747775] mt-1">
+          <h1 className="text-2xl font-medium tracking-tight text-text">Pengaturan Master Data</h1>
+          <p className="text-xs text-text-subtle mt-1">
             Kelola daftar nasabah, pos/kategori transaksi, penamaan dompet kas, dan saldo awal pembukuan.
           </p>
         </div>
         {savedNotif && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#e6f4ea] text-[#137333] text-xs font-medium animate-in">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-positive-soft text-positive text-xs font-medium animate-in">
             <CheckCircle2 size={16} />
             <span>Perubahan berhasil disimpan!</span>
           </div>
@@ -93,7 +93,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#e0e2e0] overflow-x-auto pb-1">
+      <div className="flex items-center gap-2 border-b border-border overflow-x-auto pb-1">
         {[
           { id: 'nsb' as const, label: 'Daftar Nasabah / Pihak', icon: Users, count: nsbList.length },
           { id: 'pos' as const, label: 'Daftar Kategori / Pos', icon: Tag, count: posList.length },
@@ -106,16 +106,16 @@ export function SettingsView({ store: s }: SettingsViewProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                 isActive
-                  ? 'bg-[#c2e7ff] text-[#001d35]'
-                  : 'text-[#444746] hover:bg-[#f1f3f4]'
+                  ? 'bg-accent-soft text-text'
+                  : 'text-text-muted hover:bg-surface-sunken'
               }`}
             >
               <Icon size={16} />
               <span>{tab.label}</span>
               {'count' in tab && (
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-[#001d35] text-white' : 'bg-[#e0e2e0] text-[#1f1f1f]'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-accent text-white' : 'bg-border-strong text-text'}`}>
                   {tab.count}
                 </span>
               )}
@@ -129,8 +129,8 @@ export function SettingsView({ store: s }: SettingsViewProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4">
             <Card className="p-5">
-              <h3 className="text-sm font-medium text-[#1f1f1f] mb-1">Tambah Nasabah / Pihak</h3>
-              <p className="text-xs text-[#747775] mb-4">
+              <h3 className="text-sm font-medium text-text mb-1">Tambah Nasabah / Pihak</h3>
+              <p className="text-xs text-text-subtle mb-4">
                 Nama orang, bank, toko, atau vendor yang sering bertransaksi.
               </p>
               <form onSubmit={handleAddNsb} className="space-y-3">
@@ -140,11 +140,11 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   value={newNsb}
                   onChange={(e) => setNewNsb(e.target.value)}
                   placeholder="Contoh: PT MAJU JAYA, PAK BUDI"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
                 >
                   <Plus size={16} /> Tambah Nasabah
                 </button>
@@ -154,27 +154,27 @@ export function SettingsView({ store: s }: SettingsViewProps) {
 
           <div className="lg:col-span-8">
             <Card className="p-5">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e0e2e0]">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
                 <div>
-                  <h3 className="text-sm font-medium text-[#1f1f1f]">Daftar Master Nasabah</h3>
-                  <p className="text-xs text-[#747775]">Otomatis muncul di pilihan input transaksi dan piutang.</p>
+                  <h3 className="text-sm font-medium text-text">Daftar Master Nasabah</h3>
+                  <p className="text-xs text-text-subtle">Otomatis muncul di pilihan input transaksi dan piutang.</p>
                 </div>
-                <span className="text-xs text-[#747775]">Total: {nsbList.length}</span>
+                <span className="text-xs text-text-subtle">Total: {nsbList.length}</span>
               </div>
 
               {nsbList.length === 0 ? (
-                <p className="text-xs text-[#747775] text-center py-8">Belum ada data nasabah master.</p>
+                <p className="text-xs text-text-subtle text-center py-8">Belum ada data nasabah master.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto pr-1">
                   {nsbList.map((name) => (
                     <div
                       key={name}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-[#f8f9fa] border border-[#e0e2e0] hover:border-[#747775] transition"
+                      className="flex items-center justify-between p-3 rounded-lg bg-canvas border border-border hover:border-border-strong transition"
                     >
-                      <span className="text-xs font-medium text-[#1f1f1f] truncate">{name}</span>
+                      <span className="text-xs font-medium text-text truncate">{name}</span>
                       <button
                         onClick={() => setDeleteTarget({ type: 'nsb', name })}
-                        className="p-1.5 rounded-full text-[#747775] hover:text-[#c5221f] hover:bg-[#fce8e6] transition cursor-pointer"
+                        className="p-1.5 rounded-lg text-text-subtle hover:text-negative hover:bg-negative-soft transition cursor-pointer"
                         title="Hapus"
                       >
                         <Trash2 size={14} />
@@ -193,8 +193,8 @@ export function SettingsView({ store: s }: SettingsViewProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4">
             <Card className="p-5">
-              <h3 className="text-sm font-medium text-[#1f1f1f] mb-1">Tambah Kategori / Pos</h3>
-              <p className="text-xs text-[#747775] mb-4">
+              <h3 className="text-sm font-medium text-text mb-1">Tambah Kategori / Pos</h3>
+              <p className="text-xs text-text-subtle mb-4">
                 Kelompok pengeluaran atau pemasukan transaksi kas.
               </p>
               <form onSubmit={handleAddPos} className="space-y-3">
@@ -204,11 +204,11 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   value={newPos}
                   onChange={(e) => setNewPos(e.target.value)}
                   placeholder="Contoh: LOGISTIK, MARKETING, PULSA"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
                 >
                   <Plus size={16} /> Tambah Kategori
                 </button>
@@ -218,27 +218,27 @@ export function SettingsView({ store: s }: SettingsViewProps) {
 
           <div className="lg:col-span-8">
             <Card className="p-5">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e0e2e0]">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
                 <div>
-                  <h3 className="text-sm font-medium text-[#1f1f1f]">Daftar Kategori Transaksi</h3>
-                  <p className="text-xs text-[#747775]">Muncul di dropdown autocomplete pencatatan transaksi.</p>
+                  <h3 className="text-sm font-medium text-text">Daftar Kategori Transaksi</h3>
+                  <p className="text-xs text-text-subtle">Muncul di dropdown autocomplete pencatatan transaksi.</p>
                 </div>
-                <span className="text-xs text-[#747775]">Total: {posList.length}</span>
+                <span className="text-xs text-text-subtle">Total: {posList.length}</span>
               </div>
 
               {posList.length === 0 ? (
-                <p className="text-xs text-[#747775] text-center py-8">Belum ada data kategori.</p>
+                <p className="text-xs text-text-subtle text-center py-8">Belum ada data kategori.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto pr-1">
                   {posList.map((pos) => (
                     <div
                       key={pos}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-[#f8f9fa] border border-[#e0e2e0] hover:border-[#747775] transition"
+                      className="flex items-center justify-between p-3 rounded-lg bg-canvas border border-border hover:border-border-strong transition"
                     >
-                      <span className="text-xs font-medium text-[#1f1f1f] truncate">{pos}</span>
+                      <span className="text-xs font-medium text-text truncate">{pos}</span>
                       <button
                         onClick={() => setDeleteTarget({ type: 'pos', name: pos })}
-                        className="p-1.5 rounded-full text-[#747775] hover:text-[#c5221f] hover:bg-[#fce8e6] transition cursor-pointer"
+                        className="p-1.5 rounded-lg text-text-subtle hover:text-negative hover:bg-negative-soft transition cursor-pointer"
                         title="Hapus"
                       >
                         <Trash2 size={14} />
@@ -255,14 +255,14 @@ export function SettingsView({ store: s }: SettingsViewProps) {
       {/* 3. PENAMAAN DOMPET KAS */}
       {activeTab === 'kas' && (
         <Card className="p-6 max-w-2xl">
-          <h3 className="text-base font-medium text-[#1f1f1f] mb-1">Pengaturan Penamaan Dompet Kas</h3>
-          <p className="text-xs text-[#747775] mb-5">
+          <h3 className="text-base font-medium text-text mb-1">Pengaturan Penamaan Dompet Kas</h3>
+          <p className="text-xs text-text-subtle mb-5">
             Ubah label tampilan untuk 3 dompet kas sesuai kebutuhan pembukuan Anda.
           </p>
 
           <form onSubmit={handleSaveKas} className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-[#444746] block mb-1">
+              <label className="text-xs font-medium text-text-muted block mb-1">
                 Dompet 1 (Master / Kas Utama)
               </label>
               <input
@@ -271,13 +271,13 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.master}
                 onChange={(e) => setLabels({ ...labels, master: e.target.value })}
                 placeholder="Kas Utama"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
-              <p className="text-[11px] text-[#747775] mt-1">Dompet kas pusat tempat penerimaan saldo awal dan transfer keluar.</p>
+              <p className="text-[11px] text-text-subtle mt-1">Dompet kas pusat tempat penerimaan saldo awal dan transfer keluar.</p>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-[#444746] block mb-1">
+              <label className="text-xs font-medium text-text-muted block mb-1">
                 Dompet 2 (Operasional / Kas Usaha)
               </label>
               <input
@@ -286,13 +286,13 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.operasional}
                 onChange={(e) => setLabels({ ...labels, operasional: e.target.value })}
                 placeholder="Kas Usaha"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
-              <p className="text-[11px] text-[#747775] mt-1">Digunakan untuk belanja operasional, gaji, dan anggaran bisnis.</p>
+              <p className="text-[11px] text-text-subtle mt-1">Digunakan untuk belanja operasional, gaji, dan anggaran bisnis.</p>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-[#444746] block mb-1">
+              <label className="text-xs font-medium text-text-muted block mb-1">
                 Dompet 3 (Keluarga / Pribadi)
               </label>
               <input
@@ -301,15 +301,15 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.keluarga}
                 onChange={(e) => setLabels({ ...labels, keluarga: e.target.value })}
                 placeholder="Kas Keluarga"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs text-[#1f1f1f] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
-              <p className="text-[11px] text-[#747775] mt-1">Digunakan untuk kebutuhan rumah tangga dan anggaran keluarga.</p>
+              <p className="text-[11px] text-text-subtle mt-1">Digunakan untuk kebutuhan rumah tangga dan anggaran keluarga.</p>
             </div>
 
             <div className="pt-3">
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
+                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
               >
                 <Save size={16} /> Simpan Penamaan Kas
               </button>
@@ -321,14 +321,14 @@ export function SettingsView({ store: s }: SettingsViewProps) {
       {/* 4. PERIODE TAHUN & SALDO AWAL */}
       {activeTab === 'periode' && (
         <Card className="p-6 max-w-2xl">
-          <h3 className="text-base font-medium text-[#1f1f1f] mb-1">Tahun Buku & Saldo Awal</h3>
-          <p className="text-xs text-[#747775] mb-5">
+          <h3 className="text-base font-medium text-text mb-1">Tahun Buku & Saldo Awal</h3>
+          <p className="text-xs text-text-subtle mb-5">
             Atur tahun aktif dan saldo awal yang ada di Kas Utama pada tanggal 1 Januari tahun tersebut.
           </p>
 
           <form onSubmit={handleSavePeriode} className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-[#444746] block mb-1">
+              <label className="text-xs font-medium text-text-muted block mb-1">
                 Tahun Finansial
               </label>
               <input
@@ -338,27 +338,27 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 required
                 value={yearInput}
                 onChange={(e) => setYearInput(parseInt(e.target.value, 10) || s.year)}
-                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-xs font-medium num outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-medium num outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
             <div>
-              <label className="text-xs font-medium text-[#444746] block mb-1">
+              <label className="text-xs font-medium text-text-muted block mb-1">
                 Saldo Awal Kas Utama (1 Jan {yearInput})
               </label>
               <RupiahInput
                 value={saldoAwalInput}
                 onChange={setSaldoAwalInput}
                 placeholder="0"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#747775] rounded-xl text-sm font-medium num outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-sm font-medium num outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
-              <p className="text-[11px] text-[#747775] mt-1">Saldo ini menjadi modal dasar kas utama sebelum transaksi tahun berjalan dicatat.</p>
+              <p className="text-[11px] text-text-subtle mt-1">Saldo ini menjadi modal dasar kas utama sebelum transaksi tahun berjalan dicatat.</p>
             </div>
 
             <div className="pt-3">
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
+                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
               >
                 <Save size={16} /> Terapkan Periode & Saldo Awal
               </button>

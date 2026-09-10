@@ -97,14 +97,14 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
           required={required}
           autoComplete="off"
           spellCheck={false}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#747775] rounded-xl text-xs font-normal text-[#1f1f1f] placeholder:text-[#747775] outline-none focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 transition"
+          className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
         />
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#747775] pointer-events-none" />
-        {value && exactMatch && <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#137333]" title="Terdaftar" />}
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-subtle pointer-events-none" />
+        {value && exactMatch && <span className="absolute right-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-positive" title="Terdaftar" />}
       </div>
 
       {showDropdown && (
-        <div role="listbox" className="absolute z-20 mt-1.5 w-full bg-white rounded-2xl md-elevation-2 border border-[#e0e2e0] overflow-hidden max-h-56 overflow-y-auto p-1">
+        <div role="listbox" className="absolute z-20 mt-1.5 w-full bg-surface rounded-lg md-elevation-2 border border-border overflow-hidden max-h-56 overflow-y-auto p-1">
           {filtered.map((s, idx) => (
             <button
               key={s}
@@ -112,29 +112,29 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
               role="option"
               aria-selected={idx === highlight}
               onMouseDown={(e) => { e.preventDefault(); select(s) }}
-              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-3 text-xs rounded-xl transition ${idx === highlight ? 'bg-[#c2e7ff] text-[#001d35] font-medium' : 'hover:bg-[#f1f3f4] text-[#1f1f1f]'}`}
+              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-3 text-xs rounded-lg transition ${idx === highlight ? 'bg-accent-soft text-text font-medium' : 'hover:bg-surface-sunken text-text'}`}
             >
-              <User size={15} className={idx === highlight ? 'text-[#001d35]' : 'text-[#747775]'} />
+              <User size={15} className={idx === highlight ? 'text-text' : 'text-text-subtle'} />
               <span className="truncate">{s}</span>
-              <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${idx === highlight ? 'bg-white/80 text-[#001d35]' : 'bg-[#f1f3f4] text-[#444746]'}`}>Pilih</span>
+              <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium ${idx === highlight ? 'bg-surface/80 text-text' : 'bg-surface-sunken text-text-muted'}`}>Pilih</span>
             </button>
           ))}
           {canCreate && (
             <button
               type="button"
               onMouseDown={(e) => { e.preventDefault(); select(value) }}
-              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2 text-xs rounded-xl border-t border-[#f1f3f4] transition ${highlight === filtered.length ? 'bg-[#137333] text-white font-medium' : 'bg-[#e6f4ea] hover:bg-[#ceead6] text-[#137333]'}`}
+              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2 text-xs rounded-lg border-t border-border transition ${highlight === filtered.length ? 'bg-positive text-white font-medium' : 'bg-positive-soft hover:bg-positive-soft text-positive'}`}
             >
               <Plus size={15} />
               <span className="font-medium truncate">Tambah nasabah baru: {norm(value)}</span>
             </button>
           )}
           {filtered.length === 0 && !canCreate && (
-            <div className="px-4 py-3 text-xs text-[#747775] text-center">{emptyHint || 'Tidak ada saran. Ketik untuk menambah.'}</div>
+            <div className="px-4 py-3 text-xs text-text-subtle text-center">{emptyHint || 'Tidak ada saran. Ketik untuk menambah.'}</div>
           )}
         </div>
       )}
-      <p className="mt-1 text-[11px] text-[#747775]">
+      <p className="mt-1 text-[11px] text-text-subtle">
         {exactMatch ? '✓ Nasabah terdaftar' : value.trim() ? '↳ Akan disimpan sebagai nasabah baru (huruf besar otomatis)' : 'Ketik untuk mencari atau menambah nasabah'}
       </p>
     </div>

@@ -31,54 +31,54 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="pelunasan-title" ref={dialogRef}>
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-[#edf4ef] pb-3">
-          <div className="flex items-center gap-2 text-[#0f291e]">
-            <HandCoins size={18} className="text-[#1c543c]" />
+      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} />
+      <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2 text-text">
+            <HandCoins size={18} className="text-accent" />
             <h3 id="pelunasan-title" className="font-black text-base sm:text-lg tracking-tight">Catat Pelunasan Piutang</h3>
           </div>
-          <button onClick={onClose} aria-label="Tutup" className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <button onClick={onClose} aria-label="Tutup" className="p-1.5 rounded-lg text-text-subtle hover:text-text-muted hover:bg-surface-sunken transition">
             <X size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="p-3.5 bg-white border border-slate-200 rounded-lg space-y-1 text-xs">
+          <div className="p-3.5 bg-surface border border-border rounded-lg space-y-1 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-500 font-semibold">Peminjam:</span>
-              <span className="font-black text-[#0f291e]">{piutang.nsb}</span>
+              <span className="text-text-muted font-semibold">Peminjam:</span>
+              <span className="font-black text-text">{piutang.nsb}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500 font-semibold">Keperluan:</span>
-              <span className="font-medium text-slate-700 truncate max-w-[200px]">{piutang.uraian}</span>
+              <span className="text-text-muted font-semibold">Keperluan:</span>
+              <span className="font-medium text-text-muted truncate max-w-[200px]">{piutang.uraian}</span>
             </div>
-            <div className="flex justify-between pt-1.5 border-t border-[#edf4ef]">
-              <span className="text-slate-500 font-bold">Sisa Piutang:</span>
-              <span className="font-black text-rose-700 num text-sm">
+            <div className="flex justify-between pt-1.5 border-t border-border">
+              <span className="text-text-muted font-bold">Sisa Piutang:</span>
+              <span className="font-black text-negative num text-sm">
                 Rp {formatRibuan(sisa)}
               </span>
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-600 block mb-1">Tanggal Pelunasan</label>
+            <label className="text-xs font-bold text-text-muted block mb-1">Tanggal Pelunasan</label>
             <input
               type="date"
               required
               value={tanggal}
               onChange={(e) => setTanggal(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+              className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs sm:text-sm font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-600">Nominal Diterima (Rp)</label>
+              <label className="text-xs font-bold text-text-muted">Nominal Diterima (Rp)</label>
               <button
                 type="button"
                 onClick={() => setNominal(sisa)}
-                className="text-[11px] font-black text-[#1c543c] hover:underline"
+                className="text-[11px] font-black text-accent hover:underline"
               >
                 Lunaskan Semua
               </button>
@@ -88,7 +88,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
               value={nominal}
               onChange={(v) => setNominal(v)}
               placeholder="0"
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-bold num text-[#0f291e] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+              className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs sm:text-sm font-bold num text-text outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
             />
           </div>
 
@@ -96,14 +96,14 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
+              className="flex-1 py-2.5 rounded-lg border border-border bg-surface-sunken hover:bg-surface-sunken text-text-muted text-xs font-bold transition"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={nominal <= 0 || nominal > sisa}
-              className="flex-1 py-2.5 rounded-xl bg-[#1c543c] hover:bg-[#15422f] disabled:opacity-50 text-white text-xs font-black shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-black shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 size={16} />
               Simpan Pelunasan

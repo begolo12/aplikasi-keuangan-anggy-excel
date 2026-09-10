@@ -99,8 +99,8 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         <button
           onClick={() => setSelectedLedger(selectedLedger === 'master' ? 'all' : 'master')}
-          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition cursor-pointer ${
-            selectedLedger === 'master' ? 'bg-[#c2e7ff] border-[#c2e7ff] text-[#001d35]' : 'bg-white border-[#e0e2e0] hover:border-[#747775]'
+          className={`p-3.5 sm:p-4 rounded-lg border text-left transition cursor-pointer ${
+            selectedLedger === 'master' ? 'bg-accent-soft border-border text-text' : 'bg-surface border-border hover:border-border-strong'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -108,13 +108,13 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <Badge variant="brand">Pusat</Badge>
           </div>
           <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balMaster) || '0'}</p>
-          <p className="text-[11px] text-[#747775]">Uang pusat, sebelum dibagi</p>
+          <p className="text-[11px] text-text-subtle">Uang pusat, sebelum dibagi</p>
         </button>
 
         <button
           onClick={() => setSelectedLedger(selectedLedger === 'operasional' ? 'all' : 'operasional')}
-          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition cursor-pointer ${
-            selectedLedger === 'operasional' ? 'bg-[#c2e7ff] border-[#c2e7ff] text-[#001d35]' : 'bg-white border-[#e0e2e0] hover:border-[#747775]'
+          className={`p-3.5 sm:p-4 rounded-lg border text-left transition cursor-pointer ${
+            selectedLedger === 'operasional' ? 'bg-accent-soft border-border text-text' : 'bg-surface border-border hover:border-border-strong'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -122,13 +122,13 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <Badge variant="success">Operasional</Badge>
           </div>
           <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balOperasional) || '0'}</p>
-          <p className="text-[11px] text-[#747775]">Untuk operasional harian</p>
+          <p className="text-[11px] text-text-subtle">Untuk operasional harian</p>
         </button>
 
         <button
           onClick={() => setSelectedLedger(selectedLedger === 'keluarga' ? 'all' : 'keluarga')}
-          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition cursor-pointer ${
-            selectedLedger === 'keluarga' ? 'bg-[#c2e7ff] border-[#c2e7ff] text-[#001d35]' : 'bg-white border-[#e0e2e0] hover:border-[#747775]'
+          className={`p-3.5 sm:p-4 rounded-lg border text-left transition cursor-pointer ${
+            selectedLedger === 'keluarga' ? 'bg-accent-soft border-border text-text' : 'bg-surface border-border hover:border-border-strong'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -136,7 +136,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <Badge variant="warning">Keluarga</Badge>
           </div>
           <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balKeluarga) || '0'}</p>
-          <p className="text-[11px] text-[#747775]">Untuk rumah tangga</p>
+          <p className="text-[11px] text-text-subtle">Untuk rumah tangga</p>
         </button>
       </div>
 
@@ -144,17 +144,17 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       <Card className="p-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button onClick={() => setSelectedLedger('all')} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${selectedLedger === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>Semua Kas</button>
+            <button onClick={() => setSelectedLedger('all')} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${selectedLedger === 'all' ? 'bg-accent text-white' : 'bg-surface-sunken text-text-muted hover:bg-surface-sunken'}`}>Semua Kas</button>
             <div className="relative flex-1 sm:w-64">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari keterangan atau kategori..." className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari keterangan atau kategori..." className="w-full pl-9 pr-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onClick={onOpenTransfer} className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
+            <button onClick={onOpenTransfer} className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-lg bg-surface hover:bg-canvas text-text-muted border border-border text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
               <ArrowLeftRight size={14} /> Pindah Saldo
             </button>
-            <button onClick={() => onOpenQuickTx(selectedLedger === 'all' ? 'master' : selectedLedger)} className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
+            <button onClick={() => onOpenQuickTx(selectedLedger === 'all' ? 'master' : selectedLedger)} className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
               <Plus size={14} /> Tambah Transaksi
             </button>
           </div>
@@ -178,44 +178,44 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             const bal = getBal(tx)
             const isIncome = tx.penerimaan > 0
             return (
-              <Card key={tx.id} className="p-4 border-slate-200/80 bg-white">
+              <Card key={tx.id} className="p-4 border-border bg-surface">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
                       className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                        isIncome ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                        isIncome ? 'bg-positive-soft text-positive border border-positive' : 'bg-negative-soft text-negative border border-negative'
                       }`}
                     >
                       {isIncome ? <ArrowDownRight size={15} /> : <ArrowUpRight size={15} />}
                     </div>
                     <div>
-                      <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'accent'}>
+                      <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'neutral'}>
                         {tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}
                       </Badge>
-                      <span className="text-[11px] text-slate-500 ml-2 font-medium">{tx.tanggal}</span>
+                      <span className="text-[11px] text-text-muted ml-2 font-medium">{tx.tanggal}</span>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className={`font-bold text-sm num ${isIncome ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    <p className={`font-bold text-sm num ${isIncome ? 'text-positive' : 'text-negative'}`}>
                       {isIncome ? `+Rp ${formatRibuan(tx.penerimaan)}` : `-Rp ${formatRibuan(tx.pengeluaran)}`}
                     </p>
-                    <p className="text-[10px] text-slate-500 font-medium num">Sisa: Rp {formatRibuan(bal)}</p>
+                    <p className="text-[10px] text-text-muted font-medium num">Sisa: Rp {formatRibuan(bal)}</p>
                   </div>
                 </div>
 
-                <p className="mt-2 text-xs font-bold text-slate-900 line-clamp-2">{tx.uraian}</p>
+                <p className="mt-2 text-xs font-bold text-text line-clamp-2">{tx.uraian}</p>
 
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
-                    {tx.pos && <span className="bg-slate-100 px-2 py-0.5 rounded-md font-bold text-slate-700">{tx.pos}</span>}
-                    {tx.nsb && <span className="text-slate-500">{tx.nsb}</span>}
+                <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-[11px] text-text-muted font-medium">
+                    {tx.pos && <span className="bg-surface-sunken px-2 py-0.5 rounded-md font-bold text-text-muted">{tx.pos}</span>}
+                    {tx.nsb && <span className="text-text-muted">{tx.nsb}</span>}
                   </div>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingTx(tx)}
-                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-slate-500 hover:text-emerald-800 hover:bg-emerald-50 transition cursor-pointer"
+                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-text-muted hover:text-positive hover:bg-positive-soft transition cursor-pointer"
                       title="Edit"
                       aria-label="Edit Transaksi"
                     >
@@ -223,7 +223,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                     </button>
                     <button
                       onClick={() => setDeleteTargetId(tx.id)}
-                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-text-muted hover:text-negative hover:bg-negative-soft transition cursor-pointer"
                       title="Hapus"
                       aria-label="Hapus Transaksi"
                     >
@@ -238,11 +238,11 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       </div>
 
       {/* Desktop Transaction Table (>= 640px) */}
-      <Card className="hidden sm:block overflow-hidden border border-slate-200/80">
+      <Card className="hidden sm:block overflow-hidden border border-border">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="bg-canvas border-b border-border text-text-muted font-semibold text-[11px] uppercase tracking-wider">
                 <th className="px-4 py-3">Tanggal</th>
                 <th className="px-4 py-3">Dompet Kas</th>
                 <th className="px-4 py-3">Nama Orang</th>
@@ -254,7 +254,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 <th className="px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border">
               {filteredTxs.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-12">
@@ -271,36 +271,36 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 filteredTxs.map((tx) => {
                   const bal = getBal(tx)
                   return (
-                    <tr key={tx.id} className="hover:bg-slate-50/70 transition group">
-                      <td className="px-4 py-3 font-medium text-slate-700 whitespace-nowrap">{tx.tanggal}</td>
+                    <tr key={tx.id} className="hover:bg-surface-sunken transition group">
+                      <td className="px-4 py-3 font-medium text-text-muted whitespace-nowrap">{tx.tanggal}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'accent'}>
+                        <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'neutral'}>
                           {tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{tx.nsb}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">{tx.pos}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-900 max-w-xs truncate">{tx.uraian}</td>
-                      <td className="px-4 py-3 text-right font-bold text-emerald-700 num whitespace-nowrap">
+                      <td className="px-4 py-3 font-bold text-text whitespace-nowrap">{tx.nsb}</td>
+                      <td className="px-4 py-3 font-semibold text-text-muted whitespace-nowrap">{tx.pos}</td>
+                      <td className="px-4 py-3 font-semibold text-text max-w-xs truncate">{tx.uraian}</td>
+                      <td className="px-4 py-3 text-right font-bold text-positive num whitespace-nowrap">
                         {tx.penerimaan > 0 ? `Rp ${formatRibuan(tx.penerimaan)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right font-bold text-rose-700 num whitespace-nowrap">
+                      <td className="px-4 py-3 text-right font-bold text-negative num whitespace-nowrap">
                         {tx.pengeluaran > 0 ? `Rp ${formatRibuan(tx.pengeluaran)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-slate-900 num whitespace-nowrap">Rp {formatRibuan(bal)}
+                      <td className="px-4 py-3 text-right font-semibold text-text num whitespace-nowrap">Rp {formatRibuan(bal)}
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => setEditingTx(tx)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-800 hover:bg-emerald-50 transition cursor-pointer"
+                            className="p-1.5 rounded-lg text-text-muted hover:text-positive hover:bg-positive-soft transition cursor-pointer"
                             title="Edit Transaksi"
                           >
                             <Edit2 size={14} />
                           </button>
                           <button
                             onClick={() => setDeleteTargetId(tx.id)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                            className="p-1.5 rounded-lg text-text-muted hover:text-negative hover:bg-negative-soft transition cursor-pointer"
                             title="Hapus Transaksi"
                           >
                             <Trash2 size={14} />
@@ -320,18 +320,18 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
 
       {editingTx && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setEditingTx(null)} />
-          <div className="relative bg-white w-full max-w-lg rounded-xl shadow-xl border border-slate-200 p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-bold text-base text-slate-900 tracking-tight pb-3 border-b border-slate-100">Ubah Transaksi</h3>
+          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-sm" onClick={() => setEditingTx(null)} />
+          <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+            <h3 className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Ubah Transaksi</h3>
             <form onSubmit={handleUpdate} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">Tanggal</label>
-                  <input type="date" required value={editingTx.tanggal} onChange={(e) => setEditingTx({ ...editingTx, tanggal: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900" />
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Tanggal</label>
+                  <input type="date" required value={editingTx.tanggal} onChange={(e) => setEditingTx({ ...editingTx, tanggal: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">Dompet Kas</label>
-                  <select value={editingTx.ledger} onChange={(e) => setEditingTx({ ...editingTx, ledger: e.target.value as Ledger })} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Dompet Kas</label>
+                  <select value={editingTx.ledger} onChange={(e) => setEditingTx({ ...editingTx, ledger: e.target.value as Ledger })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
                     <option value="master">Kas Utama — uang pusat</option>
                     <option value="operasional">Kas Usaha — operasional</option>
                     <option value="keluarga">Kas Keluarga — rumah tangga</option>
@@ -341,58 +341,58 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">Nama Orang <span className="text-rose-500">*</span></label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Nama Orang <span className="text-negative">*</span></label>
                   <Autocomplete value={editingTx.nsb} onChange={(v) => setEditingTx({ ...editingTx, nsb: v })} suggestions={nsbSuggestions} placeholder="Pilih orang" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">Kategori</label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Kategori</label>
                   <Autocomplete value={editingTx.pos} onChange={(v) => setEditingTx({ ...editingTx, pos: v })} suggestions={posSuggestions} placeholder="RUTIN, GAJI..." allowCreate />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">Keterangan</label>
+                <label className="text-xs font-semibold text-text-muted block mb-1">Keterangan</label>
                 <input
                   type="text"
                   required
                   value={editingTx.uraian}
                   onChange={(e) => setEditingTx({ ...editingTx, uraian: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">Penerimaan (Rp)</label>
+                  <label className="text-xs font-bold text-text-muted block mb-1">Penerimaan (Rp)</label>
                   <RupiahInput
                     value={editingTx.penerimaan}
                     onChange={(v) => setEditingTx({ ...editingTx, penerimaan: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold num text-emerald-700 outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-positive outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">Pengeluaran (Rp)</label>
+                  <label className="text-xs font-bold text-text-muted block mb-1">Pengeluaran (Rp)</label>
                   <RupiahInput
                     value={editingTx.pengeluaran}
                     onChange={(v) => setEditingTx({ ...editingTx, pengeluaran: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold num text-rose-700 outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-negative outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-border flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingTx(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#1b4332] hover:bg-[#2d6a4f] text-white text-xs font-black shadow-xs transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent text-white text-xs font-black shadow-xs transition"
                 >
                   Simpan Perubahan
                 </button>

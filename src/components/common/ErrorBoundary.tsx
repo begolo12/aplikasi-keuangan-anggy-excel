@@ -28,22 +28,22 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!error) return this.props.children
 
     return (
-      <div className="rounded-3xl border border-[#f6c7c4] bg-[#fce8e6] p-6 text-center">
-        <h3 className="text-base font-medium text-[#1f1f1f]">Halaman ini gagal dimuat</h3>
-        <p className="mt-1.5 text-xs text-[#444746]">
+      <div className="rounded-lg border border-negative bg-negative-soft p-6 text-center">
+        <h3 className="text-base font-medium text-text">Halaman ini gagal dimuat</h3>
+        <p className="mt-1.5 text-xs text-text-muted">
           Data Anda tidak terpengaruh. Pindah ke menu lain, atau muat ulang halaman.
         </p>
-        <p className="mt-2 text-[11px] text-[#747775] break-all">{error.message}</p>
+        <p className="mt-2 text-[11px] text-text-subtle break-all">{error.message}</p>
         <div className="mt-4 flex justify-center gap-2">
           <button
             onClick={() => this.setState({ error: null })}
-            className="px-4 py-2 rounded-full text-xs font-medium text-[#1a73e8] hover:bg-[#e8f0fe] transition cursor-pointer"
+            className="px-4 py-2 rounded-lg text-xs font-medium text-accent hover:bg-accent-soft transition cursor-pointer"
           >
             Coba lagi
           </button>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 rounded-full text-xs font-medium text-white bg-[#1a73e8] hover:bg-[#1557b0] transition cursor-pointer"
+            className="px-4 py-2 rounded-lg text-xs font-medium text-white bg-accent hover:bg-accent-hover transition cursor-pointer"
           >
             Muat ulang
           </button>

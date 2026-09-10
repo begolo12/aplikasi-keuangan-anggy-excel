@@ -42,22 +42,22 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onCancel} />
-      <div className="relative bg-white w-full max-w-md rounded-3xl md-elevation-3 p-6 z-10 animate-scale">
-        <h3 className="font-medium text-lg text-[#1f1f1f] tracking-tight">{title}</h3>
-        <p className="text-xs sm:text-sm text-[#444746] mt-2 leading-relaxed">{message}</p>
+      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onCancel} />
+      <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 p-6 z-10 animate-scale">
+        <h3 className="font-medium text-lg text-text tracking-tight">{title}</h3>
+        <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">{message}</p>
         <div className="mt-6 flex justify-end gap-2">
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-[#1a73e8] hover:bg-[#e8f0fe] transition cursor-pointer"
+            className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium text-accent hover:bg-accent-soft transition cursor-pointer"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white transition cursor-pointer ${
-              variant === 'danger' ? 'bg-[#c5221f] hover:bg-[#a50e0e]' : 'bg-[#1a73e8] hover:bg-[#1557b0]'
+            className={`px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium text-white transition cursor-pointer ${
+              variant === 'danger' ? 'bg-negative hover:bg-negative' : 'bg-accent hover:bg-accent-hover'
             }`}
           >
             {confirmLabel}

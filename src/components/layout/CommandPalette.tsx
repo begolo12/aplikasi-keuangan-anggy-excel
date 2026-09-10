@@ -54,10 +54,10 @@ export function CommandPalette({
   if (!open) return null
 
   const actions = [
-    { id: 'quick-tx', label: 'Tambah transaksi baru', icon: <Plus size={18} className="text-[#1a73e8]" />, run: () => { onClose(); onOpenQuickTx() } },
-    { id: 'transfer', label: 'Pindah saldo antar kas', icon: <ArrowLeftRight size={18} className="text-[#444746]" />, run: () => { onClose(); onOpenTransfer() } },
-    { id: 'year', label: 'Ganti tahun buku', icon: <Calendar size={18} className="text-[#b06000]" />, run: () => { onClose(); onOpenYearModal() } },
-    { id: 'export', label: 'Export ke Excel', icon: <Download size={18} className="text-[#137333]" />, run: () => { onClose(); onExportExcel() } },
+    { id: 'quick-tx', label: 'Tambah transaksi baru', icon: <Plus size={18} className="text-accent" />, run: () => { onClose(); onOpenQuickTx() } },
+    { id: 'transfer', label: 'Pindah saldo antar kas', icon: <ArrowLeftRight size={18} className="text-text-muted" />, run: () => { onClose(); onOpenTransfer() } },
+    { id: 'year', label: 'Ganti tahun buku', icon: <Calendar size={18} className="text-warning" />, run: () => { onClose(); onOpenYearModal() } },
+    { id: 'export', label: 'Export ke Excel', icon: <Download size={18} className="text-positive" />, run: () => { onClose(); onExportExcel() } },
     ...ALL_NAV_ITEMS.map((item) => {
       const Icon = TAB_ICONS[item.id]
       return { id: `nav-${item.id}`, label: `Buka ${item.label}`, icon: <Icon size={18} />, run: () => { onClose(); onSelectTab(item.id) } }
@@ -68,19 +68,19 @@ export function CommandPalette({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-xl rounded-3xl md-elevation-3 overflow-hidden z-10 animate-scale">
-        <div className="flex items-center px-4 py-3 border-b border-[#e0e2e0] bg-[#f8f9fa]">
-          <Search size={20} className="text-[#747775] mr-3" />
+      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} />
+      <div className="relative bg-surface w-full max-w-xl rounded-lg md-elevation-3 overflow-hidden z-10 animate-scale">
+        <div className="flex items-center px-4 py-3 border-b border-border bg-canvas">
+          <Search size={20} className="text-text-subtle mr-3" />
           <input
             ref={inputRef}
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari perintah atau halaman..."
-            className="flex-1 bg-transparent outline-none text-sm text-[#1f1f1f] placeholder:text-[#747775]"
+            className="flex-1 bg-transparent outline-none text-sm text-text placeholder:text-text-subtle"
           />
-          <button onClick={onClose} className="p-1 rounded-full text-[#747775] hover:bg-[#e0e2e0] transition">
+          <button onClick={onClose} className="p-1 rounded-full text-text-subtle hover:bg-border-strong transition">
             <X size={18} />
           </button>
         </div>
@@ -91,16 +91,16 @@ export function CommandPalette({
               <button
                 key={action.id}
                 onClick={action.run}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-[#f1f3f4] text-left transition cursor-pointer text-[#1f1f1f] text-xs font-medium"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-sunken text-left transition cursor-pointer text-text text-xs font-medium"
               >
-                <div className="w-8 h-8 rounded-full bg-[#f1f3f4] flex items-center justify-center text-[#444746] shrink-0">
+                <div className="w-8 h-8 rounded-full bg-surface-sunken flex items-center justify-center text-text-muted shrink-0">
                   {action.icon}
                 </div>
                 <span className="flex-1">{action.label}</span>
               </button>
             ))
           ) : (
-            <div className="p-6 text-center text-xs text-[#747775]">Tidak ada hasil pencarian.</div>
+            <div className="p-6 text-center text-xs text-text-subtle">Tidak ada hasil pencarian.</div>
           )}
         </div>
       </div>

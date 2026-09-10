@@ -15,6 +15,7 @@ import { YearModal } from './components/modals/YearModal'
 
 import { ToastStack, type ToastItem } from './components/common/ToastStack'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
+import { Skeleton, SkeletonRows } from './components/common/Skeleton'
 
 const DashboardView = lazy(() => import('./components/views/DashboardView').then((m) => ({ default: m.DashboardView })))
 const TransaksiView = lazy(() => import('./components/views/TransaksiView').then((m) => ({ default: m.TransaksiView })))
@@ -154,7 +155,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex text-slate-800 antialiased font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-canvas flex text-text antialiased font-sans selection:bg-accent selection:text-white">
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -197,7 +198,18 @@ export default function App() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1280px] w-full mx-auto">
           <ErrorBoundary key={activeTab}>
-            <Suspense fallback={<div className="p-8 text-center text-xs font-medium text-slate-400 animate-pulse">Memuat...</div>}>
+            <Suspense
+              fallback={
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Skeleton className="h-[92px]" />
+                    <Skeleton className="h-[92px]" />
+                    <Skeleton className="h-[92px]" />
+                  </div>
+                  <SkeletonRows rows={6} />
+                </div>
+              }
+            >
               {activeTab === 'dashboard' && <DashboardView store={store} onNavigate={setActiveTab} onOpenQuickTx={handleOpenQuickTx} onOpenTransfer={() => setTransferOpen(true)} />}
               {activeTab === 'transaksi' && <TransaksiView store={store} onOpenQuickTx={handleOpenQuickTx} onOpenTransfer={() => setTransferOpen(true)} />}
               {activeTab === 'rab' && <RabView store={store} />}

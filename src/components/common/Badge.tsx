@@ -1,14 +1,6 @@
 import React from 'react'
 
-export type BadgeVariant =
-  | 'brand'
-  | 'success'
-  | 'danger'
-  | 'warning'
-  | 'neutral'
-  | 'accent'
-  | 'indigo'
-  | 'pastel'
+export type BadgeVariant = 'brand' | 'success' | 'danger' | 'warning' | 'neutral'
 
 interface BadgeProps {
   children: React.ReactNode
@@ -17,21 +9,18 @@ interface BadgeProps {
 }
 
 export function Badge({ children, variant = 'neutral', className = '' }: BadgeProps) {
-  // Material 3 tonal & status chips style
+  /* Satu status, satu warna. Tidak ada varian yang tampilannya sama. */
   const variantStyles: Record<BadgeVariant, string> = {
-    brand: 'bg-[#e8f0fe] text-[#1a73e8] border border-[#d2e3fc] font-medium',
-    success: 'bg-[#e6f4ea] text-[#137333] border border-[#ceead6] font-medium',
-    danger: 'bg-[#fce8e6] text-[#c5221f] border border-[#fad2cf] font-medium',
-    warning: 'bg-[#fef7e0] text-[#b06000] border border-[#feefc3] font-medium',
-    neutral: 'bg-[#f1f3f4] text-[#444746] border border-[#e0e2e0] font-medium',
-    accent: 'bg-[#f3e8fd] text-[#9334e6] border border-[#e9d2fd] font-medium',
-    indigo: 'bg-[#e8eaed] text-[#3c4043] border border-[#dadce0] font-medium',
-    pastel: 'bg-[#e6f4ea] text-[#137333] border border-[#ceead6] font-medium',
+    brand: 'bg-accent-soft text-accent border-accent',
+    success: 'bg-positive-soft text-positive border-positive',
+    danger: 'bg-negative-soft text-negative border-negative',
+    warning: 'bg-warning-soft text-warning border-warning',
+    neutral: 'bg-surface-sunken text-text-muted border-border',
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] leading-tight tracking-tight ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-medium leading-tight tracking-tight whitespace-nowrap ${variantStyles[variant]} ${className}`}
     >
       {children}
     </span>

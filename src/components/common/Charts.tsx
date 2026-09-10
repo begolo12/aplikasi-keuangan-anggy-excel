@@ -31,17 +31,17 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
     <div className="w-full">
       <div className="flex items-center justify-between mb-3 text-xs">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 font-medium text-[#137333]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#137333]" />
+          <div className="flex items-center gap-1.5 font-medium text-positive">
+            <span className="w-2.5 h-2.5 rounded-full bg-positive" />
             <span>Pemasukan</span>
           </div>
-          <div className="flex items-center gap-1.5 font-medium text-[#c5221f]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#c5221f]" />
+          <div className="flex items-center gap-1.5 font-medium text-negative">
+            <span className="w-2.5 h-2.5 rounded-full bg-negative" />
             <span>Pengeluaran</span>
           </div>
         </div>
         {hoveredIdx !== null && data[hoveredIdx] && (
-          <div className="text-[11px] font-medium text-[#1f1f1f] bg-[#e8f0fe] px-2.5 py-0.5 rounded-full num">
+          <div className="text-[11px] font-medium text-text bg-accent-soft px-2.5 py-0.5 rounded-full num">
             {data[hoveredIdx].month}: In Rp {formatRibuan(data[hoveredIdx].income)} | Out Rp {formatRibuan(data[hoveredIdx].expense)}
           </div>
         )}
@@ -65,7 +65,7 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                   y1={y}
                   x2="600"
                   y2={y}
-                  stroke="#e2ece5"
+                  stroke="var(--c-border)"
                   strokeDasharray={ratio === 0 ? undefined : '3 3'}
                   strokeWidth="1"
                 />
@@ -104,7 +104,7 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                     y={paddingTop}
                     width={groupWidth + 12}
                     height={chartHeight}
-                    fill="#e8f0fe"
+                    fill="var(--c-accent-soft)"
                     rx="8"
                   />
                 )}
@@ -115,7 +115,7 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                   y={inY}
                   width={barWidth}
                   height={inH}
-                  fill="#137333"
+                  fill="var(--c-positive)"
                   rx="3"
                 />
 
@@ -125,7 +125,7 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                   y={exY}
                   width={barWidth}
                   height={exH}
-                  fill="#c5221f"
+                  fill="var(--c-negative)"
                   rx="3"
                 />
 
@@ -136,7 +136,7 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
                   textAnchor="middle"
                   fontSize="10"
                   fontWeight={isHovered ? '600' : '400'}
-                  fill={isHovered ? '#1f1f1f' : '#747775'}
+                  fill={isHovered ? 'var(--c-text)' : 'var(--c-text-subtle)'}
                 >
                   {d.month.slice(0, 3)}
                 </text>
@@ -165,9 +165,9 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-xs font-semibold">
+      <div className="flex flex-col items-center justify-center py-10 text-text-muted text-xs font-semibold">
         <p>Belum ada data pengeluaran.</p>
-        <span className="text-[11px] text-slate-400 font-normal mt-0.5">Catatan belanja akan otomatis dirinci di sini.</span>
+        <span className="text-[11px] text-text-subtle font-normal mt-0.5">Catatan belanja akan otomatis dirinci di sini.</span>
       </div>
     )
   }
@@ -216,8 +216,8 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total</span>
-          <span className="text-xs font-black text-slate-900 num">Rp {formatRibuan(total)}</span>
+          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Total</span>
+          <span className="text-xs font-black text-text num">Rp {formatRibuan(total)}</span>
         </div>
       </div>
 
@@ -227,9 +227,9 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
           <div key={i} className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 min-w-0">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="font-semibold text-slate-700 truncate">{d.label}</span>
+              <span className="font-semibold text-text-muted truncate">{d.label}</span>
             </div>
-            <span className="font-bold text-slate-900 num shrink-0">
+            <span className="font-bold text-text num shrink-0">
               {((d.value / total) * 100).toFixed(0)}%
             </span>
           </div>

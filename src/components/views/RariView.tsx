@@ -40,12 +40,12 @@ export function RariView({ store: s }: RariViewProps) {
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">Rencana vs Realisasi — {monthNames[selectedMonth]} {s.year}</h3>
-            <p className="text-xs font-medium text-slate-500">Berapa yang direncanakan vs berapa yang benar-benar keluar</p>
+            <h3 className="text-sm font-semibold text-text">Rencana vs Realisasi — {monthNames[selectedMonth]} {s.year}</h3>
+            <p className="text-xs font-medium text-text-muted">Berapa yang direncanakan vs berapa yang benar-benar keluar</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-slate-500">Bulan:</span>
-            <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))} className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+            <span className="text-xs font-medium text-text-muted">Bulan:</span>
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))} className="px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
               {monthNames.map((name, idx) => (<option key={name} value={idx}>{name} {s.year}</option>))}
             </select>
           </div>
@@ -59,13 +59,13 @@ export function RariView({ store: s }: RariViewProps) {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="p-4 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-900">Rincian per Kas — {monthNames[selectedMonth]} {s.year}</h3>
+        <div className="p-4 border-b border-border">
+          <h3 className="text-sm font-semibold text-text">Rincian per Kas — {monthNames[selectedMonth]} {s.year}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="bg-canvas border-b border-border text-text-muted font-semibold text-[11px] uppercase tracking-wider">
                 <th className="px-4 py-3">Kas</th>
                 <th className="px-4 py-3 text-right">Rencana</th>
                 <th className="px-4 py-3 text-right">Terpakai</th>
@@ -73,19 +73,19 @@ export function RariView({ store: s }: RariViewProps) {
                 <th className="px-4 py-3 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              <tr className="hover:bg-slate-50 transition">
-                <td className="px-4 py-3 font-medium text-slate-700">Kas Usaha</td>
-                <td className="px-4 py-3 text-right font-semibold num text-slate-700">Rp {formatRibuan(raOp)}</td>
-                <td className="px-4 py-3 text-right font-semibold num text-rose-600">Rp {formatRibuan(riOp)}</td>
-                <td className={`px-4 py-3 text-right font-bold num ${devOp >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>Rp {formatRibuan(devOp)}</td>
+            <tbody className="divide-y divide-border">
+              <tr className="hover:bg-canvas transition">
+                <td className="px-4 py-3 font-medium text-text-muted">Kas Usaha</td>
+                <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raOp)}</td>
+                <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riOp)}</td>
+                <td className={`px-4 py-3 text-right font-bold num ${devOp >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devOp)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devOp >= 0 ? 'success' : 'danger'}>{devOp >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
-              <tr className="hover:bg-slate-50 transition">
-                <td className="px-4 py-3 font-medium text-slate-700">Kas Keluarga</td>
-                <td className="px-4 py-3 text-right font-semibold num text-slate-700">Rp {formatRibuan(raKel)}</td>
-                <td className="px-4 py-3 text-right font-semibold num text-rose-600">Rp {formatRibuan(riKel)}</td>
-                <td className={`px-4 py-3 text-right font-bold num ${devKel >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>Rp {formatRibuan(devKel)}</td>
+              <tr className="hover:bg-canvas transition">
+                <td className="px-4 py-3 font-medium text-text-muted">Kas Keluarga</td>
+                <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raKel)}</td>
+                <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riKel)}</td>
+                <td className={`px-4 py-3 text-right font-bold num ${devKel >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devKel)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devKel >= 0 ? 'success' : 'danger'}>{devKel >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
             </tbody>

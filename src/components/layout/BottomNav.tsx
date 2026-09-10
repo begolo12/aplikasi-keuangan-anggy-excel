@@ -23,7 +23,7 @@ export function BottomNav({
   })
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#e0e2e0] px-1 py-1.5 safe-area-bottom md-elevation-2">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border px-1 py-1.5 safe-area-bottom md-elevation-2">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
@@ -34,28 +34,28 @@ export function BottomNav({
               aria-current={isActive ? 'page' : undefined}
               className="flex flex-col items-center justify-center py-1 px-3 min-w-[64px] relative transition cursor-pointer"
             >
-              <span className={`px-3.5 py-1 rounded-full transition-colors ${isActive ? 'bg-[#c2e7ff] text-[#001d35]' : 'text-[#444746]'}`}>
+              <span className={`px-3.5 py-1 rounded-full transition-colors ${isActive ? 'bg-accent-soft text-text' : 'text-text-muted'}`}>
                 <tab.Icon size={20} />
               </span>
-              <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'font-semibold text-[#001d35]' : 'font-medium text-[#747775]'}`}>
+              <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'font-semibold text-text' : 'font-medium text-text-subtle'}`}>
                 {tab.label}
               </span>
-              {tab.dot && <span className="absolute top-1 right-3.5 w-2 h-2 bg-[#137333] rounded-full border border-white" />}
+              {tab.dot && <span className="absolute top-1 right-3.5 w-2 h-2 bg-positive rounded-full border border-white" />}
             </button>
           )
         })}
         <button onClick={onOpenQuickTx} className="flex flex-col items-center justify-center gap-0.5 -mt-3 cursor-pointer">
-          <span className="w-12 h-12 rounded-2xl bg-[#1a73e8] hover:bg-[#1557b0] text-white flex items-center justify-center md-elevation-2 active:scale-95 transition-transform"><Plus size={22} /></span>
-          <span className="text-[10px] font-medium text-[#1a73e8]">Tambah</span>
+          <span className="w-12 h-12 rounded-lg bg-accent hover:bg-accent-hover text-white flex items-center justify-center md-elevation-2 active:scale-95 transition-transform"><Plus size={22} /></span>
+          <span className="text-[10px] font-medium text-accent">Tambah</span>
         </button>
         <button
           onClick={onOpenMobileMenu}
           className="flex flex-col items-center justify-center py-1 px-3 min-w-[64px] transition cursor-pointer"
         >
-          <span className={`px-3.5 py-1 rounded-full transition-colors ${isOtherActive ? 'bg-[#c2e7ff] text-[#001d35]' : 'text-[#444746]'}`}>
+          <span className={`px-3.5 py-1 rounded-full transition-colors ${isOtherActive ? 'bg-accent-soft text-text' : 'text-text-muted'}`}>
             <Menu size={20} />
           </span>
-          <span className={`text-[10px] mt-0.5 tracking-tight ${isOtherActive ? 'font-semibold text-[#001d35]' : 'font-medium text-[#747775]'}`}>
+          <span className={`text-[10px] mt-0.5 tracking-tight ${isOtherActive ? 'font-semibold text-text' : 'font-medium text-text-subtle'}`}>
             Menu
           </span>
         </button>
