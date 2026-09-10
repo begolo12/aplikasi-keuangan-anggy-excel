@@ -125,7 +125,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 onClick={() => setJenis('keluar')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   jenis === 'keluar'
-                    ? 'bg-negative text-white shadow-xs'
+                    ? 'bg-negative text-white'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -136,7 +136,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 onClick={() => setJenis('masuk')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   jenis === 'masuk'
-                    ? 'bg-positive text-white shadow-xs'
+                    ? 'bg-positive text-white'
                     : 'text-text-muted hover:text-text'
                 }`}
               >

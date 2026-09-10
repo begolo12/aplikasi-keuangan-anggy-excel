@@ -12,7 +12,9 @@ import {
 import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
+import { Button } from '../common/Button'
 import { formatRibuan } from '../common/format'
+import { EmptyState } from '../common/EmptyState'
 import { BarChart, DonutChart, type MonthBarData, type CategoryDonutData } from '../common/Charts'
 import type { State, Ledger } from '../../store'
 import type { TabKey } from '../layout/Sidebar'
@@ -107,12 +109,12 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
           <p className="text-[13px] text-text-subtle mt-1.5 max-w-xl">Pantau posisi ledger kas, realisasi anggaran bulanan, dan aset secara real-time.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={onOpenTransfer} className="px-4 py-2 rounded-lg border border-border-strong bg-surface hover:bg-surface-sunken text-text text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
-            <ArrowLeftRight size={14} /> Transfer Kas
-          </button>
-          <button onClick={() => onOpenQuickTx('master')} className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition inline-flex items-center gap-1.5 cursor-pointer">
-            <Plus size={16} /> Tambah Transaksi
-          </button>
+          <Button variant="outline" icon={<ArrowLeftRight size={14} />} onClick={onOpenTransfer}>
+            Transfer Kas
+          </Button>
+          <Button variant="primary" icon={<Plus size={16} />} onClick={() => onOpenQuickTx('master')}>
+            Tambah Transaksi
+          </Button>
         </div>
       </div>
 
@@ -124,19 +126,11 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
               <CreditCard size={13} /> Total Kas Tersedia
             </p>
             <p className="mt-2.5 text-[28px] sm:text-[32px] font-semibold tracking-tight num leading-none text-text">Rp {formatRibuan(totalKasTersedia) || '0'}</p>
-            <p className="mt-2 text-[11px] text-text-subtle">Akumulasi 3 kas · per {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-3 pt-3.5 border-t border-border">
-            {[
-              { label: 'Master', value: balMaster },
-              { label: 'Operasional', value: balOperasional },
-              { label: 'Keluarga', value: balKeluarga },
-            ].map((r) => (
-              <div key={r.label}>
-                <p className="eyebrow">{r.label}</p>
-                <p className="mt-1 text-xs font-semibold num truncate text-text">Rp {formatRibuan(r.value) || '0'}</p>
-              </div>
-            ))}
+            <div className="mt-5 pt-3.5 border-t border-border">
+              <p className="text-[11px] text-text-subtle">
+                Per {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })} · rincian per kas ada di bawah
+              </p>
+            </div>
           </div>
         </div>
         <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -242,7 +236,14 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
             </div>
             <div className="mt-3 divide-y divide-border">
               {recentTxs.length === 0 ? (
-                <div className="py-10 text-center text-xs font-medium text-text-muted">Belum ada transaksi di tahun {s.year}.</div>
+                <EmptyState
+                  dashed={false}
+                  icon={<ArrowLeftRight size={20} />}
+                  title="Belum ada transaksi"
+                  description={`Tidak ada catatan kas di tahun ${s.year}. Catat yang pertama supaya saldo mulai terisi.`}
+                  actionLabel="Tambah Transaksi"
+                  onAction={() => onOpenQuickTx('master')}
+                />
               ) : (
                 recentTxs.map((tx) => {
                   const isIncome = tx.penerimaan > 0

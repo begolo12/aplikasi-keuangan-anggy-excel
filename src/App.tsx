@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { useStore, useToastStore, flushPendingSync, type Ledger } from './store'
 import { useAuth } from './lib/use-auth'
 import { closingBalance, ledgerBalance, yearTransactions } from './finance'
@@ -197,6 +198,25 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1280px] w-full mx-auto">
+          {(store.syncStatus === 'offline' || store.syncStatus === 'error') && (
+            <div
+              role="status"
+              className="mb-4 flex items-start gap-2.5 rounded-lg border border-warning bg-warning-soft px-3.5 py-2.5 text-xs text-warning"
+            >
+              <AlertTriangle size={15} className="shrink-0 mt-px" />
+              <div>
+                <p className="font-semibold">
+                  {store.syncStatus === 'offline' ? 'Server belum tersambung' : 'Gagal menyimpan ke server'}
+                </p>
+                <p className="mt-0.5">
+                  Perubahan tetap tersimpan di perangkat dan akan dikirim ulang otomatis.{' '}
+                  <button onClick={() => store.retrySync()} className="font-semibold underline cursor-pointer">
+                    Coba sekarang
+                  </button>
+                </p>
+              </div>
+            </div>
+          )}
           <ErrorBoundary key={activeTab}>
             <Suspense
               fallback={

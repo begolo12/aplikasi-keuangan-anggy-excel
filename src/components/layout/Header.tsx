@@ -93,7 +93,7 @@ export function Header({
         >
           <Search size={14} className="text-text-subtle" />
           <span>Cari fitur / menu</span>
-          <kbd className="ml-1 px-2 py-0.5 text-[10px] font-semibold bg-surface rounded-md text-text-muted shadow-xs">⌘K</kbd>
+          <kbd className="ml-1 px-2 py-0.5 text-[10px] font-semibold bg-surface rounded-md text-text-muted">⌘K</kbd>
         </button>
 
         <button

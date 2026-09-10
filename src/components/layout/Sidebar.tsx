@@ -67,7 +67,7 @@ export function Sidebar({
       {/* Material 3 Cash Card Widget */}
       {!collapsed ? (
         <div className="px-3 pb-2 shrink-0">
-          <div className="rounded-lg bg-canvas border border-border p-3">
+          <div className="rounded-lg bg-surface-sunken border border-border p-3">
             <div className="flex items-center justify-between mb-2">
               <span className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider text-text-subtle uppercase">
                 <Wallet size={13} className="text-text-subtle" />

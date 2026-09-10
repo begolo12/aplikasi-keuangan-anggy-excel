@@ -2,9 +2,13 @@ import React, { useState } from 'react'
 import { Plus, Trash2, Check, Calendar } from 'lucide-react'
 import { Card } from '../common/Card'
 import { Badge } from '../common/Badge'
+import { Button } from '../common/Button'
+import { EmptyState } from '../common/EmptyState'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { Modal } from '../common/Modal'
+import { Field, Input, Select } from '../common/Input'
 import type { State, SchedRow } from '../../store'
 
 interface ScheduleViewProps {
@@ -45,12 +49,22 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
             <h3 className="text-sm font-semibold text-text">Pengingat Bayar Rutin — {s.year}</h3>
             <p className="text-xs font-medium text-text-muted">Jadwal pajak, servis, dan tagihan yang datang tiap bulan</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
-            <Plus size={14} /> Tambah Pengingat
-          </button>
+          <Button variant="primary" icon={<Plus size={14} />} onClick={() => setIsAdding(true)} className="self-start sm:self-auto">
+            Tambah Pengingat
+          </Button>
         </div>
       </Card>
 
+      {s.scheds.length === 0 ? (
+        <EmptyState
+          icon={<Calendar size={20} />}
+          title="Belum ada pengingat"
+          description="Tambah jadwal pajak, servis, atau tagihan rutin supaya tidak terlewat."
+          actionLabel="Tambah Pengingat"
+          onAction={() => setIsAdding(true)}
+        />
+      ) : (
+        <>
       {/* Mobile Card List with Large Touch Toggle (< 768px) */}
       <div className="block md:hidden space-y-3">
         {s.scheds.map((sc) => {
@@ -90,8 +104,8 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                         onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
                         className={`min-h-[40px] py-1.5 px-2 rounded-lg text-xs font-bold flex flex-col items-center justify-center transition active:scale-95 cursor-pointer ${
                           isActive
-                            ? 'bg-positive text-white shadow-xs'
-                            : 'bg-canvas text-text-muted border border-border hover:bg-positive-soft hover:text-positive'
+                            ? 'bg-positive text-white'
+                            : 'bg-surface-sunken text-text-muted border border-border hover:bg-positive-soft hover:text-positive'
                         }`}
                       >
                         <span className="text-[10px] font-bold">{monthShorts[mIdx]}</span>
@@ -111,9 +125,9 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
         })}
 
         {/* Mobile Grand Total Card */}
-        <div className="p-4 rounded-lg bg-accent text-white flex items-center justify-between shadow-xs border border-positive">
-          <span className="text-xs font-bold text-positive uppercase tracking-wider">TOTAL ESTIMASI PEMELIHARAAN:</span>
-          <span className="text-base font-black text-white num">Rp {formatRibuan(grandTotal)}</span>
+        <div className="p-4 rounded-lg bg-surface-sunken border border-border-strong flex items-center justify-between">
+          <span className="eyebrow">Total estimasi pemeliharaan</span>
+          <span className="text-base font-semibold text-text num">Rp {formatRibuan(grandTotal)}</span>
         </div>
       </div>
 
@@ -122,7 +136,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-canvas border-b border-border text-text-muted font-bold text-[11px] uppercase tracking-wider">
+              <tr className="table-head">
                 <th className="px-3 py-3">Kategori</th>
                 <th className="px-3 py-3 min-w-[180px]">Nama Jadwal / Item</th>
                 <th className="px-3 py-3 text-right">Estimasi Biaya</th>
@@ -153,7 +167,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                             onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
                             className={`w-8 h-8 rounded-lg text-xs font-black inline-flex items-center justify-center transition active:scale-90 cursor-pointer ${
                               isActive
-                                ? 'bg-positive text-white shadow-xs'
+                                ? 'bg-positive text-white'
                                 : 'bg-surface-sunken text-text-subtle hover:bg-positive-soft hover:text-positive border border-border'
                             }`}
                             title={isActive ? `Aktif: Rp ${formatRibuan(val)}` : 'Klik untuk aktifkan'}
@@ -179,9 +193,9 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
               })}
             </tbody>
             <tfoot>
-              <tr className="bg-accent text-white font-extrabold text-xs">
-                <td colSpan={15} className="px-4 py-3 text-right">TOTAL ESTIMASI PEMELIHARAAN :</td>
-                <td className="px-3 py-3 text-right font-black num text-positive">
+              <tr className="bg-surface-sunken border-t border-border-strong font-semibold text-xs text-text">
+                <td colSpan={15} className="px-4 py-3 text-right">Total estimasi pemeliharaan</td>
+                <td className="px-3 py-3 text-right font-semibold num">
                   Rp {formatRibuan(grandTotal)}
                 </td>
                 <td />
@@ -190,6 +204,8 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
           </table>
         </div>
       </Card>
+        </>
+      )}
 
       <ConfirmDialog
         open={Boolean(deleteTargetId)}
@@ -203,63 +219,56 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
         onCancel={() => setDeleteTargetId(null)}
       />
 
-      {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 border border-border p-5 sm:p-6 z-10 animate-scale">
-            <h3 className="font-black text-base sm:text-lg text-text tracking-tight pb-3 border-b border-border">
-              Tambah Jadwal Pemeliharaan / Pajak
-            </h3>
-            <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
-              <div>
-                <label className="text-xs font-bold text-text-muted block mb-1">Kategori</label>
-                <select value={newSched.kat} onChange={(e) => setNewSched({ ...newSched, kat: e.target.value as SchedRow['kat'] })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent">
-                  <option value="service">Servis Kendaraan / AC / Gadget</option>
-                  <option value="pajak">Pajak Kendaraan (PKB) / PBB</option>
-                </select>
-              </div>
+      <Modal
+        open={isAdding}
+        onClose={() => setIsAdding(false)}
+        title="Tambah Jadwal Pemeliharaan / Pajak"
+        size="md"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIsAdding(false)}>
+              Batal
+            </Button>
+            <Button variant="primary" type="submit" form="sched-form">
+              Simpan Jadwal
+            </Button>
+          </>
+        }
+      >
+        <form id="sched-form" onSubmit={handleAddSubmit} className="space-y-4">
+          <Field label="Kategori" htmlFor="sched-kat">
+            <Select
+              id="sched-kat"
+              value={newSched.kat}
+              onChange={(e) => setNewSched({ ...newSched, kat: e.target.value as SchedRow['kat'] })}
+            >
+              <option value="service">Servis Kendaraan / AC / Gadget</option>
+              <option value="pajak">Pajak Kendaraan (PKB) / PBB</option>
+            </Select>
+          </Field>
 
-              <div>
-                <label className="text-xs font-bold text-text-muted block mb-1">Nama Item / Jadwal</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Contoh: Pajak Tahunan Motor Vario"
-                  value={newSched.nama}
-                  onChange={(e) => setNewSched({ ...newSched, nama: e.target.value })}
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                />
-              </div>
+          <Field label="Nama Item / Jadwal" htmlFor="sched-nama">
+            <Input
+              id="sched-nama"
+              type="text"
+              required
+              placeholder="Contoh: Pajak Tahunan Motor Vario"
+              value={newSched.nama}
+              onChange={(e) => setNewSched({ ...newSched, nama: e.target.value })}
+            />
+          </Field>
 
-              <div>
-                <label className="text-xs font-bold text-text-muted block mb-1">Estimasi Biaya per Kegiatan (Rp)</label>
-                <RupiahInput
-                  value={newSched.hs}
-                  onChange={(v) => setNewSched({ ...newSched, hs: v })}
-                  placeholder="0"
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-accent outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-border flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black shadow-xs transition"
-                >
-                  Simpan Jadwal
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+          <Field label="Estimasi Biaya per Kegiatan (Rp)" htmlFor="sched-hs">
+            <RupiahInput
+              id="sched-hs"
+              value={newSched.hs}
+              onChange={(v) => setNewSched({ ...newSched, hs: v })}
+              placeholder="0"
+              className="w-full px-3 py-2 bg-surface text-text border border-border rounded-lg text-[13px] font-semibold num outline-none focus:border-accent"
+            />
+          </Field>
+        </form>
+      </Modal>
     </div>
   )
 }

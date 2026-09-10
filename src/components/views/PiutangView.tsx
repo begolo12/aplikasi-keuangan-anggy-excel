@@ -3,6 +3,7 @@ import { Plus, Trash2, HandCoins, CheckCircle2, Clock } from 'lucide-react'
 import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
+import { Button } from '../common/Button'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
@@ -151,7 +152,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
             <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-canvas border-b border-border text-text-muted font-semibold text-[11px] uppercase tracking-wider">
+                  <tr className="table-head">
                     <th className="px-4 py-3">Tanggal</th>
                     <th className="px-4 py-3">Nama Peminjam</th>
                     <th className="px-4 py-3">Keperluan</th>
@@ -189,13 +190,14 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-1.5">
                             {!isRepayment && !isLunas && (
-                              <button
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => setPelunasanTarget(p)}
-                                className="px-2.5 py-1 bg-positive-soft hover:bg-positive-soft text-accent border border-positive rounded-lg font-bold text-[11px] transition"
                                 title="Catat Pelunasan"
                               >
                                 Bayar
-                              </button>
+                              </Button>
                             )}
                             <button
                               onClick={() => setDeleteTargetId(p.id)}
@@ -278,7 +280,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black shadow-xs transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
                 >
                   Terbitkan Piutang
                 </button>

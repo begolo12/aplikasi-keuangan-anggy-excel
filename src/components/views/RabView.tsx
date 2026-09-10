@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { Plus, Trash2, LayoutGrid, List } from 'lucide-react'
 import { Card } from '../common/Card'
+import { Button } from '../common/Button'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { EmptyState } from '../common/EmptyState'
 import { useModalA11y } from '../../lib/useModalA11y'
 import type { State, RabRow } from '../../store'
 
@@ -76,20 +78,20 @@ export function RabView({ store: s }: RabViewProps) {
           <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               onClick={() => setTarget('anggy')}
-              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-bold transition active:scale-98 cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 target === 'anggy'
-                  ? 'bg-accent text-white shadow-xs'
-                  : 'bg-accent-soft text-text-muted hover:bg-accent-soft hover:text-accent'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
               Kas Usaha
             </button>
             <button
               onClick={() => setTarget('keluarga')}
-              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-bold transition active:scale-98 cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 target === 'keluarga'
-                  ? 'bg-accent text-white shadow-xs'
-                  : 'bg-accent-soft text-text-muted hover:bg-accent-soft hover:text-accent'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
               Kas Keluarga
@@ -101,7 +103,7 @@ export function RabView({ store: s }: RabViewProps) {
               <button
                 onClick={() => setViewMode('single')}
                 className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                  viewMode === 'single' ? 'bg-surface shadow-xs text-text' : 'text-text-muted hover:text-text'
+                  viewMode === 'single' ? 'bg-surface text-text' : 'text-text-muted hover:text-text'
                 }`}
                 title="Tampilan Mingguan & Ringkas"
               >
@@ -111,7 +113,7 @@ export function RabView({ store: s }: RabViewProps) {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                  viewMode === 'grid' ? 'bg-surface shadow-xs text-text' : 'text-text-muted hover:text-text'
+                  viewMode === 'grid' ? 'bg-surface text-text' : 'text-text-muted hover:text-text'
                 }`}
                 title="Tampilan Grid 12 Bulan"
               >
@@ -120,20 +122,34 @@ export function RabView({ store: s }: RabViewProps) {
               </button>
             </div>
 
-            <button onClick={() => setIsAdding(true)} className="w-full sm:w-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold  transition flex items-center justify-center gap-1.5 cursor-pointer">
-              <Plus size={14} /> Tambah Anggaran
-            </button>
+            <Button variant="primary" icon={<Plus size={14} />} onClick={() => setIsAdding(true)} className="w-full sm:w-auto">
+              Tambah Anggaran
+            </Button>
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-4">
-          <p className="text-[11px] font-semibold tracking-widest text-text-muted uppercase">Total Rencana — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</p>
+          <p className="eyebrow">Total Rencana — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight num text-text">Rp {formatRibuan(grandTotal) || '0'}</p>
           <p className="text-xs font-medium text-text-muted mt-1">{currentRab.length} rencana pengeluaran</p>
         </Card>
       </div>
+
+      {currentRab.length === 0 && (
+        <EmptyState
+          icon={<Plus size={20} />}
+          title="Belum ada pos anggaran"
+          description={
+            target === 'anggy'
+              ? 'Susun rencana pengeluaran Kas Usaha supaya realisasi bisa dibandingkan dengan rencana.'
+              : 'Susun rencana pengeluaran Kas Keluarga supaya realisasi bisa dibandingkan dengan rencana.'
+          }
+          actionLabel="Tambah Anggaran"
+          onAction={() => setIsAdding(true)}
+        />
+      )}
 
       {/* Mobile Card View (< 768px) */}
       <div className="block md:hidden space-y-3">
@@ -172,7 +188,7 @@ export function RabView({ store: s }: RabViewProps) {
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-canvas border-b border-border text-text-muted font-bold text-[11px] uppercase tracking-wider">
+              <tr className="table-head">
                 <th className="px-3 py-3">Group</th>
                 <th className="px-3 py-3 min-w-[200px]">Keterangan Anggaran</th>
                 <th className="px-3 py-3 text-center">Vol</th>
@@ -190,7 +206,7 @@ export function RabView({ store: s }: RabViewProps) {
                     <th key={m} className="px-2 py-3 text-right min-w-[90px]">{m}</th>
                   ))
                 )}
-                <th className="px-3 py-3 text-right bg-canvas font-semibold text-text">Total Setahun</th>
+                <th className="px-3 py-3 text-right bg-surface-sunken font-semibold text-text">Total Setahun</th>
                 <th className="px-3 py-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -362,7 +378,7 @@ export function RabView({ store: s }: RabViewProps) {
                     />
                   </div>
                 )}
-                <div className="rounded-lg bg-canvas border border-border px-3 py-2 sm:col-span-2">
+                <div className="rounded-lg bg-surface-sunken border border-border px-3 py-2 sm:col-span-2">
                   <p className="text-[11px] font-medium text-text-muted">{newRow.group === 'CICILAN' ? `Total cicilan (${bulanAktif} bulan × Rp ${formatRibuan((newRow.vol || 1) * newRow.hs)})` : 'Total setahun (otomatis)'}</p>
                   <p className="text-sm font-bold text-text num">Rp {formatRibuan(newRow.months.reduce((sum, v) => sum + v, 0))}</p>
                 </div>
@@ -378,7 +394,7 @@ export function RabView({ store: s }: RabViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black shadow-xs transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
                 >
                   Simpan Pos
                 </button>

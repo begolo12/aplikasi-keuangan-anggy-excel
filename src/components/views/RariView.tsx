@@ -65,7 +65,7 @@ export function RariView({ store: s }: RariViewProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-canvas border-b border-border text-text-muted font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="table-head">
                 <th className="px-4 py-3">Kas</th>
                 <th className="px-4 py-3 text-right">Rencana</th>
                 <th className="px-4 py-3 text-right">Terpakai</th>
@@ -74,14 +74,14 @@ export function RariView({ store: s }: RariViewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <tr className="hover:bg-canvas transition">
+              <tr className="hover:bg-surface-sunken transition">
                 <td className="px-4 py-3 font-medium text-text-muted">Kas Usaha</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raOp)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riOp)}</td>
                 <td className={`px-4 py-3 text-right font-bold num ${devOp >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devOp)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devOp >= 0 ? 'success' : 'danger'}>{devOp >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
-              <tr className="hover:bg-canvas transition">
+              <tr className="hover:bg-surface-sunken transition">
                 <td className="px-4 py-3 font-medium text-text-muted">Kas Keluarga</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raKel)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riKel)}</td>

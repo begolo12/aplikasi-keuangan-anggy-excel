@@ -17,6 +17,7 @@ import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import type { State, Tx, Ledger } from '../../store'
+import { useModalA11y } from '../../lib/useModalA11y'
 import { closingBalance, runningBalancesForYear, yearTransactions } from '../../finance'
 
 interface TransaksiViewProps {
@@ -30,6 +31,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
   const [search, setSearch] = useState('')
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [editingTx, setEditingTx] = useState<Tx | null>(null)
+  const editDialogRef = useModalA11y(Boolean(editingTx), () => setEditingTx(null))
 
   const txCurrentYear = useMemo(() => yearTransactions(s.txs, s.year), [s.txs, s.year])
   
@@ -151,7 +153,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onClick={onOpenTransfer} className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-lg bg-surface hover:bg-canvas text-text-muted border border-border text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
+            <button onClick={onOpenTransfer} className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-lg bg-surface hover:bg-surface-sunken text-text-muted border border-border text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
               <ArrowLeftRight size={14} /> Pindah Saldo
             </button>
             <button onClick={() => onOpenQuickTx(selectedLedger === 'all' ? 'master' : selectedLedger)} className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
@@ -242,7 +244,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-canvas border-b border-border text-text-muted font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="table-head">
                 <th className="px-4 py-3">Tanggal</th>
                 <th className="px-4 py-3">Dompet Kas</th>
                 <th className="px-4 py-3">Nama Orang</th>
@@ -319,10 +321,10 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       <ConfirmDialog open={Boolean(deleteTargetId)} title="Hapus Transaksi" message="Hapus transaksi ini? Sisa kas akan otomatis menyesuaikan." confirmLabel="Ya, Hapus" onConfirm={() => { if (deleteTargetId) s.delTx(deleteTargetId); setDeleteTargetId(null) }} onCancel={() => setDeleteTargetId(null)} />
 
       {editingTx && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="tx-edit-title">
           <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-sm" onClick={() => setEditingTx(null)} />
-          <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Ubah Transaksi</h3>
+          <div ref={editDialogRef} className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+            <h3 id="tx-edit-title" className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Ubah Transaksi</h3>
             <form onSubmit={handleUpdate} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -392,7 +394,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent text-white text-xs font-black shadow-xs transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition"
                 >
                   Simpan Perubahan
                 </button>

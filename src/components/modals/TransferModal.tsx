@@ -58,7 +58,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
         <p className="mt-3 text-xs text-text-subtle">Pindahkan saldo dari Kas Utama ke Kas Usaha atau Kas Keluarga tanpa mengubah total kekayaan.</p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="p-3.5 bg-canvas border border-border rounded-lg flex items-center justify-between">
+          <div className="p-3.5 bg-surface-sunken border border-border rounded-lg flex items-center justify-between">
             <span className="text-xs text-text-subtle">Sisa di Kas Utama:</span>
             <span className="font-semibold num text-sm text-accent">Rp {formatRibuan(maxMasterBalance)}</span>
           </div>
@@ -71,7 +71,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                 onClick={() => setTo('operasional')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   to === 'operasional'
-                    ? 'bg-accent text-white shadow-xs'
+                    ? 'bg-accent text-white'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -82,7 +82,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                 onClick={() => setTo('keluarga')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   to === 'keluarga'
-                    ? 'bg-accent text-white shadow-xs'
+                    ? 'bg-accent text-white'
                     : 'text-text-muted hover:text-text'
                 }`}
               >

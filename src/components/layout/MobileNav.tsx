@@ -1,5 +1,7 @@
+import { useId } from 'react'
 import { X, Plus } from 'lucide-react'
 import { NAV_GROUPS, TAB_ICONS, type TabKey } from './navConfig'
+import { useModalA11y } from '../../lib/useModalA11y'
 
 interface MobileNavProps {
   open: boolean
@@ -19,6 +21,8 @@ export function MobileNav({
   unpaidPiutangCount,
   onOpenQuickTx,
 }: MobileNavProps) {
+  const panelRef = useModalA11y(open, onClose)
+  const titleId = useId()
   if (!open) return null
 
   const getBadgeValue = (key?: 'txCount' | 'unpaidPiutangCount') => {
@@ -28,16 +32,15 @@ export function MobileNav({
   }
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} />
+    <div className="fixed inset-0 z-50 lg:hidden flex" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div className="fixed inset-0" style={{ backgroundColor: 'var(--c-overlay)' }} onClick={onClose} aria-hidden="true" />
 
-      {/* Material Modal Navigation Drawer */}
-      <div className="relative w-[320px] max-w-[85vw] bg-surface h-full flex flex-col md-elevation-3 z-10 animate-in rounded-r-3xl border-r border-border">
+      <div ref={panelRef} className="relative w-[320px] max-w-[85vw] bg-surface h-full flex flex-col md-elevation-3 z-10 animate-in border-r border-border">
         <div className="h-[64px] flex items-center justify-between px-5 border-b border-border shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold text-base">F</div>
             <div>
-              <h2 className="text-[17px] font-medium tracking-tight text-text leading-none">FinSheet <span className="text-accent">PRO</span></h2>
+              <h2 id={titleId} className="text-[17px] font-medium tracking-tight text-text leading-none">FinSheet <span className="text-accent">PRO</span></h2>
               <p className="text-[11px] text-text-subtle leading-none mt-1">Keuangan & Aset Terpadu</p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { EmptyState } from '../common/EmptyState'
+import { useModalA11y } from '../../lib/useModalA11y'
 import type { State, AssetRow } from '../../store'
 import { assetDebt } from '../../finance'
 
@@ -18,6 +19,7 @@ interface AssetViewProps {
 export function AssetView({ store: s }: AssetViewProps) {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const addDialogRef = useModalA11y(isAdding, () => setIsAdding(false))
   const [newAsset, setNewAsset] = useState<Omit<AssetRow, 'id'>>({
     jenis: 'PROPERTY',
     nama: '',
@@ -193,7 +195,7 @@ export function AssetView({ store: s }: AssetViewProps) {
             <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-canvas border-b border-border text-text-muted font-bold text-[11px] uppercase tracking-wider">
+                  <tr className="table-head">
                     <th className="px-4 py-3">Jenis</th>
                     <th className="px-4 py-3">Nama Aset</th>
                     <th className="px-4 py-3">Mulai Akad</th>
@@ -264,10 +266,10 @@ export function AssetView({ store: s }: AssetViewProps) {
       />
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="asset-add-title">
           <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-black text-base sm:text-lg text-text tracking-tight pb-3 border-b border-border">
+          <div ref={addDialogRef} className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
+            <h3 id="asset-add-title" className="font-black text-base sm:text-lg text-text tracking-tight pb-3 border-b border-border">
               Tambah Aset Baru
             </h3>
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
@@ -364,7 +366,7 @@ export function AssetView({ store: s }: AssetViewProps) {
               </div>
 
               {newAsset.nilai > 0 && newAsset.tenor > 0 && (
-                <div className="p-3.5 bg-canvas border border-border rounded-lg text-xs space-y-1.5 animate-in">
+                <div className="p-3.5 bg-surface-sunken border border-border rounded-lg text-xs space-y-1.5 animate-in">
                   <div className="flex justify-between font-semibold text-text-muted">
                     <span>Cicilan per Bulan:</span>
                     <span className="num font-bold text-text">Rp {formatRibuan(liveDebt.monthlyPayment)}</span>
@@ -394,7 +396,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black shadow-xs transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
                 >
                   Simpan Aset
                 </button>

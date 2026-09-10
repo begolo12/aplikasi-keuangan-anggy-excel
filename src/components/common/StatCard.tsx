@@ -24,7 +24,7 @@ export function StatCard({ title, value, subtitle, icon, variant = 'default', tr
     <Card className="p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium tracking-wider text-text-subtle uppercase truncate">{title}</p>
+          <p className="eyebrow truncate">{title}</p>
           <p className={`mt-1.5 text-[22px] font-bold tracking-tight num truncate leading-tight ${s.value}`}>{value}</p>
           {subtitle && <p className="mt-1 text-xs text-text-subtle truncate">{subtitle}</p>}
         </div>

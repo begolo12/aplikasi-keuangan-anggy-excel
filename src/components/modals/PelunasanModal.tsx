@@ -96,14 +96,14 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-border bg-surface-sunken hover:bg-surface-sunken text-text-muted text-xs font-bold transition"
+              className="flex-1 py-2.5 rounded-lg border border-border-strong bg-surface text-text-muted hover:text-text text-xs font-medium transition"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={nominal <= 0 || nominal > sisa}
-              className="flex-1 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-black shadow-xs transition active:scale-95 flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-black transition active:scale-95 flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 size={16} />
               Simpan Pelunasan

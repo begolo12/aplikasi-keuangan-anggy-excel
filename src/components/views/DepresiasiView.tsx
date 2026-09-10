@@ -3,9 +3,13 @@ import { Plus, Trash2, Scale, ArrowUpRight, CheckCircle2 } from 'lucide-react'
 import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
+import { Button } from '../common/Button'
+import { EmptyState } from '../common/EmptyState'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { Modal } from '../common/Modal'
+import { Field, Input, Select } from '../common/Input'
 import type { State, DepRow } from '../../store'
 import { straightLineValue } from '../../finance'
 
@@ -60,14 +64,22 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
             <h3 className="text-sm font-semibold text-text">Nilai Barang dari Waktu ke Waktu</h3>
             <p className="text-xs font-medium text-text-muted">Hitung berapa nilai barang turun setiap bulan</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer"
-          >
-            <Plus size={15} />
-            <span>Tambah Item Depresiasi</span>
-          </button>
+          <Button variant="primary" icon={<Plus size={15} />} onClick={() => setIsAdding(true)} className="self-start sm:self-auto">
+            Tambah Item Depresiasi
+          </Button>
         </div>
       </Card>
 
+      {s.deps.length === 0 ? (
+        <EmptyState
+          icon={<Scale size={20} />}
+          title="Belum ada barang tercatat"
+          description="Catat barang yang nilainya turun tiap bulan, seperti kendaraan atau gadget."
+          actionLabel="Tambah Item Depresiasi"
+          onAction={() => setIsAdding(true)}
+        />
+      ) : (
+        <>
       {/* Mobile Card List (< 768px) */}
       <div className="block md:hidden space-y-3">
         {s.deps.map((d) => {
@@ -121,7 +133,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-canvas border-b border-border text-text-muted font-bold text-[11px] uppercase tracking-wider">
+              <tr className="table-head">
                 <th className="px-4 py-3">Kategori</th>
                 <th className="px-4 py-3">Nama Barang</th>
                 <th className="px-4 py-3">Tgl Beli</th>
@@ -154,7 +166,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
                     <td className="px-4 py-3 text-right font-bold text-negative num">
                       Rp {formatRibuan(calc.accumulated)}
                     </td>
-                    <td className="px-4 py-3 text-right font-black text-accent num bg-positive-soft">
+                    <td className="px-4 py-3 text-right font-semibold text-positive num">
                       Rp {formatRibuan(calc.bookValue)}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -172,6 +184,8 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
           </table>
         </div>
       </Card>
+        </>
+      )}
 
       <ConfirmDialog
         open={Boolean(deleteTargetId)}
@@ -185,89 +199,80 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
         onCancel={() => setDeleteTargetId(null)}
       />
 
-      {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 className="font-black text-base sm:text-lg text-text tracking-tight pb-3 border-b border-border">
-              Tambah Item Depresiasi
-            </h3>
-            <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
-              <div>
-                <label className="text-xs font-bold text-text-muted block mb-1">Nama Barang / Aset</label>
-                <input
-                  type="text"
-                  required
-                  value={newDep.nama}
-                  onChange={(e) => setNewDep({ ...newDep, nama: e.target.value })}
-                  placeholder="Contoh: MacBook Pro / Motor Honda Vario"
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                />
-              </div>
+      <Modal
+        open={isAdding}
+        onClose={() => setIsAdding(false)}
+        title="Tambah Item Depresiasi"
+        size="md"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIsAdding(false)}>
+              Batal
+            </Button>
+            <Button variant="primary" type="submit" form="dep-form">
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <form id="dep-form" onSubmit={handleAddSubmit} className="space-y-4">
+          <Field label="Nama Barang / Aset" htmlFor="dep-nama">
+            <Input
+              id="dep-nama"
+              type="text"
+              required
+              value={newDep.nama}
+              onChange={(e) => setNewDep({ ...newDep, nama: e.target.value })}
+              placeholder="Contoh: MacBook Pro / Motor Honda Vario"
+            />
+          </Field>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Kategori</label>
-                  <select value={newDep.kat} onChange={(e) => setNewDep({ ...newDep, kat: e.target.value as DepRow['kat'] })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent">
-                    <option value="KENDARAAN">KENDARAAN</option>
-                    <option value="GADGET">GADGET</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Tanggal Beli</label>
-                  <input
-                    type="date"
-                    required
-                    value={newDep.tgl}
-                    onChange={(e) => setNewDep({ ...newDep, tgl: e.target.value })}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Nilai Beli (Rp)</label>
-                  <RupiahInput
-                    required
-                    value={newDep.nilai}
-                    onChange={(v) => setNewDep({ ...newDep, nilai: v })}
-                    placeholder="0"
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-accent outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Masa Pakai (Bulan)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    value={newDep.umur}
-                    onChange={(e) => setNewDep({ ...newDep, umur: parseInt(e.target.value, 10) || 60 })}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-text-muted outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-border flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black shadow-xs transition"
-                >
-                  Simpan
-                </button>
-              </div>
-            </form>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Kategori" htmlFor="dep-kat">
+              <Select
+                id="dep-kat"
+                value={newDep.kat}
+                onChange={(e) => setNewDep({ ...newDep, kat: e.target.value as DepRow['kat'] })}
+              >
+                <option value="KENDARAAN">KENDARAAN</option>
+                <option value="GADGET">GADGET</option>
+              </Select>
+            </Field>
+            <Field label="Tanggal Beli" htmlFor="dep-tgl">
+              <Input
+                id="dep-tgl"
+                type="date"
+                required
+                value={newDep.tgl}
+                onChange={(e) => setNewDep({ ...newDep, tgl: e.target.value })}
+              />
+            </Field>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Nilai Beli (Rp)" htmlFor="dep-nilai">
+              <RupiahInput
+                id="dep-nilai"
+                required
+                value={newDep.nilai}
+                onChange={(v) => setNewDep({ ...newDep, nilai: v })}
+                placeholder="0"
+                className="w-full px-3 py-2 bg-surface text-text border border-border rounded-lg text-[13px] font-semibold num outline-none focus:border-accent"
+              />
+            </Field>
+            <Field label="Masa Pakai (Bulan)" htmlFor="dep-umur">
+              <Input
+                id="dep-umur"
+                type="number"
+                min={1}
+                required
+                value={newDep.umur}
+                onChange={(e) => setNewDep({ ...newDep, umur: parseInt(e.target.value, 10) || 60 })}
+              />
+            </Field>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }

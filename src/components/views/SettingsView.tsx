@@ -169,7 +169,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   {nsbList.map((name) => (
                     <div
                       key={name}
-                      className="flex items-center justify-between p-3 rounded-lg bg-canvas border border-border hover:border-border-strong transition"
+                      className="flex items-center justify-between p-3 rounded-lg bg-surface-sunken border border-border hover:border-border-strong transition"
                     >
                       <span className="text-xs font-medium text-text truncate">{name}</span>
                       <button
@@ -233,7 +233,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   {posList.map((pos) => (
                     <div
                       key={pos}
-                      className="flex items-center justify-between p-3 rounded-lg bg-canvas border border-border hover:border-border-strong transition"
+                      className="flex items-center justify-between p-3 rounded-lg bg-surface-sunken border border-border hover:border-border-strong transition"
                     >
                       <span className="text-xs font-medium text-text truncate">{pos}</span>
                       <button

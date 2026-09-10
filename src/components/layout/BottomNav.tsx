@@ -40,7 +40,7 @@ export function BottomNav({
               <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'font-semibold text-text' : 'font-medium text-text-subtle'}`}>
                 {tab.label}
               </span>
-              {tab.dot && <span className="absolute top-1 right-3.5 w-2 h-2 bg-positive rounded-full border border-white" />}
+              {tab.dot && <span className="absolute top-1 right-3.5 w-2 h-2 bg-positive rounded-full border-2 border-surface" />}
             </button>
           )
         })}

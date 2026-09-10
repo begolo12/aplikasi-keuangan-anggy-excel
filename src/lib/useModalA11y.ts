@@ -1,5 +1,31 @@
 import { useEffect, useRef } from 'react'
 
+// Hitungan, bukan boolean: dua dialog bisa terbuka bersamaan (konfirmasi di
+// atas form). Boolean akan membuka kunci saat yang pertama ditutup.
+let lockCount = 0
+let savedOverflow = ''
+let savedPadding = ''
+
+function lockScroll() {
+  if (lockCount === 0) {
+    savedOverflow = document.body.style.overflow
+    savedPadding = document.body.style.paddingRight
+    // Ganti lebar scrollbar supaya konten tidak melompat saat scrollbar hilang.
+    const gap = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (gap > 0) document.body.style.paddingRight = `${gap}px`
+  }
+  lockCount++
+}
+
+function unlockScroll() {
+  lockCount = Math.max(0, lockCount - 1)
+  if (lockCount === 0) {
+    document.body.style.overflow = savedOverflow
+    document.body.style.paddingRight = savedPadding
+  }
+}
+
 /**
  * Escape menutup, fokus masuk ke elemen pertama, Tab berputar di dalam modal,
  * dan fokus kembali ke pemicu saat ditutup.
@@ -49,8 +75,10 @@ export function useModalA11y(enabled: boolean, onClose: () => void) {
     }
 
     document.addEventListener('keydown', onKey)
+    lockScroll()
     return () => {
       document.removeEventListener('keydown', onKey)
+      unlockScroll()
       previous?.focus?.()
     }
   }, [enabled])

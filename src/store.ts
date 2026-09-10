@@ -340,7 +340,7 @@ export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...emptySeed(),
-      syncStatus: 'synced' as SyncStatus,
+      syncStatus: 'syncing' as SyncStatus,
       serverRev: null as string | null,
       loadFromServer: async () => {
         if (syncInFlight) return
