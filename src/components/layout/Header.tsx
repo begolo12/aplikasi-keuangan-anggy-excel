@@ -146,7 +146,7 @@ export function Header({
         {/* Material Filled Button with Ripple feel */}
         <button
           onClick={onOpenQuickTx}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-medium transition-colors cursor-pointer"
         >
           <Plus size={16} />
           <span className="hidden sm:inline">Tambah Transaksi</span>

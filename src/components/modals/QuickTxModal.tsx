@@ -125,7 +125,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 onClick={() => setJenis('keluar')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   jenis === 'keluar'
-                    ? 'bg-negative text-white'
+                    ? 'bg-negative text-on-fill'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -136,7 +136,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 onClick={() => setJenis('masuk')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   jenis === 'masuk'
-                    ? 'bg-positive text-white'
+                    ? 'bg-positive text-on-fill'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -191,7 +191,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg text-xs font-medium bg-accent hover:bg-accent-hover text-white transition cursor-pointer"
+              className="px-6 py-2.5 rounded-lg text-xs font-medium bg-accent hover:bg-accent-hover text-on-fill transition cursor-pointer"
             >
               Simpan Transaksi
             </button>

@@ -25,7 +25,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas text-text flex items-center justify-center p-4 sm:p-6 antialiased relative selection:bg-accent selection:text-white">
+    <div className="min-h-screen bg-canvas text-text flex items-center justify-center p-4 sm:p-6 antialiased relative selection:bg-accent selection:text-on-fill">
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         {/* Left Info Panel */}
         <div className="lg:col-span-7 space-y-6 hidden lg:block pr-4">
@@ -36,7 +36,7 @@ export default function Login() {
 
           <div className="space-y-3">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-2xl">
+              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-on-fill font-bold text-2xl">
                 F
               </div>
               <div>
@@ -76,7 +76,7 @@ export default function Login() {
         <div className="lg:col-span-5 w-full">
           <div className="bg-surface border border-border rounded-lg p-6 sm:p-8">
             <div className="lg:hidden flex items-center gap-3 mb-6 pb-4 border-b border-border">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-on-fill font-bold text-lg">
                 F
               </div>
               <div>
@@ -138,7 +138,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+                className="w-full mt-2 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-on-fill rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
               >
                 {loading ? 'Memverifikasi...' : 'Masuk Sekarang'}
                 <ArrowRight size={16} />

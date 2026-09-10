@@ -80,7 +80,7 @@ export function RabView({ store: s }: RabViewProps) {
               onClick={() => setTarget('anggy')}
               className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 target === 'anggy'
-                  ? 'bg-accent text-white'
+                  ? 'bg-accent text-on-fill'
                   : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
@@ -90,7 +90,7 @@ export function RabView({ store: s }: RabViewProps) {
               onClick={() => setTarget('keluarga')}
               className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 target === 'keluarga'
-                  ? 'bg-accent text-white'
+                  ? 'bg-accent text-on-fill'
                   : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
@@ -394,7 +394,7 @@ export function RabView({ store: s }: RabViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-black transition"
                 >
                   Simpan Pos
                 </button>

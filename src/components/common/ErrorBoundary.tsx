@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </button>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 rounded-lg text-xs font-medium text-white bg-accent hover:bg-accent-hover transition cursor-pointer"
+            className="px-4 py-2 rounded-lg text-xs font-medium text-on-fill bg-accent hover:bg-accent-hover transition cursor-pointer"
           >
             Muat ulang
           </button>

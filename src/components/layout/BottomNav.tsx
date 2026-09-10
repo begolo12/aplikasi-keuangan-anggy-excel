@@ -45,7 +45,7 @@ export function BottomNav({
           )
         })}
         <button onClick={onOpenQuickTx} className="flex flex-col items-center justify-center gap-0.5 -mt-3 cursor-pointer">
-          <span className="w-12 h-12 rounded-lg bg-accent hover:bg-accent-hover text-white flex items-center justify-center active:scale-95 transition-transform"><Plus size={22} /></span>
+          <span className="w-12 h-12 rounded-lg bg-accent hover:bg-accent-hover text-on-fill flex items-center justify-center active:scale-95 transition-transform"><Plus size={22} /></span>
           <span className="text-[10px] font-medium text-accent">Tambah</span>
         </button>
         <button

@@ -103,7 +103,7 @@ export function PelunasanModal({ open, onClose, piutang, onCatatPelunasan }: Pel
             <button
               type="submit"
               disabled={nominal <= 0 || nominal > sisa}
-              className="flex-1 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-black transition active:scale-95 flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-on-fill text-xs font-black transition active:scale-95 flex items-center justify-center gap-1.5"
             >
               <CheckCircle2 size={16} />
               Simpan Pelunasan

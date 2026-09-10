@@ -146,7 +146,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       <Card className="p-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button onClick={() => setSelectedLedger('all')} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${selectedLedger === 'all' ? 'bg-accent text-white' : 'bg-surface-sunken text-text-muted hover:bg-surface-sunken'}`}>Semua Kas</button>
+            <button onClick={() => setSelectedLedger('all')} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${selectedLedger === 'all' ? 'bg-accent text-on-fill' : 'bg-surface-sunken text-text-muted hover:bg-surface-sunken'}`}>Semua Kas</button>
             <div className="relative flex-1 sm:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle" />
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari keterangan atau kategori..." className="w-full pl-9 pr-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
@@ -156,7 +156,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <button onClick={onOpenTransfer} className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-lg bg-surface hover:bg-surface-sunken text-text-muted border border-border text-xs font-medium transition inline-flex items-center gap-1.5 cursor-pointer">
               <ArrowLeftRight size={14} /> Pindah Saldo
             </button>
-            <button onClick={() => onOpenQuickTx(selectedLedger === 'all' ? 'master' : selectedLedger)} className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
+            <button onClick={() => onOpenQuickTx(selectedLedger === 'all' ? 'master' : selectedLedger)} className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
               <Plus size={14} /> Tambah Transaksi
             </button>
           </div>
@@ -394,7 +394,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold transition"
                 >
                   Simpan Perubahan
                 </button>

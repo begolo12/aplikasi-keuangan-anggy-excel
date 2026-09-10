@@ -156,7 +156,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas flex text-text antialiased font-sans selection:bg-accent selection:text-white">
+    <div className="min-h-screen bg-canvas flex text-text antialiased font-sans selection:bg-accent selection:text-on-fill">
       <Sidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}

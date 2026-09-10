@@ -123,7 +123,7 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
             <button
               type="button"
               onMouseDown={(e) => { e.preventDefault(); select(value) }}
-              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2 text-xs rounded-lg border-t border-border transition ${highlight === filtered.length ? 'bg-positive text-white font-medium' : 'bg-positive-soft hover:bg-positive-soft text-positive'}`}
+              className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2 text-xs rounded-lg border-t border-border transition ${highlight === filtered.length ? 'bg-positive text-on-fill font-medium' : 'bg-positive-soft hover:bg-positive-soft text-positive'}`}
             >
               <Plus size={15} />
               <span className="font-medium truncate">Tambah nasabah baru: {norm(value)}</span>

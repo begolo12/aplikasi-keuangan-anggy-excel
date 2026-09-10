@@ -20,7 +20,7 @@ const sizes: Record<ButtonSize, string> = {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover',
+  primary: 'bg-accent text-on-fill hover:bg-accent-hover',
   outline: 'bg-surface text-text border border-border-strong hover:bg-surface-sunken',
   ghost: 'bg-transparent text-text-muted hover:bg-surface-sunken hover:text-text',
   danger: 'bg-surface text-negative border border-border-strong hover:bg-negative-soft hover:border-negative/40',

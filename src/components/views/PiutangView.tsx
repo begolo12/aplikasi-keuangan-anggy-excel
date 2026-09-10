@@ -77,7 +77,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
             <h3 className="text-sm font-semibold text-text">Piutang — Uang Dipinjamkan</h3>
             <p className="text-xs font-medium text-text-muted">Mencatat pinjaman mengurangi Kas Utama; pelunasan menambah Kas Utama dan tidak dihitung sebagai pendapatan.</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={14} /> Catat Pinjaman Baru
           </button>
         </div>
@@ -137,7 +137,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
 
                   {!isRepayment && !isLunas && (
                     <div className="mt-3 pt-2.5 border-t border-border">
-                      <button onClick={() => setPelunasanTarget(p)} className="w-full py-2 px-3 bg-accent hover:bg-accent-hover text-white rounded-lg font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                      <button onClick={() => setPelunasanTarget(p)} className="w-full py-2 px-3 bg-accent hover:bg-accent-hover text-on-fill rounded-lg font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
                         <HandCoins size={14} /> Catat Pembayaran Kembali
                       </button>
                     </div>
@@ -280,7 +280,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-black transition"
                 >
                   Terbitkan Piutang
                 </button>

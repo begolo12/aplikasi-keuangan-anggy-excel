@@ -104,7 +104,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                         onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
                         className={`min-h-[40px] py-1.5 px-2 rounded-lg text-xs font-bold flex flex-col items-center justify-center transition active:scale-95 cursor-pointer ${
                           isActive
-                            ? 'bg-positive text-white'
+                            ? 'bg-positive text-on-fill'
                             : 'bg-surface-sunken text-text-muted border border-border hover:bg-positive-soft hover:text-positive'
                         }`}
                       >
@@ -167,7 +167,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                             onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
                             className={`w-8 h-8 rounded-lg text-xs font-black inline-flex items-center justify-center transition active:scale-90 cursor-pointer ${
                               isActive
-                                ? 'bg-positive text-white'
+                                ? 'bg-positive text-on-fill'
                                 : 'bg-surface-sunken text-text-subtle hover:bg-positive-soft hover:text-positive border border-border'
                             }`}
                             title={isActive ? `Aktif: Rp ${formatRibuan(val)}` : 'Klik untuk aktifkan'}

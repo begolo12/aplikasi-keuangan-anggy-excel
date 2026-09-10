@@ -102,7 +102,7 @@ export function AssetView({ store: s }: AssetViewProps) {
             <h3 className="text-sm font-semibold text-text">Daftar Aset & Cicilan KPR / Kendaraan</h3>
             <p className="text-xs font-medium text-text-muted">Sistem otomatis menghitung bulan berjalan, cicilan terbayar, dan sisa hutang per hari ini</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={15} />
             <span>Tambah Aset</span>
           </button>
@@ -396,7 +396,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-black transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-black transition"
                 >
                   Simpan Aset
                 </button>

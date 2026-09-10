@@ -137,7 +137,7 @@ export function Sidebar({
                         {!collapsed && badge !== undefined && (
                           <span
                             className={`text-[11px] px-2 py-0.5 rounded-full font-medium leading-none shrink-0 ${
-                              isActive ? 'bg-accent text-white' : 'bg-border-strong text-text'
+                              isActive ? 'bg-accent text-on-fill' : 'bg-border-strong text-text'
                             }`}
                           >
                             {badge}
@@ -145,7 +145,7 @@ export function Sidebar({
                         )}
                       </button>
                       {collapsed && (
-                        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-text text-white text-xs font-medium rounded-lg md-elevation-3 opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50">
+                        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-text text-on-fill text-xs font-medium rounded-lg md-elevation-3 opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50">
                           {item.label}
                           {badge !== undefined && (
                             <span className="ml-2 px-1.5 py-0.5 bg-surface/20 rounded-full text-[10px]">{badge}</span>

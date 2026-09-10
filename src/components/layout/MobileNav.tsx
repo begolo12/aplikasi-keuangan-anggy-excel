@@ -50,7 +50,7 @@ export function MobileNav({
         </div>
 
         <div className="p-4">
-          <button onClick={() => { onClose(); onOpenQuickTx() }} className="w-full py-3 px-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer">
+          <button onClick={() => { onClose(); onOpenQuickTx() }} className="w-full py-3 px-4 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer">
             <Plus size={18} /> Tambah Transaksi
           </button>
         </div>
@@ -71,7 +71,7 @@ export function MobileNav({
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[13px] transition cursor-pointer ${isActive ? 'bg-accent-soft text-text font-semibold' : 'text-text-muted hover:bg-surface-sunken hover:text-text font-medium'}`}
                     >
                       <span className="flex items-center gap-3"><span className={isActive ? 'text-text' : 'text-text-muted'}>{(() => { const Icon = TAB_ICONS[item.id]; return <Icon size={20} /> })()}</span>{item.label}</span>
-                      {badge !== undefined && <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${isActive ? 'bg-accent text-white' : 'bg-border-strong text-text'}`}>{badge}</span>}
+                      {badge !== undefined && <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${isActive ? 'bg-accent text-on-fill' : 'bg-border-strong text-text'}`}>{badge}</span>}
                     </button>
                   )
                 })}

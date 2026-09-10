@@ -9,11 +9,11 @@ export function ToastStack({ toasts, remove }: { toasts: ToastItem[]; remove: (i
       {toasts.map((t) => (
         <div
           key={t.id}
-          className="pointer-events-auto min-w-[280px] max-w-[420px] px-4 py-3 rounded-lg md-elevation-3 bg-text text-white text-xs font-normal flex items-center gap-3 animate-in"
+          className="pointer-events-auto min-w-[280px] max-w-[420px] px-4 py-3 rounded-lg md-elevation-3 bg-text text-on-fill text-xs font-normal flex items-center gap-3 animate-in"
           role="status"
           aria-live="polite"
         >
-          <span className="shrink-0 text-white">
+          <span className="shrink-0 text-on-fill">
             {t.kind === 'success' ? (
               <CheckCircle2 size={16} className="text-positive" />
             ) : t.kind === 'error' ? (

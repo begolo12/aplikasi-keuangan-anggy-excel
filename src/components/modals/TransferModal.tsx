@@ -71,7 +71,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                 onClick={() => setTo('operasional')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   to === 'operasional'
-                    ? 'bg-accent text-white'
+                    ? 'bg-accent text-on-fill'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -82,7 +82,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                 onClick={() => setTo('keluarga')}
                 className={`py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                   to === 'keluarga'
-                    ? 'bg-accent text-white'
+                    ? 'bg-accent text-on-fill'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -140,7 +140,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
             <button
               type="submit"
               disabled={isOverBalance || amount <= 0}
-              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-on-fill text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               Pindahkan <ArrowRight size={14} />
             </button>

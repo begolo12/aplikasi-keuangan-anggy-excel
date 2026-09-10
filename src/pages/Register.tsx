@@ -36,10 +36,10 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas text-text flex items-center justify-center p-4 sm:p-6 antialiased relative selection:bg-accent selection:text-white">
+    <div className="min-h-screen bg-canvas text-text flex items-center justify-center p-4 sm:p-6 antialiased relative selection:bg-accent selection:text-on-fill">
       <div className="relative z-10 w-full max-w-md bg-surface border border-border rounded-lg p-6 sm:p-8">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-xl">
+          <div className="w-11 h-11 rounded-lg bg-accent flex items-center justify-center text-on-fill font-bold text-xl">
             F
           </div>
           <div>
@@ -143,7 +143,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
+            className="w-full mt-3 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-on-fill rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
           >
             {loading ? 'Mendaftarkan Workspace...' : 'Daftar Sekarang'}
             <ArrowRight size={16} />

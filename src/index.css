@@ -35,6 +35,8 @@
   --color-warning: var(--c-warning);
   --color-warning-soft: var(--c-warning-soft);
 
+  --color-on-fill: var(--c-on-fill);
+
   --font-sans: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, Menlo, monospace;
 
@@ -72,6 +74,9 @@
   --c-negative-soft: #fce8e6;
   --c-warning: #9a5b00;
   --c-warning-soft: #fdf3da;
+  /* Teks di atas bidang terisi. Terang di mode terang, gelap di mode gelap,
+     karena warna isian mode gelap jauh lebih terang. */
+  --c-on-fill: #ffffff;
 
   --c-overlay: rgba(20, 24, 26, 0.45);
   --c-hover: rgba(20, 24, 26, 0.04);
@@ -113,6 +118,8 @@
   --c-negative: #f08078;
   --c-negative-soft: #2c1614;
   --c-warning: #e0ab55;
+  /* Isian mode gelap terang, jadi teks di atasnya harus gelap. */
+  --c-on-fill: #0e1113;
   --c-warning-soft: #2b2113;
 
   --c-overlay: rgba(0, 0, 0, 0.62);
@@ -327,6 +334,31 @@ tbody tr:hover {
 }
 
 @media print {
+  /* Cetak selalu di atas kertas putih, jadi token dipaku ke nilai mode terang.
+     Tanpa ini, mencetak saat tema gelap menghasilkan teks terang di kertas putih. */
+  :root,
+  .dark {
+    color-scheme: light;
+    --c-canvas: #ffffff;
+    --c-surface: #ffffff;
+    --c-surface-sunken: #f4f5f5;
+    --c-border: #b9bfc3;
+    --c-border-strong: #8b9296;
+    --c-text: #000000;
+    --c-text-muted: #3a4146;
+    --c-text-subtle: #5b6368;
+    --c-accent: #1557b0;
+    --c-accent-hover: #1557b0;
+    --c-accent-soft: #eaf1fd;
+    --c-positive: #0f7a3d;
+    --c-positive-soft: #e6f4ea;
+    --c-negative: #b3221c;
+    --c-negative-soft: #fce8e6;
+    --c-warning: #7d4a00;
+    --c-warning-soft: #fdf3da;
+    --c-on-fill: #ffffff;
+    --c-hover: transparent;
+  }
   aside, header, nav, .no-print, button:not(.print-include) {
     display: none !important;
   }

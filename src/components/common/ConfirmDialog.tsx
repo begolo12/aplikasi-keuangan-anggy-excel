@@ -56,8 +56,8 @@ export function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
-            className={`px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium text-white transition cursor-pointer ${
-              variant === 'danger' ? 'bg-negative hover:bg-negative' : 'bg-accent hover:bg-accent-hover'
+            className={`px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium text-on-fill transition cursor-pointer ${
+              variant === 'danger' ? 'bg-negative hover:bg-negative/85' : 'bg-accent hover:bg-accent-hover'
             }`}
           >
             {confirmLabel}
