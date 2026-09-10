@@ -102,6 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       // Buang cache keuangan lokal supaya data tidak tertinggal di komputer bersama.
       localStorage.removeItem('anggy-keu-v2')
+      // Draft konflik berisi salinan data keuangan; jangan tinggalkan setelah keluar.
+      localStorage.removeItem('anggy-keu-conflict-draft')
       setUser(null)
       setWorkspace(null)
     }
