@@ -191,7 +191,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg text-xs font-medium bg-accent hover:bg-accent-hover text-white md-elevation-1 hover:md-elevation-2 transition cursor-pointer"
+              className="px-6 py-2.5 rounded-lg text-xs font-medium bg-accent hover:bg-accent-hover text-white transition cursor-pointer"
             >
               Simpan Transaksi
             </button>

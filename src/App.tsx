@@ -302,4 +302,3 @@ export default function App() {
     </div>
   )
 }
-// ponytail: typography now 700/600 hierarchy, Bahasa diseragamkan untuk kesan premium siap jual

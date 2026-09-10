@@ -144,7 +144,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                   <Plus size={16} /> Tambah Nasabah
                 </button>
@@ -208,7 +208,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                   <Plus size={16} /> Tambah Kategori
                 </button>
@@ -309,7 +309,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
             <div className="pt-3">
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
+                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 transition cursor-pointer"
               >
                 <Save size={16} /> Simpan Penamaan Kas
               </button>
@@ -358,7 +358,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
             <div className="pt-3">
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 md-elevation-1 transition cursor-pointer"
+                className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center gap-2 transition cursor-pointer"
               >
                 <Save size={16} /> Terapkan Periode & Saldo Awal
               </button>

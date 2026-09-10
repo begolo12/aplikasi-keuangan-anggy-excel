@@ -36,7 +36,7 @@ export default function Login() {
 
           <div className="space-y-3">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-2xl md-elevation-1">
+              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-2xl">
                 F
               </div>
               <div>
@@ -74,7 +74,7 @@ export default function Login() {
 
         {/* Right Form Card */}
         <div className="lg:col-span-5 w-full">
-          <div className="bg-surface border border-border rounded-lg p-6 sm:p-8 md-elevation-1">
+          <div className="bg-surface border border-border rounded-lg p-6 sm:p-8">
             <div className="lg:hidden flex items-center gap-3 mb-6 pb-4 border-b border-border">
               <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg">
                 F
@@ -138,7 +138,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer"
+                className="w-full mt-2 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition cursor-pointer"
               >
                 {loading ? 'Memverifikasi...' : 'Masuk Sekarang'}
                 <ArrowRight size={16} />

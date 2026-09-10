@@ -50,7 +50,7 @@ export function MobileNav({
         </div>
 
         <div className="p-4">
-          <button onClick={() => { onClose(); onOpenQuickTx() }} className="w-full py-3 px-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 md-elevation-1 transition cursor-pointer">
+          <button onClick={() => { onClose(); onOpenQuickTx() }} className="w-full py-3 px-4 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium flex items-center justify-center gap-2 transition cursor-pointer">
             <Plus size={18} /> Tambah Transaksi
           </button>
         </div>

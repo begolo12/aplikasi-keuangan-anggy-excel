@@ -51,6 +51,8 @@ export function Header({
 }: HeaderProps) {
   const { title, subtitle } = TAB_TITLES[activeTab] || TAB_TITLES.dashboard
   const { theme, toggle: toggleTheme } = useTheme()
+  const syncLabel =
+    syncStatus === 'syncing' ? 'Menyinkronkan' : syncStatus === 'synced' ? 'Tersinkron' : syncStatus === 'offline' ? 'Offline' : 'Gagal'
 
   return (
     <header className="h-[64px] bg-surface border-b border-border px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
@@ -76,10 +78,10 @@ export function Header({
               <span>{currentYear}</span>
             </button>
             <span
+              aria-hidden="true"
               className={`hidden sm:inline-flex w-2.5 h-2.5 rounded-full shrink-0 ${
                 syncStatus === 'synced' ? 'bg-positive' : syncStatus === 'syncing' ? 'bg-warning animate-pulse' : syncStatus === 'offline' ? 'bg-border-strong' : 'bg-negative'
               }`}
-              title={syncStatus}
             />
           </div>
           <p className="hidden md:block text-[12px] text-text-subtle leading-none mt-1 truncate">{subtitle}</p>
@@ -89,7 +91,7 @@ export function Header({
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onOpenCmd}
-          className="hidden lg:flex items-center gap-2.5 pl-3 pr-2.5 py-1.5 rounded-lg bg-surface-sunken hover:bg-surface-sunken text-text-muted text-xs font-medium transition cursor-pointer border-none"
+          className="hidden lg:flex items-center gap-2.5 pl-3 pr-2.5 py-1.5 rounded-lg bg-surface-sunken hover:text-text text-text-muted text-xs font-medium transition cursor-pointer border-none"
         >
           <Search size={14} className="text-text-subtle" />
           <span>Cari fitur / menu</span>
@@ -100,10 +102,11 @@ export function Header({
           onClick={onSyncManual}
           className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-surface-sunken text-text-muted text-xs font-medium transition cursor-pointer"
           title="Sinkronisasi"
+          aria-label={`Sinkronisasi: ${syncLabel}`}
         >
           {syncStatus === 'syncing' ? <RefreshCw size={15} className="animate-spin" /> : syncStatus === 'synced' ? <Cloud size={15} className="text-positive" /> : <CloudOff size={15} />}
-          <span className="hidden xl:inline">
-            {syncStatus === 'syncing' ? 'Menyinkronkan' : syncStatus === 'synced' ? 'Tersinkron' : syncStatus === 'offline' ? 'Offline' : 'Gagal'}
+          <span className="hidden xl:inline" aria-hidden="true">
+            {syncLabel}
           </span>
         </button>
 
@@ -143,7 +146,7 @@ export function Header({
         {/* Material Filled Button with Ripple feel */}
         <button
           onClick={onOpenQuickTx}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors cursor-pointer"
         >
           <Plus size={16} />
           <span className="hidden sm:inline">Tambah Transaksi</span>

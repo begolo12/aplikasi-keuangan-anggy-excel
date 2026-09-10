@@ -82,7 +82,7 @@ export function YearModal({ open, onClose, year, saldoAwal, onSave }: YearModalP
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium md-elevation-1 hover:md-elevation-2 transition cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition cursor-pointer"
             >
               Terapkan
             </button>

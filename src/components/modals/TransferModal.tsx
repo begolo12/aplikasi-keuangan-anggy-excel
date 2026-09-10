@@ -140,7 +140,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
             <button
               type="submit"
               disabled={isOverBalance || amount <= 0}
-              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-medium md-elevation-1 transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               Pindahkan <ArrowRight size={14} />
             </button>
