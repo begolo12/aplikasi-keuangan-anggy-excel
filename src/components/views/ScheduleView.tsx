@@ -71,7 +71,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
           const rowTotal = sc.months.reduce((a, b) => a + b, 0)
           const activeMonthsCount = sc.months.filter((v) => v > 0).length
           return (
-            <Card key={sc.id} className="p-4 border-border bg-surface">
+            <Card key={sc.id} className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <Badge variant={sc.kat === 'pajak' ? 'warning' : 'brand'}>{sc.kat}</Badge>
@@ -132,7 +132,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
       </div>
 
       {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-border">
+      <Card className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>

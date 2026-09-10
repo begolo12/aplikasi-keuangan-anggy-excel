@@ -165,21 +165,19 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       {/* Mobile Card List (< 640px) */}
       <div className="block sm:hidden space-y-2.5">
         {filteredTxs.length === 0 ? (
-          <Card className="p-8">
-            <EmptyState
-              icon={<Filter size={20} />}
-              title="Tidak Ada Data Transaksi"
-              description="Belum ada catatan mutasi kas yang sesuai dengan filter."
-              actionLabel="Catat Transaksi"
-              onAction={() => onOpenQuickTx('master')}
-            />
-          </Card>
+          <EmptyState
+            icon={<Filter size={20} />}
+            title="Tidak Ada Data Transaksi"
+            description="Belum ada catatan mutasi kas yang sesuai dengan filter."
+            actionLabel="Catat Transaksi"
+            onAction={() => onOpenQuickTx('master')}
+          />
         ) : (
           filteredTxs.map((tx) => {
             const bal = getBal(tx)
             const isIncome = tx.penerimaan > 0
             return (
-              <Card key={tx.id} className="p-4 border-border bg-surface">
+              <Card key={tx.id} className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
@@ -239,7 +237,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       </div>
 
       {/* Desktop Transaction Table (>= 640px) */}
-      <Card className="hidden sm:block overflow-hidden border border-border">
+      <Card className="hidden sm:block overflow-hidden">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>

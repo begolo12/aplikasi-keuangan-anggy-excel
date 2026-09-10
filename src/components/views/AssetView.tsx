@@ -127,7 +127,7 @@ export function AssetView({ store: s }: AssetViewProps) {
               const progressPercent = a.tenor > 0 ? Math.min(100, Math.round((debt.paidMonths / a.tenor) * 100)) : 100
 
               return (
-                <Card key={a.id} className="p-4 border-border bg-surface">
+                <Card key={a.id} className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -190,7 +190,7 @@ export function AssetView({ store: s }: AssetViewProps) {
           </div>
 
           {/* Desktop Table View (>= 768px) */}
-          <Card className="hidden md:block overflow-hidden border border-border">
+          <Card className="hidden md:block overflow-hidden">
             <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>

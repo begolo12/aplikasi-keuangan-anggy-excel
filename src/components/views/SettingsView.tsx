@@ -254,7 +254,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
 
       {/* 3. PENAMAAN DOMPET KAS */}
       {activeTab === 'kas' && (
-        <Card className="p-6 max-w-2xl">
+        <Card className="p-5 max-w-2xl">
           <h3 className="text-base font-medium text-text mb-1">Pengaturan Penamaan Dompet Kas</h3>
           <p className="text-xs text-text-subtle mb-5">
             Ubah label tampilan untuk 3 dompet kas sesuai kebutuhan pembukuan Anda.
@@ -320,7 +320,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
 
       {/* 4. PERIODE TAHUN & SALDO AWAL */}
       {activeTab === 'periode' && (
-        <Card className="p-6 max-w-2xl">
+        <Card className="p-5 max-w-2xl">
           <h3 className="text-base font-medium text-text mb-1">Tahun Buku & Saldo Awal</h3>
           <p className="text-xs text-text-subtle mb-5">
             Atur tahun aktif dan saldo awal yang ada di {labels.master} pada tanggal 1 Januari tahun tersebut.

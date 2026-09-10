@@ -7,7 +7,12 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * Permukaan dasar: putih, border 1px, radius 8px, tanpa bayangan.
- * Padding ditentukan pemanggil supaya satu nilai per konteks, bukan enam varian.
+ *
+ * Padding hanya dua nilai:
+ *   `p-4` daftar, kartu statistik, baris item
+ *   `p-5` kartu isi/teks panjang
+ * Baris kontrol (toolbar) pakai `p-3`.
+ * Jangan tambah nilai lain tanpa alasan yang tidak bisa ditulis dengan dua ini.
  */
 export function Card({ children, className = '', ...props }: CardProps) {
   return (

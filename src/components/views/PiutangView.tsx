@@ -98,7 +98,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
               const sisa = isRepayment ? 0 : Math.max(0, p.terbit - p.lunas)
               const isLunas = !isRepayment && sisa === 0 && p.terbit > 0
               return (
-                <Card key={p.id} className="p-4 border-border bg-surface">
+                <Card key={p.id} className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
           </div>
 
           {/* Desktop Table View (>= 768px) */}
-          <Card className="hidden md:block overflow-hidden border border-border">
+          <Card className="hidden md:block overflow-hidden">
             <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>

@@ -75,7 +75,7 @@ export function RabView({ store: s }: RabViewProps) {
   return (
     <div className="space-y-4 sm:space-y-6 animate-in">
       {/* Target Selector & Mode Toolbar */}
-      <Card className="p-3.5 sm:p-4 border-border">
+      <Card className="p-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
@@ -152,7 +152,7 @@ export function RabView({ store: s }: RabViewProps) {
       {/* Mobile Card View (< 768px) */}
       <div className="block md:hidden space-y-3">
         {currentRab.map((row) => (
-          <Card key={row.id} className="p-4 border-border bg-surface">
+          <Card key={row.id} className="p-4">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <span className="px-2 py-0.5 rounded-md bg-positive-soft text-positive border border-positive text-[10px] font-semibold uppercase">
@@ -182,7 +182,7 @@ export function RabView({ store: s }: RabViewProps) {
       </div>
 
       {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-border">
+      <Card className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>

@@ -58,7 +58,7 @@ export function MobileNav({
         <div className="flex-1 overflow-y-auto overscroll-contain px-3 pb-6 space-y-4">
           {NAV_GROUPS.map((group) => (
             <div key={group.title}>
-              <div className="px-3 mb-1.5 text-[11px] font-medium tracking-wider text-text-subtle uppercase">{group.title}</div>
+              <div className="eyebrow px-3 mb-1.5">{group.title}</div>
               <div className="space-y-1">
                 {group.items.map((item) => {
                   const isActive = activeTab === item.id

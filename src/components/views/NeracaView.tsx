@@ -30,7 +30,7 @@ export function NeracaView({ store: s }: NeracaViewProps) {
 
   return (
     <div className="space-y-5 animate-in">
-      <Card className="p-4 border border-border bg-surface">
+      <Card className="p-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-accent text-on-fill">
             <span className="text-sm font-semibold">Rp</span>

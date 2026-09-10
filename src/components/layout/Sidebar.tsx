@@ -69,7 +69,7 @@ export function Sidebar({
         <div className="px-3 pb-2 shrink-0">
           <div className="rounded-lg bg-surface-sunken border border-border p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider text-text-subtle uppercase">
+              <span className="eyebrow flex items-center gap-1.5">
                 <Wallet size={13} className="text-text-subtle" />
                 Posisi Kas
               </span>
@@ -107,7 +107,7 @@ export function Sidebar({
           {NAV_GROUPS.map((group) => (
             <div key={group.title}>
               {!collapsed ? (
-                <div className="px-3 mb-1.5 text-[11px] font-medium tracking-wider text-text-subtle uppercase">
+                <div className="eyebrow px-3 mb-1.5">
                   {group.title}
                 </div>
               ) : (
@@ -145,7 +145,7 @@ export function Sidebar({
                         )}
                       </button>
                       {collapsed && (
-                        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-text text-on-fill text-xs font-medium rounded-lg md-elevation-3 opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50">
+                        <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-text text-on-fill text-xs font-medium rounded-lg md-elevation-3 opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-20">
                           {item.label}
                           {badge !== undefined && (
                             <span className="ml-2 px-1.5 py-0.5 bg-surface/20 rounded-full text-[10px]">{badge}</span>

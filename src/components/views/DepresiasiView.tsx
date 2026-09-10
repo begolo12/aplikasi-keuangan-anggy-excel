@@ -86,7 +86,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
           const calc = straightLineValue(d, todayStr)
           const depPerMonth = d.umur > 0 ? Math.round(d.nilai / d.umur) : 0
           return (
-            <Card key={d.id} className="p-4 border-border bg-surface">
+            <Card key={d.id} className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <Badge variant={d.kat === 'KENDARAAN' ? 'brand' : 'neutral'}>{d.kat}</Badge>
@@ -129,7 +129,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
       </div>
 
       {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-border">
+      <Card className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
