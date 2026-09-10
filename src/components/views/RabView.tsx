@@ -10,11 +10,23 @@ interface RabViewProps {
   store: State
 }
 
+/** Pecah rata-rata bulanan menjadi 4 pekan (sisa pembulatan di W4). */
+function splitWeekly(months: number[]): [number, number, number, number] {
+  const avg = months.length ? months.reduce((a, b) => a + (Number(b) || 0), 0) / months.length : 0
+  const base = Math.floor(avg / 4)
+  return [base, base, base, Math.max(0, Math.round(avg - base * 3))]
+}
+
 export function RabView({ store: s }: RabViewProps) {
   const [target, setTarget] = useState<'anggy' | 'keluarga'>('anggy')
   const [viewMode, setViewMode] = useState<'single' | 'grid'>('single')
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [bulanAktif, setBulanAktif] = useState(12)
+  const [bulanMulai, setBulanMulai] = useState(0)
+  /** Bangun distribusi bulanan: nominal mengisi N bulan sejak bulan mulai, sisanya 0. */
+  const buildMonths = (hs: number, vol: number, start: number, n: number): number[] =>
+    Array.from({ length: 12 }, (_, i) => (i >= start && i < start + n ? hs * vol : 0))
   const [newRow, setNewRow] = useState<Omit<RabRow, 'id'>>({
     group: 'RUTIN',
     uraian: '',
@@ -36,7 +48,8 @@ export function RabView({ store: s }: RabViewProps) {
     if (!newRow.uraian.trim()) return
 
     const total = newRow.months.reduce((sum, v) => sum + v, 0)
-    s.addRab(target, { ...newRow, total })
+    const w = (newRow.w.some((v) => v > 0) ? newRow.w : splitWeekly(newRow.months)) as [number, number, number, number]
+    s.addRab(target, { ...newRow, w, total })
     setNewRow({
       group: 'RUTIN',
       uraian: '',
@@ -47,6 +60,8 @@ export function RabView({ store: s }: RabViewProps) {
       months: Array(12).fill(0),
       total: 0,
     })
+    setBulanAktif(12)
+    setBulanMulai(0)
     setIsAdding(false)
   }
 
@@ -172,7 +187,7 @@ export function RabView({ store: s }: RabViewProps) {
                     <th key={m} className="px-2 py-3 text-right min-w-[90px]">{m}</th>
                   ))
                 )}
-                <th className="px-3 py-3 text-right bg-slate-50 font-semibold text-slate-900">Total Anggaran</th>
+                <th className="px-3 py-3 text-right bg-slate-50 font-semibold text-slate-900">Total Setahun</th>
                 <th className="px-3 py-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -232,7 +247,13 @@ export function RabView({ store: s }: RabViewProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">Jenis Pengeluaran</label>
-                  <select value={newRow.group} onChange={(e) => setNewRow({ ...newRow, group: e.target.value })} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+                  <select value={newRow.group} onChange={(e) => {
+                      const group = e.target.value
+                      const start = group === 'CICILAN' ? bulanMulai : 0
+                      if (group !== 'CICILAN') setBulanMulai(0)
+                      const months = buildMonths(newRow.hs, newRow.vol || 1, start, bulanAktif)
+                      setNewRow({ ...newRow, group, months, w: splitWeekly(months) })
+                    }} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
                     <option value="RUTIN">Rutin — tiap bulan ada</option>
                     <option value="PERIODIK">Periodik — kadang-kadang</option>
                     <option value="INSIDENTAL">Incidental — tidak terduga</option>
@@ -264,7 +285,11 @@ export function RabView({ store: s }: RabViewProps) {
                     type="number"
                     min="1"
                     value={newRow.vol}
-                    onChange={(e) => setNewRow({ ...newRow, vol: Number(e.target.value) || 1 })}
+                    onChange={(e) => {
+                      const vol = Number(e.target.value) || 1
+                      const months = buildMonths(newRow.hs, vol, newRow.group === 'CICILAN' ? bulanMulai : 0, bulanAktif)
+                      setNewRow({ ...newRow, vol, months, w: splitWeekly(months) })
+                    }}
                     className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
@@ -273,12 +298,70 @@ export function RabView({ store: s }: RabViewProps) {
                   <RupiahInput
                     value={newRow.hs}
                     onChange={(v) => {
-                      const months = Array(12).fill(v * (newRow.vol || 1))
-                      setNewRow({ ...newRow, hs: v, months })
+                      const months = buildMonths(v, newRow.vol || 1, newRow.group === 'CICILAN' ? bulanMulai : 0, bulanAktif)
+                      setNewRow({ ...newRow, hs: v, months, w: splitWeekly(months) })
                     }}
-                    placeholder="0"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold num text-[#1c543c] outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
                   />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                {newRow.group === 'CICILAN' ? (
+                  <>
+                    <div>
+                      <label className="text-xs font-bold text-slate-600 block mb-1">Cicilan mulai bulan</label>
+                      <select
+                        value={bulanMulai}
+                        onChange={(e) => {
+                          const start = Number(e.target.value)
+                          const sampai = Math.min(11, Math.max(start, bulanMulai + bulanAktif - 1))
+                          setBulanMulai(start)
+                          setBulanAktif(sampai - start + 1)
+                          const months = buildMonths(newRow.hs, newRow.vol || 1, start, sampai - start + 1)
+                          setNewRow({ ...newRow, months, w: splitWeekly(months) })
+                        }}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                      >
+                        {monthShorts.map((m, i) => (<option key={m} value={i}>{m}</option>))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-600 block mb-1">Sampai bulan</label>
+                      <select
+                        value={bulanMulai + bulanAktif - 1}
+                        onChange={(e) => {
+                          const sampai = Math.max(bulanMulai, Number(e.target.value))
+                          setBulanAktif(sampai - bulanMulai + 1)
+                          const months = buildMonths(newRow.hs, newRow.vol || 1, bulanMulai, sampai - bulanMulai + 1)
+                          setNewRow({ ...newRow, months, w: splitWeekly(months) })
+                        }}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                      >
+                        {monthShorts.map((m, i) => (<option key={m} value={i} disabled={i < bulanMulai}>{m}</option>))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <label className="text-xs font-bold text-slate-600 block mb-1">Berlaku berapa bulan dalam setahun?</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="12"
+                      value={bulanAktif}
+                      onChange={(e) => {
+                        const n = Math.max(1, Math.min(12, Math.round(Number(e.target.value) || 12)))
+                        setBulanAktif(n)
+                        setBulanMulai(0)
+                        const months = buildMonths(newRow.hs, newRow.vol || 1, 0, n)
+                        setNewRow({ ...newRow, months, w: splitWeekly(months) })
+                      }}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                    />
+                  </div>
+                )}
+                <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 sm:col-span-2">
+                  <p className="text-[11px] font-medium text-slate-500">{newRow.group === 'CICILAN' ? `Total cicilan (${bulanAktif} bulan × Rp ${formatRibuan((newRow.vol || 1) * newRow.hs)})` : 'Total setahun (otomatis)'}</p>
+                  <p className="text-sm font-bold text-slate-900 num">Rp {formatRibuan(newRow.months.reduce((sum, v) => sum + v, 0))}</p>
                 </div>
               </div>
 

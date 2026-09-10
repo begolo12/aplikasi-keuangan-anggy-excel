@@ -171,6 +171,7 @@ export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error'
 
 export type State = StateData & {
   syncStatus: SyncStatus
+  serverRev: string | null
   setSyncStatus: (s: SyncStatus) => void
 
   loadFromServer: () => Promise<void>
@@ -212,8 +213,8 @@ export type State = StateData & {
   addCustomPos: (name: string) => void
   delCustomPos: (name: string) => void
 }
-
 let syncTimeout: NodeJS.Timeout | number | null = null
+let syncInFlight = false
 function queueSync(get: () => State) {
   if (syncTimeout) clearTimeout(syncTimeout)
   syncTimeout = setTimeout(() => {
@@ -225,33 +226,31 @@ export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...emptySeed(),
-      syncStatus: 'synced',
+      syncStatus: 'synced' as SyncStatus,
+      serverRev: null as string | null,
       setSyncStatus: (syncStatus) => set({ syncStatus }),
-
       loadFromServer: async () => {
-        // Jangan timpa state lokal yang belum sempat tersinkron (offline/error).
-        // Dua tab: yang ke-2 reload datanya dari server lewat GET, tab asli yang
-        // punya perubahan belum-persist mempertahankan miliknya sampai PUT sukses.
-        const before = get()
-        if (before.syncStatus === 'error' || before.syncStatus === 'offline') {
-          void before.syncToServer()
-          return
-        }
+        if (syncInFlight) return
+        syncInFlight = true
         set({ syncStatus: 'syncing' })
         try {
           const res = await fetch('/api/state')
           if (res.ok) {
             const data = await res.json()
-            set({ ...normalizeState(data), syncStatus: 'synced' })
+            set({ ...normalizeState(data), syncStatus: 'synced', serverRev: typeof data.updatedAt === 'string' ? data.updatedAt : get().serverRev })
           } else {
             set({ syncStatus: 'offline' })
           }
         } catch {
           set({ syncStatus: 'offline' })
+        } finally {
+          syncInFlight = false
         }
       },
 
       syncToServer: async () => {
+        if (syncInFlight) return
+        syncInFlight = true
         const s = get()
         set({ syncStatus: 'syncing' })
         try {
@@ -271,15 +270,24 @@ export const useStore = create<State>()(
               customNsbList: s.customNsbList,
               customPosList: s.customPosList,
               ledgerLabels: s.ledgerLabels,
+              baseRev: s.serverRev,
             }),
           })
           if (res.ok) {
-            set({ syncStatus: 'synced' })
+            const data = await res.json().catch(() => null)
+            set({ syncStatus: 'synced', serverRev: data && typeof data.updatedAt === 'string' ? data.updatedAt : get().serverRev })
+          } else if (res.status === 409) {
+            syncInFlight = false
+            await get().loadFromServer()
+            set({ syncStatus: 'error' })
+            return
           } else {
             set({ syncStatus: 'error' })
           }
         } catch {
           set({ syncStatus: 'offline' })
+        } finally {
+          syncInFlight = false
         }
       },
 
@@ -298,8 +306,21 @@ export const useStore = create<State>()(
         queueSync(get)
       },
       delTx: (id) => {
-        set((s) => ({ txs: s.txs.filter((x) => x.id !== id) }))
+        const target = get().txs.find((x) => x.id === id)
+        if (!target) return
+        const pairCount = target.transferId ? get().txs.filter((x) => x.transferId === target.transferId).length - 1 : 0
+        set((s) => {
+          let txs = s.txs.filter((x) => x.id !== id)
+          if (target.transferId) txs = txs.filter((x) => x.transferId !== target.transferId)
+          let piutangs = s.piutangs
+          if (target.receivableId) {
+            const amount = Math.max(0, Number(target.penerimaan) || 0) - Math.max(0, Number(target.pengeluaran) || 0)
+            piutangs = piutangs.map((p) => (p.id === target.receivableId ? { ...p, lunas: Math.max(0, (Number(p.lunas) || 0) - Math.abs(amount)) } : p))
+          }
+          return { txs, piutangs }
+        })
         queueSync(get)
+        notify(pairCount > 0 ? 'Transfer dihapus sepasang (keluar + masuk).' : 'Transaksi dihapus.', 'success')
       },
       updTx: (id, patch) => {
         const cur = get().txs.find((x) => x.id === id)
@@ -372,15 +393,32 @@ export const useStore = create<State>()(
         )
         queueSync(get)
       },
-
       addPiutang: (p) => {
-        set((s) => ({ piutangs: [...s.piutangs, { ...p, id: uid() }] }))
+        const id = uid()
+        const terbit = Math.max(0, Number(p.terbit) || 0)
+        const tgl = /^\d{4}-\d{2}-\d{2}$/.test(p.tgl) ? p.tgl : new Date().toISOString().slice(0, 10)
+        const outTx: Tx = {
+          id: uid(),
+          tanggal: tgl,
+          nsb: p.nsb,
+          pos: 'PIUTANG-KELUAR',
+          uraian: `PINJAMAN - ${p.uraian || p.nsb}`,
+          penerimaan: 0,
+          pengeluaran: terbit,
+          ledger: 'master',
+          receivableId: id,
+        }
+        set((s) => ({ piutangs: [...s.piutangs, { ...p, id }], txs: terbit > 0 ? [...s.txs, outTx] : s.txs }))
         queueSync(get)
       },
       delPiutang: (id) => {
-        set((s) => ({ piutangs: s.piutangs.filter((x) => x.id !== id) }))
+        set((s) => ({
+          piutangs: s.piutangs.filter((x) => x.id !== id && !(x.terbit === 0 && (x.keterangan || '').includes(id))),
+          txs: s.txs.filter((x) => x.receivableId !== id),
+        }))
         queueSync(get)
       },
+
       updPiutang: (id, patch) => {
         set((s) => ({ piutangs: s.piutangs.map((x) => (x.id === id ? { ...x, ...patch } : x)) }))
         queueSync(get)
@@ -388,18 +426,10 @@ export const useStore = create<State>()(
       catatPelunasan: (id, nominal, tanggal) => {
         const s = get()
         const p = s.piutangs.find((x) => x.id === id)
-        const outstanding = p ? p.terbit - p.lunas : 0
+        if (!p || p.terbit !== undefined && p.terbit === 0 && p.lunas > 0) return
+        const outstanding = p ? Math.max(0, (Number(p.terbit) || 0) - (Number(p.lunas) || 0)) : 0
         if (!p || !Number.isFinite(nominal) || nominal <= 0 || nominal > outstanding) return
-        const tglStr = tanggal || new Date().toISOString().slice(0, 10)
-        const newEntry: PiutangRow = {
-          id: uid(),
-          tgl: tglStr,
-          nsb: p.nsb,
-          uraian: `KEMBALI HUTANG - ${p.nsb}`,
-          terbit: 0,
-          lunas: nominal,
-          keterangan: `Pelunasan piutang ref: ${p.uraian}`,
-        }
+        const tglStr = /^\d{4}-\d{2}-\d{2}$/.test(tanggal || '') ? (tanggal as string) : new Date().toISOString().slice(0, 10)
         const newTx: Tx = {
           id: uid(),
           tanggal: tglStr,
@@ -411,7 +441,10 @@ export const useStore = create<State>()(
           ledger: 'master',
           receivableId: id,
         }
-        set((state) => ({ piutangs: [...state.piutangs, newEntry], txs: [...state.txs, newTx] }))
+        set((state) => ({
+          piutangs: state.piutangs.map((x) => (x.id === id ? { ...x, lunas: (Number(x.lunas) || 0) + nominal } : x)),
+          txs: [...state.txs, newTx],
+        }))
         queueSync(get)
       },
 
@@ -512,6 +545,26 @@ export const useStore = create<State>()(
         queueSync(get)
       },
     }),
-    { name: 'anggy-keu-v2' }
+    {
+      name: 'anggy-keu-v2',
+      partialize: (s) => {
+        const { syncStatus: _syncStatus, ...rest } = s
+        return rest
+      },
+    }
   )
 )
+
+export type ToastKind = 'success' | 'error' | 'info' | 'warning'
+export type ToastMsg = { id: string; message: string; kind: ToastKind }
+
+export const useToastStore = create<{ toasts: ToastMsg[]; push: (message: string, kind?: ToastKind) => void; dismiss: (id: string) => void }>((set) => ({
+  toasts: [],
+  push: (message, kind = 'success') =>
+    set((s) => ({ toasts: [...s.toasts.slice(-3), { id: uid(), message, kind }] })),
+  dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+}))
+
+export function notify(message: string, kind: ToastKind = 'success'): void {
+  useToastStore.getState().push(message, kind)
+}

@@ -3,15 +3,14 @@ import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { formatRibuan } from '../common/format'
 import type { State } from '../../store'
-import { monthlyTotals, yearTransactions } from '../../finance'
+import { monthlyTotals } from '../../finance'
 
 interface CashflowViewProps {
   store: State
 }
 
 export function CashflowView({ store: s }: CashflowViewProps) {
-  const txCurrentYear = yearTransactions(s.txs, s.year)
-  const totals = monthlyTotals(txCurrentYear, s.year)
+  const totals = monthlyTotals(s.txs, s.year)
 
   const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
 

@@ -5,7 +5,7 @@ import { Badge } from '../common/Badge'
 import { formatRibuan } from '../common/format'
 import { Calculator, ArrowUpRight, TrendingUp, AlertTriangle } from 'lucide-react'
 import type { State } from '../../store'
-import { isTransfer, rabMonthlyTotals, yearTransactions } from '../../finance'
+import { isBudgetRealization, rabMonthlyTotals, yearTransactions } from '../../finance'
 
 interface RariViewProps {
   store: State
@@ -22,11 +22,11 @@ export function RariView({ store: s }: RariViewProps) {
   const totalRA = raOp + raKel
 
   const riOp = txCurrentYear
-    .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === selectedMonth + 1 && !isTransfer(t))
+    .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === selectedMonth + 1 && isBudgetRealization(t))
     .reduce((sum, t) => sum + t.pengeluaran, 0)
 
   const riKel = txCurrentYear
-    .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === selectedMonth + 1 && !isTransfer(t))
+    .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === selectedMonth + 1 && isBudgetRealization(t))
     .reduce((sum, t) => sum + t.pengeluaran, 0)
 
   const totalRI = riOp + riKel

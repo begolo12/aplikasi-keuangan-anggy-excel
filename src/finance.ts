@@ -24,33 +24,70 @@ export function yearTransactions(txs: Tx[], year: number): Tx[] {
     .sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.id.localeCompare(b.id))
 }
 
+export const TRANSFER_POS = ['DROPPING', 'PINDAH SALDO', 'PINDAH'] as const
+
 export function isTransfer(tx: Tx): boolean {
+  if (tx.transferId) return true
   const pos = tx.pos.trim().toUpperCase()
-  return pos === 'DROPPING' || pos === 'PINDAH SALDO' || pos === 'PINDAH'
+  return (TRANSFER_POS as readonly string[]).includes(pos)
+}
+
+/** Konversi aset (pinjaman diberikan / pelunasan diterima): gerak kas, bukan pendapatan/beban. */
+export function isAssetConversion(tx: Tx): boolean {
+  if (tx.receivableId) return true
+  const pos = tx.pos.trim().toUpperCase()
+  return pos === 'ASET - PIUTANG' || pos === 'PIUTANG-KELUAR' || pos === 'PIUTANG-MASUK'
+}
+
+/** Realisasi anggaran: pengeluaran operasional/keluarga di luar transfer dan konversi aset. */
+export function isBudgetRealization(tx: Tx): boolean {
+  return !isTransfer(tx) && !isAssetConversion(tx)
+}
+
+/** Saldo pembuka tahun berjalan (carry-over): jumlah semua mutasi sebelum 1 Jan tahun itu.
+ * Master ikut saldoAwal sepanjang masa, op/keluarga murni bawaan riwayat. */
+export function openingBalance(txs: Tx[], ledger: Tx['ledger'], year: number, saldoAwal = 0): number {
+  const prefix = `${year}-`
+  const carried = txs
+    .filter((tx) => tx.ledger === ledger && tx.tanggal < prefix)
+    .reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  return ledger === 'master' ? saldoAwal + carried : carried
+}
+
+/** Saldo akhir tahun buku (s.d. 31 Des): pembuka + mutasi tahun berjalan. */
+export function closingBalance(txs: Tx[], ledger: Tx['ledger'], year: number, saldoAwal = 0): number {
+  return openingBalance(txs, ledger, year, saldoAwal) + yearTransactions(txs, year).filter((tx) => tx.ledger === ledger).reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+}
+
+export function ledgerBalances(txs: Tx[], year: number, saldoAwal = 0): { master: number; operasional: number; keluarga: number; total: number } {
+  const ytx = yearTransactions(txs, year)
+  const master = openingBalance(txs, 'master', year, saldoAwal) + ytx.filter((tx) => tx.ledger === 'master').reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  const operasional = openingBalance(txs, 'operasional', year) + ytx.filter((tx) => tx.ledger === 'operasional').reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  const keluarga = openingBalance(txs, 'keluarga', year) + ytx.filter((tx) => tx.ledger === 'keluarga').reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  return { master, operasional, keluarga, total: master + operasional + keluarga }
 }
 
 export function ledgerBalance(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0): number {
-  return saldoAwal + txs.filter((tx) => tx.ledger === ledger).reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  const carried = txs.filter((tx) => tx.ledger === ledger).reduce((sum, tx) => sum + tx.penerimaan - tx.pengeluaran, 0)
+  return ledger === 'master' ? saldoAwal + carried : carried
 }
-
 export function consolidatedIncome(txs: Tx[]): number {
-  return txs.filter((tx) => !isTransfer(tx)).reduce((sum, tx) => sum + Math.max(0, tx.penerimaan), 0)
+  return txs.filter((tx) => !isTransfer(tx) && !isAssetConversion(tx)).reduce((sum, tx) => sum + Math.max(0, tx.penerimaan), 0)
 }
 
 export function consolidatedExpense(txs: Tx[]): number {
-  return txs.filter((tx) => !isTransfer(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
+  return txs.filter((tx) => !isTransfer(tx) && !isAssetConversion(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
 }
 
 export function ledgerExpense(txs: Tx[], ledger: Tx['ledger']): number {
-  return txs.filter((tx) => tx.ledger === ledger && !isTransfer(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
+  return txs.filter((tx) => tx.ledger === ledger && !isTransfer(tx) && !isAssetConversion(tx)).reduce((sum, tx) => sum + Math.max(0, tx.pengeluaran), 0)
 }
-
 export function runningBalances(txs: Tx[], ledger: Tx['ledger'], saldoAwal = 0, year?: number): Map<string, number> {
   return runningBalancesForYear(txs, ledger, year ?? new Date().getFullYear(), saldoAwal)
 }
 
 export function runningBalancesForYear(txs: Tx[], ledger: Tx['ledger'], year: number, saldoAwal = 0): Map<string, number> {
-  let balance = saldoAwal
+  let balance = openingBalance(txs, ledger, year, ledger === 'master' ? saldoAwal : 0)
   const result = new Map<string, number>()
   yearTransactions(txs, year)
     .filter((tx) => tx.ledger === ledger)
@@ -66,7 +103,7 @@ export function monthlyTotals(txs: Tx[], year: number): { income: number[]; expe
   const expense = Array(MONTHS).fill(0) as number[]
   yearTransactions(txs, year).forEach((tx) => {
     const month = Number(tx.tanggal.slice(5, 7)) - 1
-    if (month < 0 || month >= MONTHS || isTransfer(tx)) return
+    if (month < 0 || month >= MONTHS || isTransfer(tx) || isAssetConversion(tx)) return
     income[month] += Math.max(0, tx.penerimaan)
     expense[month] += Math.max(0, tx.pengeluaran)
   })
@@ -82,24 +119,34 @@ export function rabAnnualTotal(rows: RabRow[]): number {
 }
 
 export function outstandingPiutang(rows: PiutangRow[]): number {
-  return rows.reduce((sum, row) => sum + Math.max(0, row.terbit - row.lunas), 0)
+  return Math.max(0, rows.reduce((sum, row) => sum + (Number(row.terbit) || 0) - (Number(row.lunas) || 0), 0))
 }
 
 export function straightLineValue(row: DepRow, asOf: string): { monthsElapsed: number; accumulated: number; bookValue: number } {
+  const nilai = Math.max(0, Number(row.nilai) || 0)
+  const umur = Math.max(1, Number(row.umur) || 1)
+  if (!row.tgl || !asOf) return { monthsElapsed: 0, accumulated: 0, bookValue: nilai }
   const start = new Date(`${row.tgl}T00:00:00`)
   const end = new Date(`${asOf}T00:00:00`)
-  const monthsElapsed = Math.max(0, Math.min(row.umur, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth()))
-  const monthly = row.umur > 0 ? row.nilai / row.umur : row.nilai
-  const accumulated = Math.min(row.nilai, monthly * monthsElapsed)
-  return { monthsElapsed, accumulated, bookValue: Math.max(0, row.nilai - accumulated) }
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return { monthsElapsed: 0, accumulated: 0, bookValue: nilai }
+  }
+  const diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth()
+  const monthsElapsed = Math.max(0, Math.min(umur, diffMonths))
+  const monthly = nilai / umur
+  const accumulated = Math.min(nilai, monthly * monthsElapsed)
+  return { monthsElapsed, accumulated, bookValue: Math.max(0, nilai - accumulated) }
 }
 
 export function assetDebt(row: AssetRow, asOf: string): { principal: number; monthlyPayment: number; paidMonths: number; outstanding: number } {
-  const principal = Math.max(0, row.nilai - row.dp)
-  const paidMonths = Math.max(0, Math.min(row.tenor, straightLineValue({ id: row.id, nama: row.nama, tgl: row.tgl, nilai: principal, umur: row.tenor, nilaiTaksir: 0, kat: 'GADGET' }, asOf).monthsElapsed))
-  const annualRate = Math.max(0, row.bunga)
+  const nilai = Math.max(0, Number(row.nilai) || 0)
+  const dp = Math.max(0, Number(row.dp) || 0)
+  const principal = Math.max(0, nilai - dp)
+  const tenor = Math.max(1, Number(row.tenor) || 1)
+  const paidMonths = Math.max(0, Math.min(tenor, straightLineValue({ id: row.id, nama: row.nama, tgl: row.tgl, nilai: principal, umur: tenor, nilaiTaksir: 0, kat: 'GADGET' }, asOf).monthsElapsed))
+  const annualRate = Math.max(0, Number(row.bunga) || 0)
   const monthlyRate = annualRate / 12
-  const monthlyPayment = monthlyRate === 0 ? principal / Math.max(1, row.tenor) : principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -Math.max(1, row.tenor)))
+  const monthlyPayment = monthlyRate === 0 ? principal / tenor : principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -tenor))
   const outstanding = monthlyRate === 0 ? Math.max(0, principal - monthlyPayment * paidMonths) : Math.max(0, principal * Math.pow(1 + monthlyRate, paidMonths) - monthlyPayment * ((Math.pow(1 + monthlyRate, paidMonths) - 1) / monthlyRate))
   return { principal, monthlyPayment, paidMonths, outstanding }
 }

@@ -1,50 +1,43 @@
 import { useMemo } from 'react'
-import { CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Card } from '../common/Card'
 import { Badge } from '../common/Badge'
 import { formatRibuan } from '../common/format'
 import type { State } from '../../store'
-import { ledgerBalance, outstandingPiutang, straightLineValue, yearTransactions } from '../../finance'
+import { assetDebt, closingBalance, outstandingPiutang, straightLineValue, todayLocal } from '../../finance'
 
 interface NeracaViewProps {
   store: State
 }
 
 export function NeracaView({ store: s }: NeracaViewProps) {
-  const txCurrentYear = useMemo(() => yearTransactions(s.txs, s.year), [s.txs, s.year])
   const { kasMaster, kasOperasional, kasKeluarga, totalKasLancar } = useMemo(() => {
-    const m = ledgerBalance(txCurrentYear, 'master', s.saldoAwal)
-    const o = ledgerBalance(txCurrentYear, 'operasional', 0)
-    const k = ledgerBalance(txCurrentYear, 'keluarga', 0)
+    const m = closingBalance(s.txs, 'master', s.year, s.saldoAwal)
+    const o = closingBalance(s.txs, 'operasional', s.year)
+    const k = closingBalance(s.txs, 'keluarga', s.year)
     return { kasMaster: m, kasOperasional: o, kasKeluarga: k, totalKasLancar: m + o + k }
-  }, [txCurrentYear, s.saldoAwal])
+  }, [s.txs, s.year, s.saldoAwal])
   const totalPiutang = useMemo(() => outstandingPiutang(s.piutangs), [s.piutangs])
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const todayStr = useMemo(() => todayLocal(), [])
   const { totalAsetTetap, totalNilaiBukuDep } = useMemo(() => {
     const aset = s.assets.reduce((sum, a) => sum + (a.nilaiPasar || a.nilai), 0)
     const dep = s.deps.reduce((sum, d) => sum + straightLineValue(d, todayStr).bookValue, 0)
     return { totalAsetTetap: aset, totalNilaiBukuDep: dep }
   }, [s.assets, s.deps, todayStr])
   const totalAktiva = totalKasLancar + totalPiutang + totalAsetTetap + totalNilaiBukuDep
-  const totalHutangKredit = useMemo(() => s.assets.reduce((sum, a) => {
-    const pokok = a.nilai - a.dp
-    const bungaTotal = pokok * (a.bunga || 0.08) * ((a.tenor || 120) / 12)
-    return sum + pokok + bungaTotal
-  }, 0), [s.assets])
+  const totalHutangKredit = useMemo(() => s.assets.reduce((sum, a) => sum + assetDebt(a, todayStr).outstanding, 0), [s.assets, todayStr])
   const ekuitasBersih = totalAktiva - totalHutangKredit
   const totalPassiva = totalHutangKredit + ekuitasBersih
-  const isBalanced = totalAktiva === totalPassiva
 
   return (
     <div className="space-y-5 animate-in">
-      <Card className={`p-4 border ${isBalanced ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
+      <Card className="p-4 border border-slate-200 bg-white">
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isBalanced ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'}`}>
-            {isBalanced ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 text-white">
+            <span className="text-sm font-black">Rp</span>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">{isBalanced ? 'Seimbang — harta sama dengan hutang + modal' : 'Belum seimbang — cek lagi angka harta dan hutang'}</h3>
-            <p className="text-xs font-medium text-slate-600 mt-0.5">Rumus sederhana: Total Harta = Total Hutang + Kekayaan Bersih</p>
+            <h3 className="text-sm font-bold text-slate-900">Komposisi harta tahun {s.year} (termasuk bawaan tahun lalu)</h3>
+            <p className="text-xs font-medium text-slate-600 mt-0.5">Total Harta = Kas 3 kas + Piutang + Nilai pasar aset + Nilai buku susut. Kekayaan bersih = Harta dikurangi sisa hutang.</p>
           </div>
         </div>
       </Card>

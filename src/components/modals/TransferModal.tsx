@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, ArrowRight, ArrowLeftRight } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
+import { todayLocal } from '../../finance'
 
 interface TransferModalProps {
   open: boolean
@@ -13,8 +14,16 @@ interface TransferModalProps {
 export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: TransferModalProps) {
   const [to, setTo] = useState<'operasional' | 'keluarga'>('operasional')
   const [amount, setAmount] = useState(0)
-  const [tanggal, setTanggal] = useState(() => new Date().toISOString().slice(0, 10))
+  const [tanggal, setTanggal] = useState(() => todayLocal())
   const [uraian, setUraian] = useState('')
+
+  useEffect(() => {
+    if (open) {
+      setTanggal(todayLocal())
+      setAmount(0)
+      setUraian('')
+    }
+  }, [open])
 
   if (!open) return null
 

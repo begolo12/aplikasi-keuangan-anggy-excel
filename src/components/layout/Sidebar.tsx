@@ -1,25 +1,8 @@
-import React from 'react'
-import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Calculator,
-  TrendingUp,
-  Scale,
-  Building2,
-  CalendarClock,
-  HandCoins,
-  FileSpreadsheet,
-  PieChart,
-  ChevronLeft,
-  ChevronRight,
-  Wallet,
-  Settings,
-} from 'lucide-react'
-import { NAV_GROUPS, type TabKey } from './navConfig'
+import { ChevronLeft, ChevronRight, Wallet } from 'lucide-react'
+import { NAV_GROUPS, TAB_ICONS, type TabKey } from './navConfig'
 import { formatRibuan } from '../common/format'
 
 export type { TabKey }
-
 interface SidebarProps {
   activeTab: TabKey
   onSelectTab: (tab: TabKey) => void
@@ -37,19 +20,6 @@ interface SidebarProps {
   }
 }
 
-const TAB_ICONS: Record<TabKey, React.ReactNode> = {
-  dashboard: <LayoutDashboard size={20} />,
-  transaksi: <ArrowLeftRight size={20} />,
-  rab: <Calculator size={20} />,
-  cashflow: <TrendingUp size={20} />,
-  rari: <PieChart size={20} />,
-  aset: <Building2 size={20} />,
-  depresiasi: <Scale size={20} />,
-  schedule: <CalendarClock size={20} />,
-  piutang: <HandCoins size={20} />,
-  neraca: <FileSpreadsheet size={20} />,
-  settings: <Settings size={20} />,
-}
 
 export function Sidebar({
   activeTab,
@@ -159,7 +129,7 @@ export function Sidebar({
                       >
                         <span className="flex items-center gap-3 min-w-0">
                           <span className={`shrink-0 ${isActive ? 'text-[#001d35]' : 'text-[#444746]'}`}>
-                            {TAB_ICONS[item.id]}
+                            {(() => { const Icon = TAB_ICONS[item.id]; return <Icon size={20} /> })()}
                           </span>
                           {!collapsed && <span className="truncate">{item.label}</span>}
                         </span>

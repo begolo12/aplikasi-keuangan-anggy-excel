@@ -1,22 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import {
-  Search,
-  LayoutDashboard,
-  ArrowLeftRight,
-  Calculator,
-  TrendingUp,
-  Building2,
-  CalendarClock,
-  HandCoins,
-  FileSpreadsheet,
-  Scale,
-  Plus,
-  Download,
-  Calendar,
-  X,
-  PieChart,
-} from 'lucide-react'
-import type { TabKey } from './Sidebar'
+import { Search, Plus, Download, Calendar, X, ArrowLeftRight } from 'lucide-react'
+import { ALL_NAV_ITEMS, TAB_ICONS, type TabKey } from './navConfig'
 
 interface CommandPaletteProps {
   open: boolean
@@ -74,17 +58,10 @@ export function CommandPalette({
     { id: 'transfer', label: 'Pindah saldo antar kas', icon: <ArrowLeftRight size={18} className="text-[#444746]" />, run: () => { onClose(); onOpenTransfer() } },
     { id: 'year', label: 'Ganti tahun buku', icon: <Calendar size={18} className="text-[#b06000]" />, run: () => { onClose(); onOpenYearModal() } },
     { id: 'export', label: 'Export ke Excel', icon: <Download size={18} className="text-[#137333]" />, run: () => { onClose(); onExportExcel() } },
-    { id: 'nav-dash', label: 'Buka Ringkasan', icon: <LayoutDashboard size={18} />, run: () => { onClose(); onSelectTab('dashboard') } },
-    { id: 'nav-tx', label: 'Buka Keluar Masuk Uang', icon: <ArrowLeftRight size={18} />, run: () => { onClose(); onSelectTab('transaksi') } },
-    { id: 'nav-rab', label: 'Buka Rencana Anggaran', icon: <Calculator size={18} />, run: () => { onClose(); onSelectTab('rab') } },
-    { id: 'nav-cf', label: 'Buka Arus Kas Bulanan', icon: <TrendingUp size={18} />, run: () => { onClose(); onSelectTab('cashflow') } },
-    { id: 'nav-rari', label: 'Buka Anggaran vs Realisasi', icon: <PieChart size={18} />, run: () => { onClose(); onSelectTab('rari') } },
-    { id: 'nav-aset', label: 'Buka Daftar Aset', icon: <Building2 size={18} />, run: () => { onClose(); onSelectTab('aset') } },
-    { id: 'nav-dep', label: 'Buka Penyusutan Aset', icon: <Scale size={18} />, run: () => { onClose(); onSelectTab('depresiasi') } },
-    { id: 'nav-sched', label: 'Buka Jadwal & Pajak', icon: <CalendarClock size={18} />, run: () => { onClose(); onSelectTab('schedule') } },
-    { id: 'nav-piutang', label: 'Buka Piutang', icon: <HandCoins size={18} />, run: () => { onClose(); onSelectTab('piutang') } },
-    { id: 'nav-neraca', label: 'Buka Kekayaan Bersih', icon: <FileSpreadsheet size={18} />, run: () => { onClose(); onSelectTab('neraca') } },
-    { id: 'nav-settings', label: 'Buka Pengaturan Master Data', icon: <Search size={18} />, run: () => { onClose(); onSelectTab('settings') } },
+    ...ALL_NAV_ITEMS.map((item) => {
+      const Icon = TAB_ICONS[item.id]
+      return { id: `nav-${item.id}`, label: `Buka ${item.label}`, icon: <Icon size={18} />, run: () => { onClose(); onSelectTab(item.id) } }
+    }),
   ]
 
   const filtered = actions.filter((a) => a.label.toLowerCase().includes(search.toLowerCase()))
@@ -101,7 +78,7 @@ export function CommandPalette({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari perintah atau halaman..."
-            className="w-full bg-transparent border-none outline-none text-sm text-[#1f1f1f] placeholder:text-[#747775]"
+            className="flex-1 bg-transparent outline-none text-sm text-[#1f1f1f] placeholder:text-[#747775]"
           />
           <button onClick={onClose} className="p-1 rounded-full text-[#747775] hover:bg-[#e0e2e0] transition">
             <X size={18} />

@@ -17,10 +17,10 @@ import { BarChart, DonutChart, type MonthBarData, type CategoryDonutData } from 
 import type { State, Ledger } from '../../store'
 import type { TabKey } from '../layout/Sidebar'
 import {
+  closingBalance,
   consolidatedExpense,
   consolidatedIncome,
-  isTransfer,
-  ledgerBalance,
+  isBudgetRealization,
   outstandingPiutang,
   rabMonthlyTotals,
   yearTransactions,
@@ -38,9 +38,9 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
   const currentMonthIdx = new Date().getMonth()
   const txCurrentYear = yearTransactions(s.txs, s.year)
 
-  const balMaster = ledgerBalance(txCurrentYear, 'master', s.saldoAwal)
-  const balOperasional = ledgerBalance(txCurrentYear, 'operasional', 0)
-  const balKeluarga = ledgerBalance(txCurrentYear, 'keluarga', 0)
+  const balMaster = closingBalance(s.txs, 'master', s.year, s.saldoAwal)
+  const balOperasional = closingBalance(s.txs, 'operasional', s.year)
+  const balKeluarga = closingBalance(s.txs, 'keluarga', s.year)
   const totalKasTersedia = balMaster + balOperasional + balKeluarga
 
   const totalIncome = consolidatedIncome(txCurrentYear)
@@ -48,11 +48,11 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
   const totalPiutang = outstandingPiutang(s.piutangs)
 
   const riOperasional = txCurrentYear
-    .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === currentMonthIdx + 1 && !isTransfer(t))
+    .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === currentMonthIdx + 1 && isBudgetRealization(t))
     .reduce((sum, t) => sum + t.pengeluaran, 0)
 
   const riKeluarga = txCurrentYear
-    .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === currentMonthIdx + 1 && !isTransfer(t))
+    .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === currentMonthIdx + 1 && isBudgetRealization(t))
     .reduce((sum, t) => sum + t.pengeluaran, 0)
 
   const raOperasional = rabMonthlyTotals(s.rabAnggy)[currentMonthIdx] || 0
@@ -76,7 +76,7 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
   // Category breakdown for donut chart
   const categoryMap = new Map<string, number>()
   txCurrentYear.forEach((tx) => {
-    if (tx.pengeluaran > 0 && !isTransfer(tx)) {
+    if (tx.pengeluaran > 0 && isBudgetRealization(tx)) {
       const kat = tx.kategori || 'LAIN-LAIN'
       categoryMap.set(kat, (categoryMap.get(kat) || 0) + tx.pengeluaran)
     }

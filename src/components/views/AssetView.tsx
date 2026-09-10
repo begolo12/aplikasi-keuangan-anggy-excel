@@ -7,7 +7,9 @@ import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { EmptyState } from '../common/EmptyState'
 import type { State, AssetRow } from '../../store'
+import { assetDebt } from '../../finance'
 
 interface AssetViewProps {
   store: State
@@ -23,19 +25,17 @@ export function AssetView({ store: s }: AssetViewProps) {
     tgl: new Date().toISOString().slice(0, 10),
     nilai: 0,
     dp: 0,
-    bunga: 0.08,
+    bunga: 0,
     tenor: 120,
     nilaiPasar: 0,
     tambah: 0,
   })
 
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
   const totalNilaiPerolehan = s.assets.reduce((sum, a) => sum + a.nilai, 0)
-  const totalNilaiPasar = s.assets.reduce((sum, a) => sum + a.nilaiPasar, 0)
-  const totalHutang = s.assets.reduce((sum, a) => {
-    const pokok = a.nilai - a.dp
-    const bungaTotal = pokok * (a.bunga || 0.08) * ((a.tenor || 120) / 12)
-    return sum + pokok + bungaTotal
-  }, 0)
+  const totalNilaiPasar = s.assets.reduce((sum, a) => sum + (a.nilaiPasar || a.nilai), 0)
+  const totalHutang = s.assets.reduce((sum, a) => sum + assetDebt(a, todayStr).outstanding, 0)
 
   const atasNamaSuggestions = useMemo(() => {
     const fromAsset = s.assets.map((a) => a.atasNama)
@@ -62,12 +62,28 @@ export function AssetView({ store: s }: AssetViewProps) {
       tgl: new Date().toISOString().slice(0, 10),
       nilai: 0,
       dp: 0,
-      bunga: 0.08,
+      bunga: 0,
       tenor: 120,
       nilaiPasar: 0,
       tambah: 0,
     })
   }
+
+  const liveDebt = useMemo(() => {
+    return assetDebt({
+      id: 'preview',
+      jenis: newAsset.jenis,
+      nama: newAsset.nama,
+      atasNama: newAsset.atasNama,
+      tgl: newAsset.tgl,
+      nilai: newAsset.nilai,
+      dp: newAsset.dp,
+      bunga: newAsset.bunga,
+      tenor: newAsset.tenor,
+      nilaiPasar: newAsset.nilaiPasar,
+      tambah: 0,
+    }, todayStr)
+  }, [newAsset, todayStr])
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-in">
@@ -75,115 +91,165 @@ export function AssetView({ store: s }: AssetViewProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <StatCard title="Harga Beli Semua Aset" value={`Rp ${formatRibuan(totalNilaiPerolehan) || '0'}`} subtitle={`${s.assets.length} barang`} variant="brand" icon={<Building2 size={16} />} />
         <StatCard title="Perkiraan Harga Sekarang" value={`Rp ${formatRibuan(totalNilaiPasar) || '0'}`} subtitle="Jika dijual hari ini" variant="income" icon={<TrendingUp size={16} />} />
-        <StatCard title="Sisa Hutang Aset" value={`Rp ${formatRibuan(totalHutang) || '0'}`} subtitle="Yang masih dicicil" variant="warning" icon={<CreditCard size={16} />} />
+        <StatCard title="Sisa Hutang Aset" value={`Rp ${formatRibuan(totalHutang) || '0'}`} subtitle="Otomatis berkurang sesuai bulan berjalan" variant="warning" icon={<CreditCard size={16} />} />
       </div>
 
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">Daftar Aset yang Dimiliki</h3>
-            <p className="text-xs font-medium text-slate-500">Rumah, kendaraan, gadget — siapa pemiliknya dan berapa harganya</p>
+            <h3 className="text-sm font-semibold text-slate-900">Daftar Aset & Cicilan KPR / Kendaraan</h3>
+            <p className="text-xs font-medium text-slate-500">Sistem otomatis menghitung bulan berjalan, cicilan terbayar, dan sisa hutang per hari ini</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer"
-          >
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={15} />
             <span>Tambah Aset</span>
           </button>
         </div>
       </Card>
 
-      {/* Mobile Card List (< 768px) */}
-      <div className="block md:hidden space-y-3">
-        {s.assets.map((a) => (
-          <Card key={a.id} className="p-4 border-slate-200/80 bg-white">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <Badge variant={a.jenis === 'PROPERTY' ? 'brand' : a.jenis === 'KENDARAAN' ? 'success' : 'accent'}>
-                  {a.jenis}
-                </Badge>
-                <h4 className="mt-1 text-sm font-black text-slate-900">{a.nama}</h4>
-                <p className="text-xs text-slate-600 font-medium mt-0.5">
-                  a.n {a.atasNama} • Beli: {a.tgl}
-                </p>
-              </div>
+      {s.assets.length === 0 ? (
+        <EmptyState
+          icon={<Building2 size={24} />}
+          title="Belum Ada Aset Terdaftar"
+          description="Catat rumah, KPR, kendaraan, atau barang berharga untuk memonitor sisa hutang dan kekayaan bersih otomatis."
+          actionLabel="Tambah Aset Baru"
+          onAction={() => setIsAdding(true)}
+        />
+      ) : (
+        <>
+          {/* Mobile Card List (< 768px) */}
+          <div className="block md:hidden space-y-3">
+            {s.assets.map((a) => {
+              const debt = assetDebt(a, todayStr)
+              const sudahTerbayar = debt.paidMonths * debt.monthlyPayment
+              const isLunas = debt.paidMonths >= a.tenor || debt.outstanding === 0
+              const progressPercent = a.tenor > 0 ? Math.min(100, Math.round((debt.paidMonths / a.tenor) * 100)) : 100
 
-              <button
-                onClick={() => setDeleteTargetId(a.id)}
-                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
-                title="Hapus Aset"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
+              return (
+                <Card key={a.id} className="p-4 border-slate-200/80 bg-white">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge variant={a.jenis === 'PROPERTY' ? 'brand' : a.jenis === 'KENDARAAN' ? 'success' : 'accent'}>
+                          {a.jenis}
+                        </Badge>
+                        <Badge variant={isLunas ? 'success' : 'warning'}>
+                          {isLunas ? 'Lunas' : `Berjalan ${debt.paidMonths}/${a.tenor} bln`}
+                        </Badge>
+                      </div>
+                      <h4 className="mt-1 text-sm font-black text-slate-900">{a.nama}</h4>
+                      <p className="text-xs text-slate-600 font-medium mt-0.5">
+                        a.n {a.atasNama} • Mulai: {a.tgl}
+                      </p>
+                    </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span className="text-slate-600 font-semibold text-[11px] block">Nilai Beli</span>
-                <span className="font-bold text-slate-900 num">Rp {formatRibuan(a.nilai)}</span>
-              </div>
-              <div>
-                <span className="text-slate-600 font-semibold text-[11px] block">Nilai Pasar</span>
-                <span className="font-black text-emerald-800 num">Rp {formatRibuan(a.nilaiPasar)}</span>
-              </div>
-              <div>
-                <span className="text-slate-600 font-semibold text-[11px] block">DP / Uang Muka</span>
-                <span className="font-bold text-emerald-700 num">Rp {formatRibuan(a.dp)}</span>
-              </div>
-              <div>
-                <span className="text-slate-600 font-semibold text-[11px] block">Tenor Cicilan</span>
-                <span className="font-bold text-slate-800">{a.tenor} bulan</span>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-slate-200/80">
-        <div className="overflow-x-auto scrollbar-thin">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
-                <th className="px-4 py-3">Jenis</th>
-                <th className="px-4 py-3">Nama Aset</th>
-                <th className="px-4 py-3">Atas Nama</th>
-                <th className="px-4 py-3">Tgl Beli</th>
-                <th className="px-4 py-3 text-right">Nilai Beli</th>
-                <th className="px-4 py-3 text-right">DP / Uang Muka</th>
-                <th className="px-4 py-3 text-center">Tenor</th>
-                <th className="px-4 py-3 text-right">Nilai Pasar</th>
-                <th className="px-4 py-3 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {s.assets.map((a) => (
-                <tr key={a.id} className="hover:bg-[#f4f9f6]/60 transition">
-                  <td className="px-4 py-3">
-                    <Badge variant={a.jenis === 'PROPERTY' ? 'brand' : a.jenis === 'KENDARAAN' ? 'success' : 'accent'}>
-                      {a.jenis}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 font-bold text-slate-900">{a.nama}</td>
-                  <td className="px-4 py-3 font-medium text-slate-600">{a.atasNama}</td>
-                  <td className="px-4 py-3 text-slate-500 font-semibold">{a.tgl}</td>
-                  <td className="px-4 py-3 text-right font-bold text-slate-800 num">Rp {formatRibuan(a.nilai)}</td>
-                  <td className="px-4 py-3 text-right font-bold text-emerald-700 num">Rp {formatRibuan(a.dp)}</td>
-                  <td className="px-4 py-3 text-center font-semibold text-slate-600">{a.tenor} bln</td>
-                  <td className="px-4 py-3 text-right font-black text-[#1c543c] num bg-[#edf6f0]/40">Rp {formatRibuan(a.nilaiPasar)}</td>
-                  <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => setDeleteTargetId(a.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                      title="Hapus Aset"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={16} />
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+                  </div>
+
+                  {/* Progress Cicilan */}
+                  <div className="mt-3 pt-2 border-t border-slate-100">
+                    <div className="flex justify-between text-[11px] text-slate-500 mb-1">
+                      <span>Progres Cicilan ({progressPercent}%)</span>
+                      <span className="font-semibold text-slate-700">{debt.paidMonths} dari {a.tenor} bln</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-600 rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">Cicilan / Bulan</span>
+                      <span className="font-semibold text-slate-900 num">Rp {formatRibuan(debt.monthlyPayment)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">Sisa Hutang Riil</span>
+                      <span className={`font-bold text-sm num ${isLunas ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        Rp {formatRibuan(debt.outstanding)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">Sudah Terbayar</span>
+                      <span className="font-semibold text-emerald-700 num">Rp {formatRibuan(sudahTerbayar)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">Nilai Pasar</span>
+                      <span className="font-bold text-slate-900 num">Rp {formatRibuan(a.nilaiPasar)}</span>
+                    </div>
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table View (>= 768px) */}
+          <Card className="hidden md:block overflow-hidden border border-slate-200/80">
+            <div className="overflow-x-auto scrollbar-thin">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider">
+                    <th className="px-4 py-3">Jenis</th>
+                    <th className="px-4 py-3">Nama Aset</th>
+                    <th className="px-4 py-3">Mulai Akad</th>
+                    <th className="px-4 py-3 text-right">Nilai Pokok</th>
+                    <th className="px-4 py-3 text-right">Cicilan / Bln</th>
+                    <th className="px-4 py-3 text-center">Bulan Berjalan</th>
+                    <th className="px-4 py-3 text-right">Sudah Terbayar</th>
+                    <th className="px-4 py-3 text-right font-black">Sisa Hutang Riil</th>
+                    <th className="px-4 py-3 text-center">Status</th>
+                    <th className="px-4 py-3 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {s.assets.map((a) => {
+                    const debt = assetDebt(a, todayStr)
+                    const sudahTerbayar = debt.paidMonths * debt.monthlyPayment
+                    const isLunas = debt.paidMonths >= a.tenor || debt.outstanding === 0
+
+                    return (
+                      <tr key={a.id} className="hover:bg-[#f4f9f6]/60 transition">
+                        <td className="px-4 py-3">
+                          <Badge variant={a.jenis === 'PROPERTY' ? 'brand' : a.jenis === 'KENDARAAN' ? 'success' : 'accent'}>
+                            {a.jenis}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 font-bold text-slate-900">{a.nama}</td>
+                        <td className="px-4 py-3 text-slate-500 font-semibold">{a.tgl}</td>
+                        <td className="px-4 py-3 text-right font-bold text-slate-800 num">Rp {formatRibuan(a.nilai)}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-slate-700 num">Rp {formatRibuan(debt.monthlyPayment)}</td>
+                        <td className="px-4 py-3 text-center font-semibold text-slate-600">
+                          {debt.paidMonths} / {a.tenor} bln
+                        </td>
+                        <td className="px-4 py-3 text-right font-bold text-emerald-700 num">Rp {formatRibuan(sudahTerbayar)}</td>
+                        <td className="px-4 py-3 text-right font-black text-rose-700 num bg-rose-50/20">Rp {formatRibuan(debt.outstanding)}</td>
+                        <td className="px-4 py-3 text-center">
+                          <Badge variant={isLunas ? 'success' : 'warning'}>
+                            {isLunas ? 'Lunas' : 'Berjalan'}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => setDeleteTargetId(a.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
 
       <ConfirmDialog
         open={Boolean(deleteTargetId)}
@@ -296,6 +362,27 @@ export function AssetView({ store: s }: AssetViewProps) {
                   />
                 </div>
               </div>
+
+              {newAsset.nilai > 0 && newAsset.tenor > 0 && (
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1.5 animate-in">
+                  <div className="flex justify-between font-semibold text-slate-700">
+                    <span>Cicilan per Bulan:</span>
+                    <span className="num font-bold text-slate-900">Rp {formatRibuan(liveDebt.monthlyPayment)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Bulan Sudah Berjalan:</span>
+                    <span className="font-semibold text-slate-800">{liveDebt.paidMonths} dari {newAsset.tenor} bulan</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>Otomatis Terbayar:</span>
+                    <span className="num font-bold">Rp {formatRibuan(liveDebt.paidMonths * liveDebt.monthlyPayment)}</span>
+                  </div>
+                  <div className="flex justify-between pt-1.5 border-t border-slate-200 text-rose-700 font-bold">
+                    <span>Sisa Hutang Riil Hari Ini:</span>
+                    <span className="num text-sm">Rp {formatRibuan(liveDebt.outstanding)}</span>
+                  </div>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button

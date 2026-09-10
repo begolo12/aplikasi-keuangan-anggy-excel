@@ -24,11 +24,15 @@ export function RupiahInput({
   disabled = false,
   autoFocus = false,
 }: RupiahInputProps) {
-  const [displayVal, setDisplayVal] = useState(() => formatRibuan(value))
+  const formatInputVal = (v: number | string | undefined) => {
+    if (v === '' || v === undefined || v === null || Number(v) === 0) return ''
+    return formatRibuan(v)
+  }
+  const [displayVal, setDisplayVal] = useState(() => formatInputVal(value))
   const [lastProp, setLastProp] = useState(value)
   if (value !== lastProp) {
     setLastProp(value)
-    setDisplayVal(formatRibuan(value))
+    setDisplayVal(formatInputVal(value))
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

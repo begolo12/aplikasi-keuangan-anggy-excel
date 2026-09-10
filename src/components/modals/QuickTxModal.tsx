@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { X, PlusCircle } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { Autocomplete } from '../common/Autocomplete'
@@ -31,19 +31,22 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
   }, [store.txs, store.piutangs, store.assets, store.customNsbList])
 
   const posSuggestions = useMemo(() => {
-    const fromTx = store.txs.map((t) => t.pos)
-    const fromCustom = store.customPosList || []
-    return Array.from(new Set([...fromCustom, ...fromTx, 'RUTIN', 'PINDAH SALDO', 'GAJI', 'BELANJA', 'ASET', 'PIUTANG', 'PAJAK', 'SERVIS'])).filter(Boolean)
+    const fromTx = store.txs.map((t) => t.pos).filter((p) => p !== 'PINDAH SALDO' && p !== 'DROPPING' && p !== 'PINDAH')
+    const fromCustom = (store.customPosList || []).filter((p) => p !== 'PINDAH SALDO' && p !== 'DROPPING' && p !== 'PINDAH')
+    return Array.from(new Set([...fromCustom, ...fromTx, 'RUTIN', 'GAJI', 'BELANJA', 'ASET', 'PIUTANG', 'PAJAK', 'SERVIS'])).filter(Boolean)
   }, [store.txs, store.customPosList])
 
-  const [lastOpen, setLastOpen] = useState(open)
-  if (open !== lastOpen || (open && ledger !== defaultLedger)) {
-    setLastOpen(open)
+  useEffect(() => {
     if (open) {
       setLedger(defaultLedger)
       setTanggal(todayLocal())
+      setJenis('keluar')
+      setNsb('ANGGY')
+      setPos('')
+      setUraian('')
+      setNominal(0)
     }
-  }
+  }, [open, defaultLedger])
 
   if (!open) return null
 

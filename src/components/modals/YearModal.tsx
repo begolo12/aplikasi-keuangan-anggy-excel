@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, Calendar } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 
@@ -13,6 +13,13 @@ interface YearModalProps {
 export function YearModal({ open, onClose, year, saldoAwal, onSave }: YearModalProps) {
   const [selectedYear, setSelectedYear] = useState(year)
   const [initialBalance, setInitialBalance] = useState(saldoAwal)
+
+  useEffect(() => {
+    if (open) {
+      setSelectedYear(year)
+      setInitialBalance(saldoAwal)
+    }
+  }, [open, year, saldoAwal])
 
   if (!open) return null
 

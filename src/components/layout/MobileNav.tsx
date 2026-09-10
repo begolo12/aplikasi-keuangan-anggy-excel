@@ -1,20 +1,5 @@
-import React from 'react'
-import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Calculator,
-  TrendingUp,
-  FileSpreadsheet,
-  Building2,
-  CalendarClock,
-  HandCoins,
-  Scale,
-  PieChart,
-  X,
-  Plus,
-  Settings,
-} from 'lucide-react'
-import { NAV_GROUPS, type TabKey } from './navConfig'
+import { X, Plus } from 'lucide-react'
+import { NAV_GROUPS, TAB_ICONS, type TabKey } from './navConfig'
 
 interface MobileNavProps {
   open: boolean
@@ -25,21 +10,6 @@ interface MobileNavProps {
   unpaidPiutangCount: number
   onOpenQuickTx: () => void
 }
-
-const TAB_ICONS: Record<TabKey, React.ReactNode> = {
-  dashboard: <LayoutDashboard size={20} />,
-  transaksi: <ArrowLeftRight size={20} />,
-  rab: <Calculator size={20} />,
-  cashflow: <TrendingUp size={20} />,
-  rari: <PieChart size={20} />,
-  aset: <Building2 size={20} />,
-  depresiasi: <Scale size={20} />,
-  schedule: <CalendarClock size={20} />,
-  piutang: <HandCoins size={20} />,
-  neraca: <FileSpreadsheet size={20} />,
-  settings: <Settings size={20} />,
-}
-
 export function MobileNav({
   open,
   onClose,
@@ -96,7 +66,7 @@ export function MobileNav({
                       onClick={() => { onSelectTab(item.id); onClose() }}
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-[13px] transition cursor-pointer ${isActive ? 'bg-[#c2e7ff] text-[#001d35] font-semibold' : 'text-[#444746] hover:bg-[#f1f3f4] hover:text-[#1f1f1f] font-medium'}`}
                     >
-                      <span className="flex items-center gap-3"><span className={isActive ? 'text-[#001d35]' : 'text-[#444746]'}>{TAB_ICONS[item.id]}</span>{item.label}</span>
+                      <span className="flex items-center gap-3"><span className={isActive ? 'text-[#001d35]' : 'text-[#444746]'}>{(() => { const Icon = TAB_ICONS[item.id]; return <Icon size={20} /> })()}</span>{item.label}</span>
                       {badge !== undefined && <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${isActive ? 'bg-[#001d35] text-white' : 'bg-[#e0e2e0] text-[#1f1f1f]'}`}>{badge}</span>}
                     </button>
                   )

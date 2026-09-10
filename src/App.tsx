@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react'
-import { useStore, type Ledger } from './store'
+import { useStore, useToastStore, type Ledger } from './store'
 import { useAuth } from './lib/use-auth'
-import { ledgerBalance, yearTransactions } from './finance'
+import { closingBalance, ledgerBalance, yearTransactions } from './finance'
 
 import { Sidebar, type TabKey } from './components/layout/Sidebar'
 import { Header } from './components/layout/Header'
@@ -29,8 +29,8 @@ const SettingsView = lazy(() => import('./components/views/SettingsView').then((
 
 export default function App() {
   const store = useStore()
+  const globalToasts = useToastStore((s) => s.toasts)
   const { user, logout } = useAuth()
-
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     try {
@@ -74,6 +74,14 @@ export default function App() {
     return () => window.removeEventListener('online', onOnline)
   }, [])
 
+  useEffect(() => {
+    if (globalToasts.length === 0) return
+    const id = setTimeout(() => {
+      const current = useToastStore.getState().toasts
+      current.forEach((t) => useToastStore.getState().dismiss(t.id))
+    }, 4000)
+    return () => clearTimeout(id)
+  }, [globalToasts])
   const handleToggleSidebar = () => {
     setSidebarCollapsed((prev) => {
       const next = !prev
@@ -86,20 +94,24 @@ export default function App() {
 
   const txCurrentYear = useMemo(() => yearTransactions(store.txs, store.year), [store.txs, store.year])
   const unpaidPiutangCount = useMemo(
-    () => store.piutangs.filter((p) => p.terbit > p.lunas).length,
+    () => store.piutangs.filter((p) => (Number(p.terbit) || 0) > (Number(p.lunas) || 0)).length,
     [store.piutangs]
   )
   const masterBalance = useMemo(
-    () => ledgerBalance(txCurrentYear, 'master', store.saldoAwal),
-    [txCurrentYear, store.saldoAwal]
+    () => closingBalance(store.txs, 'master', store.year, store.saldoAwal),
+    [store.txs, store.year, store.saldoAwal]
   )
   const opBalance = useMemo(
-    () => ledgerBalance(txCurrentYear, 'operasional', 0),
-    [txCurrentYear]
+    () => closingBalance(store.txs, 'operasional', store.year),
+    [store.txs, store.year]
   )
   const kelBalance = useMemo(
-    () => ledgerBalance(txCurrentYear, 'keluarga', 0),
-    [txCurrentYear]
+    () => closingBalance(store.txs, 'keluarga', store.year),
+    [store.txs, store.year]
+  )
+  const fullMasterBalance = useMemo(
+    () => ledgerBalance(store.txs, 'master', store.saldoAwal),
+    [store.txs, store.saldoAwal]
   )
 
   const handleOpenQuickTx = (defaultLedger: Ledger = 'master') => {
@@ -212,7 +224,7 @@ export default function App() {
       <TransferModal
         open={transferOpen}
         onClose={() => setTransferOpen(false)}
-        maxMasterBalance={masterBalance}
+        maxMasterBalance={fullMasterBalance}
         onTransfer={(to, amount, tanggal, uraian) => {
           store.transferDropping('master', to, amount, tanggal, uraian)
           const tujuan = to === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'
@@ -242,7 +254,7 @@ export default function App() {
         onExportExcel={handleExportExcel}
       />
 
-      <ToastStack toasts={toasts} remove={removeToast} />
+      <ToastStack toasts={[...toasts, ...globalToasts]} remove={(id) => { removeToast(id); useToastStore.getState().dismiss(id) }} />
     </div>
   )
 }

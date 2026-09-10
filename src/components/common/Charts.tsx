@@ -175,9 +175,10 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
   let runningAngle = 0
   for (const d of data) {
     const fraction = d.value / total
-    const angle = fraction * 360
+    const rawAngle = fraction * 360
+    const angle = rawAngle >= 360 ? 359.99 : rawAngle
     const startAngle = runningAngle
-    runningAngle += angle
+    runningAngle += rawAngle
 
     // SVG arc calculation
     const startRad = ((startAngle - 90) * Math.PI) / 180

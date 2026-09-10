@@ -12,7 +12,7 @@ import {
   Search,
 } from 'lucide-react'
 import type { SyncStatus } from '../../store'
-import type { TabKey } from './Sidebar'
+import { TAB_TITLES, type TabKey } from './navConfig'
 import { printCurrentReport } from '../../print'
 
 interface HeaderProps {
@@ -46,21 +46,7 @@ export function Header({
   userEmail,
   onLogout,
 }: HeaderProps) {
-  const titles: Record<TabKey, { title: string; subtitle: string }> = {
-    dashboard: { title: 'Ringkasan', subtitle: 'Ringkasan uang masuk, keluar, dan sisa kas' },
-    transaksi: { title: 'Keluar Masuk Uang', subtitle: 'Catat setiap uang masuk dan keluar di 3 kas' },
-    rab: { title: 'Rencana Anggaran', subtitle: 'Atur rencana pengeluaran bulanan' },
-    cashflow: { title: 'Arus Kas', subtitle: 'Lihat uang masuk dan keluar setiap bulan' },
-    rari: { title: 'Anggaran vs Realisasi', subtitle: 'Bandingkan rencana dengan yang benar-benar keluar' },
-    aset: { title: 'Daftar Aset', subtitle: 'Rumah, kendaraan, dan barang berharga yang dimiliki' },
-    depresiasi: { title: 'Penyusutan Aset', subtitle: 'Lihat penurunan nilai barang dari waktu ke waktu' },
-    schedule: { title: 'Jadwal & Pajak', subtitle: 'Pengingat bayar pajak dan servis rutin' },
-    piutang: { title: 'Piutang', subtitle: 'Uang yang dipinjamkan ke orang lain dan status kembalinya' },
-    neraca: { title: 'Kekayaan Bersih', subtitle: 'Total harta dikurangi total hutang' },
-    settings: { title: 'Pengaturan Master Data', subtitle: 'Kelola daftar nasabah, pos/kategori transaksi, dan dompet kas' },
-  }
-
-  const { title, subtitle } = titles[activeTab] || titles.dashboard
+  const { title, subtitle } = TAB_TITLES[activeTab] || TAB_TITLES.dashboard
 
   return (
     <header className="h-[64px] bg-white border-b border-[#e0e2e0] px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">

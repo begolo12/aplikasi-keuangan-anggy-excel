@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import type { Tx, RabRow, DepRow, SchedRow, PiutangRow, AssetRow } from './store'
-import { assetDebt, yearTransactions } from './finance'
+import { assetDebt, closingBalance, isAssetConversion, isBudgetRealization, monthlyTotals, rabMonthlyTotals, straightLineValue, yearTransactions } from './finance'
 
 const fmt = '#,##0'
 const fmtRp = '"Rp" #,##0'
@@ -10,6 +10,14 @@ const border = { top: thin, left: thin, bottom: thin, right: thin }
 
 function safeStr(v: string): string {
   return /^[=+\-@\t\r]/.test(v) ? `'${v}` : v
+}
+
+function safeDate(v: string): Date | string {
+  if (!v || typeof v !== 'string') return v
+  const [y, m, d] = v.split('-').map(Number)
+  if (!y || !m || !d) return v
+  const dt = new Date(y, m - 1, d)
+  return isNaN(dt.getTime()) ? v : dt
 }
 
 function hdr(ws: ExcelJS.Worksheet, row: number, cols: string[], color = '1E40AF') {
@@ -447,7 +455,7 @@ export async function exportExcel(args: {
     rows.forEach((t, i) => {
       const no = i + 1
       ws.getCell(`B${r}`).value = no
-      ws.getCell(`C${r}`).value = new Date(t.tanggal)
+      ws.getCell(`C${r}`).value = safeDate(t.tanggal)
       ws.getCell(`C${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`D${r}`).value = { formula: `MONTH(C${r})&"-"&YEAR(C${r})` } as never
       ws.getCell(`E${r}`).value = safeStr(t.nsb)
@@ -533,12 +541,23 @@ export async function exportExcel(args: {
     styleRow(ws, r, 12, { bold: true, fill: 'EFF6FF' })
     r++
 
+    const ytxRari = yearTransactions(args.txs, args.year)
+    const mtRari = monthlyTotals(args.txs, args.year)
+    const rabOpJan = rabMonthlyTotals(args.rabAnggy)[0] || 0
+    const rabKelJan = rabMonthlyTotals(args.rabKeluarga)[0] || 0
+    const riOpJan = ytxRari
+      .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === 1 && isBudgetRealization(t))
+      .reduce((sum, t) => sum + Math.max(0, t.pengeluaran), 0)
+    const riKelJan = ytxRari
+      .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === 1 && isBudgetRealization(t))
+      .reduce((sum, t) => sum + Math.max(0, t.pengeluaran), 0)
+    const incomeJan = mtRari.income[0] || 0
+    const conversionInJan = ytxRari
+      .filter((t) => Number(t.tanggal.slice(5, 7)) === 1 && isAssetConversion(t))
+      .reduce((sum, t) => sum + Math.max(0, t.penerimaan), 0)
     const itemsPenerimaan = [
-      { name: 'SALARY BULANAN', ra: 6000000, ri: 6000000, sisa: 0 },
-      { name: 'PENDAPATAN - USAHA LAINNYA', ra: 1000000, ri: 0, sisa: 1000000 },
-      { name: 'ASET - PIUTANG', ra: 500000, ri: 500000, sisa: 0 },
-      { name: 'PENJUALAN - ASET', ra: 3800000, ri: 3800000, sisa: 0 },
-      { name: 'PENDAPATAN - LAIN LAIN', ra: 0, ri: -20000, sisa: 100000 },
+      { name: 'PENDAPATAN (di luar transfer & pelunasan)', ra: 0, ri: incomeJan, sisa: 0 },
+      { name: 'PELUNASAN PIUTANG DITERIMA', ra: 0, ri: conversionInJan, sisa: 0 },
     ]
 
     itemsPenerimaan.forEach((item, idx) => {
@@ -568,15 +587,8 @@ export async function exportExcel(args: {
     r++
 
     const subPengeluaran = [
-      { name: 'ANGGY OPS - OPERASIONAL', ra: 500000, ri: 52500, sisa: 350000 },
-      { name: 'ANGGY OPS - ORANG TUA', ra: 200000, ri: 200000, sisa: 0 },
-      { name: 'ANGGY OPS - BELANJA', ra: 800000, ri: 54000, sisa: 600000 },
-      { name: 'KELUARGA - NAFKAH', ra: 1800000, ri: 1500000, sisa: 300000 },
-      { name: 'KELUARGA - ANAK', ra: 650000, ri: 425000, sisa: 200000 },
-      { name: 'KELUARGA - MERTUA', ra: 100000, ri: 100000, sisa: 0 },
-      { name: 'KELUARGA - PEMBANTU', ra: 400000, ri: 400000, sisa: 0 },
-      { name: 'KELUARGA - RUMAH', ra: 250000, ri: 150000, sisa: 0 },
-      { name: 'KELUARGA - BELANJA', ra: 800000, ri: 0, sisa: 800000 },
+      { name: 'KAS USAHA - OPERASIONAL', ra: rabOpJan, ri: riOpJan, sisa: Math.max(0, rabOpJan - riOpJan) },
+      { name: 'KAS KELUARGA', ra: rabKelJan, ri: riKelJan, sisa: Math.max(0, rabKelJan - riKelJan) },
     ]
 
     const startPeng = r
@@ -713,12 +725,28 @@ export async function exportExcel(args: {
     ;['D', 'E', 'R', 'S'].forEach((l) => (ws.getCell(`${l}10`).numFmt = fmt))
     styleRow(ws, 10, 20, { bold: true, fill: 'EFF6FF' })
 
+    const mtCf = monthlyTotals(args.txs, args.year)
+    const ytxCf = yearTransactions(args.txs, args.year)
+    const convIn12 = Array.from({ length: 12 }, (_, m) =>
+      ytxCf
+        .filter((t) => Number(t.tanggal.slice(5, 7)) === m + 1 && isAssetConversion(t))
+        .reduce((sum, t) => sum + Math.max(0, t.penerimaan), 0)
+    )
+    const opExp12 = Array.from({ length: 12 }, (_, m) =>
+      ytxCf
+        .filter((t) => t.ledger === 'operasional' && Number(t.tanggal.slice(5, 7)) === m + 1 && isBudgetRealization(t))
+        .reduce((sum, t) => sum + Math.max(0, t.pengeluaran), 0)
+    )
+    const kelExp12 = Array.from({ length: 12 }, (_, m) =>
+      ytxCf
+        .filter((t) => t.ledger === 'keluarga' && Number(t.tanggal.slice(5, 7)) === m + 1 && isBudgetRealization(t))
+        .reduce((sum, t) => sum + Math.max(0, t.pengeluaran), 0)
+    )
+    const rabOp12 = rabMonthlyTotals(args.rabAnggy)
+    const rabKel12 = rabMonthlyTotals(args.rabKeluarga)
     const cfIncomes = [
-      { name: 'SALARY BULANAN', val12: Array(12).fill(6000000) },
-      { name: 'PENDAPATAN - USAHA', val12: Array(12).fill(1000000) },
-      { name: 'ASET - PIUTANG', val12: [500000, 500000, 500000, 500000, 0, 0, 0, 0, 0, 0, 0, 0] },
-      { name: 'PENJUALAN - ASET', val12: [3800000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-      { name: 'PENDAPATAN LAIN', val12: [-20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      { name: 'PENDAPATAN (di luar transfer & pelunasan)', val12: mtCf.income },
+      { name: 'PELUNASAN PIUTANG DITERIMA', val12: convIn12 },
     ]
 
     cfIncomes.forEach((inc, idx) => {
@@ -738,7 +766,6 @@ export async function exportExcel(args: {
       ;['E', 'R', 'S'].forEach((l) => (ws.getCell(`${l}${rowNum}`).numFmt = fmt))
       styleRow(ws, rowNum, 20)
     })
-
     // II. PENGELUARAN
     const pRow = 17
     ws.getCell(`B${pRow}`).value = 'II'
@@ -747,15 +774,8 @@ export async function exportExcel(args: {
     styleRow(ws, pRow, 20, { bold: true, fill: 'FEF3C7' })
 
     const cfExpenses = [
-      { name: 'ANGGY OPS - OPERASIONAL', monthly: 400000 },
-      { name: 'ANGGY OPS - ORANG TUA', monthly: 200000 },
-      { name: 'ANGGY OPS - BELANJA', monthly: 400000 },
-      { name: 'ANGGY OPS - RELX / ROKOK', monthly: 400000 },
-      { name: 'ANGGY KELUARGA - NAFKAH', monthly: 1500000 },
-      { name: 'ANGGY KELUARGA - BELANJA BULANAN', monthly: 300000 },
-      { name: 'ANGGY KELUARGA - ANAK (SPP/LES/NGAJI)', monthly: 350000 },
-      { name: 'ANGGY KELUARGA - PEMBANTU', monthly: 400000 },
-      { name: 'ANGGY KELUARGA - RUMAH (LISTRIK)', monthly: 100000 },
+      { name: 'KAS USAHA - REALISASI', val12: opExp12, ra: rabOp12.reduce((a, b) => a + b, 0) },
+      { name: 'KAS KELUARGA - REALISASI', val12: kelExp12, ra: rabKel12.reduce((a, b) => a + b, 0) },
     ]
 
     let expR = pRow + 1
@@ -763,10 +783,10 @@ export async function exportExcel(args: {
     cfExpenses.forEach((exp, idx) => {
       ws.getCell(`B${expR}`).value = idx + 1
       ws.getCell(`C${expR}`).value = exp.name
-      ws.getCell(`E${expR}`).value = exp.monthly * 12
+      ws.getCell(`E${expR}`).value = exp.ra
       for (let m = 0; m < 12; m++) {
         const colLetter = String.fromCharCode(70 + m)
-        ws.getCell(`${colLetter}${expR}`).value = exp.monthly
+        ws.getCell(`${colLetter}${expR}`).value = exp.val12[m] || 0
         ws.getCell(`${colLetter}${expR}`).numFmt = fmt
       }
       ws.getCell(`R${expR}`).value = { formula: `SUM(F${expR}:Q${expR})` } as never
@@ -892,7 +912,7 @@ export async function exportExcel(args: {
     kend.forEach((d, i) => {
       ws.getCell(`B${r}`).value = i + 1
       ws.getCell(`C${r}`).value = safeStr(d.nama)
-      ws.getCell(`D${r}`).value = new Date(d.tgl)
+      ws.getCell(`D${r}`).value = safeDate(d.tgl)
       ws.getCell(`D${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`E${r}`).value = d.nilai
       ws.getCell(`E${r}`).numFmt = fmt
@@ -900,7 +920,9 @@ export async function exportExcel(args: {
       ws.getCell(`G${r}`).value = 'bln'
       ws.getCell(`H${r}`).value = { formula: `E${r}/F${r}` } as never
       ws.getCell(`H${r}`).numFmt = fmt
-      ws.getCell(`I${r}`).value = Math.max(0, Math.min(d.umur, (args.year - new Date(d.tgl).getFullYear()) * 12 + (11 - new Date(d.tgl).getMonth())))
+      const dDate = new Date(d.tgl)
+      const elapsed = isNaN(dDate.getTime()) ? 0 : (args.year - dDate.getFullYear()) * 12 + (11 - dDate.getMonth())
+      ws.getCell(`I${r}`).value = Math.max(0, Math.min(d.umur, elapsed))
       ws.getCell(`J${r}`).value = { formula: `F${r}-I${r}` } as never
       ws.getCell(`K${r}`).value = { formula: `H${r}*I${r}` } as never
       ws.getCell(`L${r}`).value = { formula: `IF(E${r}-K${r}>0,E${r}-K${r},0)` } as never
@@ -957,13 +979,15 @@ export async function exportExcel(args: {
     gad.forEach((d, i) => {
       ws.getCell(`B${r}`).value = i + 1
       ws.getCell(`C${r}`).value = safeStr(d.nama)
-      ws.getCell(`D${r}`).value = new Date(d.tgl)
+      ws.getCell(`D${r}`).value = safeDate(d.tgl)
       ws.getCell(`D${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`E${r}`).value = d.nilai
       ws.getCell(`F${r}`).value = d.umur
       ws.getCell(`G${r}`).value = 'bln'
       ws.getCell(`H${r}`).value = { formula: `E${r}/F${r}` } as never
-      ws.getCell(`I${r}`).value = Math.max(0, Math.min(d.umur, (args.year - new Date(d.tgl).getFullYear()) * 12 + (11 - new Date(d.tgl).getMonth())))
+      const dDate = new Date(d.tgl)
+      const elapsed = isNaN(dDate.getTime()) ? 0 : (args.year - dDate.getFullYear()) * 12 + (11 - dDate.getMonth())
+      ws.getCell(`I${r}`).value = Math.max(0, Math.min(d.umur, elapsed))
       ws.getCell(`J${r}`).value = { formula: `F${r}-I${r}` } as never
       ws.getCell(`K${r}`).value = { formula: `H${r}*I${r}` } as never
       ws.getCell(`L${r}`).value = { formula: `IF(E${r}-K${r}>0,E${r}-K${r},0)` } as never
@@ -1134,7 +1158,7 @@ export async function exportExcel(args: {
     args.piutangs.forEach((p, i) => {
       saldo += p.terbit - p.lunas
       ws.getCell(`B${r}`).value = i + 1
-      ws.getCell(`C${r}`).value = new Date(p.tgl)
+      ws.getCell(`C${r}`).value = safeDate(p.tgl)
       ws.getCell(`C${r}`).numFmt = 'dd-mmm-yyyy'
       ws.getCell(`D${r}`).value = safeStr(p.nsb)
       ws.getCell(`E${r}`).value = safeStr(p.uraian)
@@ -1233,18 +1257,16 @@ export async function exportExcel(args: {
       ws.getCell(`D${r}`).value = 1
       ws.getCell(`E${r}`).value = safeStr(a.nama)
       ws.getCell(`F${r}`).value = safeStr(a.atasNama)
-      ws.getCell(`H${r}`).value = new Date(a.tgl)
+      ws.getCell(`H${r}`).value = safeDate(a.tgl)
       ws.getCell(`H${r}`).numFmt = 'dd-mmm-yyyy'
-      ws.getCell(`I${r}`).value = a.nilai
-      ws.getCell(`J${r}`).value = a.dp
-      ws.getCell(`K${r}`).value = { formula: `I${r}-J${r}` } as never
-      ws.getCell(`L${r}`).value = a.tenor
       ws.getCell(`M${r}`).value = a.bunga
       ws.getCell(`M${r}`).numFmt = '0.00%'
-      ws.getCell(`N${r}`).value = { formula: `(K${r}*M${r})*10` } as never
+      const debt = assetDebt(a, `${args.year}-12-31`)
+      const totalInterest = Math.max(0, debt.monthlyPayment * Math.max(1, Number(a.tenor) || 1) - debt.principal)
+      ws.getCell(`N${r}`).value = Math.round(totalInterest)
       ws.getCell(`O${r}`).value = { formula: `K${r}+N${r}` } as never
-      ws.getCell(`P${r}`).value = { formula: `O${r}/L${r}` } as never
-      ws.getCell(`Q${r}`).value = assetDebt(a, `${args.year}-12-31`).paidMonths
+      ws.getCell(`P${r}`).value = Math.round(debt.monthlyPayment)
+      ws.getCell(`Q${r}`).value = debt.paidMonths
       ws.getCell(`R${r}`).value = { formula: `P${r}*Q${r}` } as never
       ws.getCell(`S${r}`).value = { formula: `O${r}-R${r}` } as never
       ws.getCell(`T${r}`).value = { formula: `J${r}+O${r}` } as never
@@ -1325,13 +1347,13 @@ export async function exportExcel(args: {
     })
 
     // Rows
-    const saldoMaster = args.txs.filter((t) => t.ledger === 'master').reduce((a, t) => a + t.penerimaan - t.pengeluaran, 0)
-    const saldoOps = args.txs.filter((t) => t.ledger === 'operasional').reduce((a, t) => a + t.penerimaan - t.pengeluaran, 0)
-    const saldoKel = args.txs.filter((t) => t.ledger === 'keluarga').reduce((a, t) => a + t.penerimaan - t.pengeluaran, 0)
-    const totalPiutang = args.piutangs.reduce((a, p) => a + p.terbit - p.lunas, 0)
-    const totalAsetPasar = args.assets.reduce((a, x) => a + x.nilaiPasar, 0) + args.deps.reduce((a, d) => a + d.nilaiTaksir, 0)
+    const asOf = `${args.year}-12-31`
+    const saldoMaster = closingBalance(args.txs, 'master', args.year, args.saldoAwal)
+    const saldoOps = closingBalance(args.txs, 'operasional', args.year)
+    const saldoKel = closingBalance(args.txs, 'keluarga', args.year)
+    const totalPiutang = Math.max(0, args.piutangs.reduce((a, p) => a + (Number(p.terbit) || 0) - (Number(p.lunas) || 0), 0))
+    const totalAsetPasar = args.assets.reduce((a, x) => a + (Number(x.nilaiPasar) || Number(x.nilai) || 0), 0) + args.deps.reduce((a, d) => a + straightLineValue(d, asOf).bookValue, 0)
     const totalAktiva = saldoMaster + saldoOps + saldoKel + totalPiutang + totalAsetPasar
-
     // Row 7: Kas
     ws.getCell('B7').value = 'I'
     ws.getCell('C7').value = 'KAS & SETARA KAS'
@@ -1344,9 +1366,8 @@ export async function exportExcel(args: {
     ws.getCell('J7').value = 'I'
     ws.getCell('K7').value = 'KEWAJIBAN PRIMER & CADANGAN'
     ws.getCell('K7').font = { bold: true }
-    const cadangan = 4 * (args.rabAnggy.reduce((a, r) => a + r.months[0], 0) + args.rabKeluarga.reduce((a, r) => a + r.months[0], 0))
+    const cadangan = 0
     ws.getCell('O7').value = cadangan
-    ws.getCell('O7').numFmt = fmt
     ws.getCell('P7').value = { formula: `O7/$O$16` } as never
     ws.getCell('P7').numFmt = '0.00%'
     styleRow(ws, 7, 16, { bold: true, fill: 'EFF6FF' })

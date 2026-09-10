@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Plus, Trash2, HandCoins, CheckCircle2, Clock } from 'lucide-react'
-import { useMemo } from 'react'
 import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
@@ -8,6 +7,7 @@ import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { EmptyState } from '../common/EmptyState'
 import { PelunasanModal } from '../modals/PelunasanModal'
 import type { State, PiutangRow } from '../../store'
 import { outstandingPiutang } from '../../finance'
@@ -71,7 +71,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Piutang — Uang Dipinjamkan</h3>
-            <p className="text-xs font-medium text-slate-500">Catat siapa yang pinjam, berapa, dan sudah dibayar berapa</p>
+            <p className="text-xs font-medium text-slate-500">Mencatat pinjaman mengurangi Kas Utama; pelunasan menambah Kas Utama dan tidak dihitung sebagai pendapatan.</p>
           </div>
           <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={14} /> Catat Pinjaman Baru
@@ -79,122 +79,138 @@ export function PiutangView({ store: s }: PiutangViewProps) {
         </div>
       </Card>
 
-      {/* Mobile Card List (< 768px) */}
-      <div className="block md:hidden space-y-3">
-        {s.piutangs.map((p) => {
-          const sisa = Math.max(0, p.terbit - p.lunas)
-          const isLunas = sisa === 0 && p.terbit > 0
-          return (
-            <Card key={p.id} className="p-4 border-slate-200/80 bg-white">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={isLunas ? 'success' : sisa < p.terbit ? 'warning' : 'danger'}>
-                      {isLunas ? 'Lunas' : sisa < p.terbit ? 'Sebagian' : 'Belum Lunas'}
-                    </Badge>
-                    <span className="text-[11px] text-slate-500 font-semibold">{p.tgl}</span>
-                  </div>
-                  <h4 className="mt-1 text-sm font-black text-slate-900">{p.nsb}</h4>
-                  <p className="text-xs text-slate-700 font-medium mt-0.5">{p.uraian}</p>
-                </div>
-
-                <button
-                  onClick={() => setDeleteTargetId(p.id)}
-                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
-                  title="Hapus Piutang"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-slate-500 font-medium text-[11px] block">Dipinjamkan</span>
-                  <span className="font-semibold text-slate-900 num">Rp {formatRibuan(p.terbit)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 font-medium text-[11px] block">Sisa Belum Kembali</span>
-                  <span className={`font-bold text-sm num ${isLunas ? 'text-emerald-700' : 'text-rose-600'}`}>Rp {formatRibuan(sisa)}</span>
-                </div>
-              </div>
-
-              {!isLunas && (
-                <div className="mt-3 pt-2.5 border-t border-slate-100">
-                  <button onClick={() => setPelunasanTarget(p)} className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                    <HandCoins size={14} /> Catat Pembayaran Kembali
-                  </button>
-                </div>
-              )}
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Desktop Table View (>= 768px) */}
-      <Card className="hidden md:block overflow-hidden border border-slate-200/80">
-        <div className="overflow-x-auto scrollbar-thin">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
-                <th className="px-4 py-3">Tanggal</th>
-                <th className="px-4 py-3">Nama Peminjam</th>
-                <th className="px-4 py-3">Keperluan</th>
-                <th className="px-4 py-3 text-right">Dipinjamkan</th>
-                <th className="px-4 py-3 text-right">Sudah Kembali</th>
-                <th className="px-4 py-3 text-right">Sisa Belum Kembali</th>
-                <th className="px-4 py-3 text-center">Status</th>
-                <th className="px-4 py-3 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {s.piutangs.map((p) => {
-                const sisa = Math.max(0, p.terbit - p.lunas)
-                const isLunas = sisa === 0 && p.terbit > 0
-                return (
-                  <tr key={p.id} className="hover:bg-[#f4f9f6]/60 transition">
-                    <td className="px-4 py-3 font-semibold text-slate-600">{p.tgl}</td>
-                    <td className="px-4 py-3 font-bold text-slate-900">{p.nsb}</td>
-                    <td className="px-4 py-3 font-medium text-slate-700">{p.uraian}</td>
-                    <td className="px-4 py-3 text-right font-bold text-slate-800 num">
-                      {p.terbit > 0 ? `Rp ${formatRibuan(p.terbit)}` : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right font-bold text-emerald-700 num">
-                      {p.lunas > 0 ? `Rp ${formatRibuan(p.lunas)}` : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right font-black text-rose-700 num bg-rose-50/20">
-                      Rp {formatRibuan(sisa)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <Badge variant={isLunas ? 'success' : sisa < p.terbit ? 'warning' : 'danger'}>
-                        {isLunas ? 'Lunas' : sisa < p.terbit ? 'Sebagian' : 'Belum Lunas'}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {!isLunas && (
-                          <button
-                            onClick={() => setPelunasanTarget(p)}
-                            className="px-2.5 py-1 bg-[#eaf5ee] hover:bg-[#d8eedf] text-[#1c543c] border border-[#c6e3d0] rounded-xl font-bold text-[11px] transition"
-                            title="Catat Pelunasan"
-                          >
-                            Bayar
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setDeleteTargetId(p.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+      {s.piutangs.length === 0 ? (
+        <EmptyState
+          icon={<HandCoins size={24} />}
+          title="Belum Ada Catatan Piutang"
+          description="Catatan peminjaman uang ke pihak lain atau pengembalian pinjaman akan muncul di sini."
+          actionLabel="Catat Pinjaman Baru"
+          onAction={() => setIsAdding(true)}
+        />
+      ) : (
+        <>
+          {/* Mobile Card List (< 768px) */}
+          <div className="block md:hidden space-y-3">
+            {s.piutangs.map((p) => {
+              const isRepayment = p.terbit === 0 && p.lunas > 0
+              const sisa = isRepayment ? 0 : Math.max(0, p.terbit - p.lunas)
+              const isLunas = !isRepayment && sisa === 0 && p.terbit > 0
+              return (
+                <Card key={p.id} className="p-4 border-slate-200/80 bg-white">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={isRepayment ? 'success' : isLunas ? 'success' : sisa < p.terbit ? 'warning' : 'danger'}>
+                          {isRepayment ? 'Pelunasan' : isLunas ? 'Lunas' : sisa < p.terbit ? 'Sebagian' : 'Belum Lunas'}
+                        </Badge>
+                        <span className="text-[11px] text-slate-500 font-semibold">{p.tgl}</span>
                       </div>
-                    </td>
+                      <h4 className="mt-1 text-sm font-black text-slate-900">{p.nsb}</h4>
+                      <p className="text-xs text-slate-700 font-medium mt-0.5">{p.uraian}</p>
+                    </div>
+
+                    <button
+                      onClick={() => setDeleteTargetId(p.id)}
+                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                      title="Hapus Piutang"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">{isRepayment ? 'Pelunasan Diterima' : 'Dipinjamkan'}</span>
+                      <span className="font-semibold text-slate-900 num">Rp {formatRibuan(isRepayment ? p.lunas : p.terbit)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium text-[11px] block">{isRepayment ? 'Status' : 'Sisa Belum Kembali'}</span>
+                      <span className={`font-bold text-sm num ${isRepayment || isLunas ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        {isRepayment ? 'Tercatat' : `Rp ${formatRibuan(sisa)}`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {!isRepayment && !isLunas && (
+                    <div className="mt-3 pt-2.5 border-t border-slate-100">
+                      <button onClick={() => setPelunasanTarget(p)} className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <HandCoins size={14} /> Catat Pembayaran Kembali
+                      </button>
+                    </div>
+                  )}
+                </Card>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table View (>= 768px) */}
+          <Card className="hidden md:block overflow-hidden border border-slate-200/80">
+            <div className="overflow-x-auto scrollbar-thin">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px] uppercase tracking-wider">
+                    <th className="px-4 py-3">Tanggal</th>
+                    <th className="px-4 py-3">Nama Peminjam</th>
+                    <th className="px-4 py-3">Keperluan</th>
+                    <th className="px-4 py-3 text-right">Dipinjamkan</th>
+                    <th className="px-4 py-3 text-right">Sudah Kembali</th>
+                    <th className="px-4 py-3 text-right">Sisa Belum Kembali</th>
+                    <th className="px-4 py-3 text-center">Status</th>
+                    <th className="px-4 py-3 text-center">Aksi</th>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {s.piutangs.map((p) => {
+                    const isRepayment = p.terbit === 0 && p.lunas > 0
+                    const sisa = isRepayment ? 0 : Math.max(0, p.terbit - p.lunas)
+                    const isLunas = !isRepayment && sisa === 0 && p.terbit > 0
+                    return (
+                      <tr key={p.id} className="hover:bg-[#f4f9f6]/60 transition">
+                        <td className="px-4 py-3 font-semibold text-slate-600">{p.tgl}</td>
+                        <td className="px-4 py-3 font-bold text-slate-900">{p.nsb}</td>
+                        <td className="px-4 py-3 font-medium text-slate-700">{p.uraian}</td>
+                        <td className="px-4 py-3 text-right font-bold text-slate-800 num">
+                          {p.terbit > 0 ? `Rp ${formatRibuan(p.terbit)}` : '—'}
+                        </td>
+                        <td className="px-4 py-3 text-right font-bold text-emerald-700 num">
+                          {p.lunas > 0 ? `Rp ${formatRibuan(p.lunas)}` : '—'}
+                        </td>
+                        <td className="px-4 py-3 text-right font-black text-rose-700 num bg-rose-50/20">
+                          {isRepayment ? '—' : `Rp ${formatRibuan(sisa)}`}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <Badge variant={isRepayment ? 'success' : isLunas ? 'success' : sisa < p.terbit ? 'warning' : 'danger'}>
+                            {isRepayment ? 'Pelunasan' : isLunas ? 'Lunas' : sisa < p.terbit ? 'Sebagian' : 'Belum Lunas'}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {!isRepayment && !isLunas && (
+                              <button
+                                onClick={() => setPelunasanTarget(p)}
+                                className="px-2.5 py-1 bg-[#eaf5ee] hover:bg-[#d8eedf] text-[#1c543c] border border-[#c6e3d0] rounded-xl font-bold text-[11px] transition"
+                                title="Catat Pelunasan"
+                              >
+                                Bayar
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setDeleteTargetId(p.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
 
       <PelunasanModal
         open={Boolean(pelunasanTarget)}

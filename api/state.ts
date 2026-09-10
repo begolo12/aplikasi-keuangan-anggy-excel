@@ -152,7 +152,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } | null
 
       return res.status(200).json({
-        schemaVersion: 2,
+        schemaVersion: 3,
+        updatedAt: currentSetting?.updatedAt ? currentSetting.updatedAt.toISOString() : null,
         year: currentSetting?.year ?? 2026,
         saldoAwal: Number(currentSetting?.saldoAwal ?? 0),
         customNsbList: Array.isArray(master?.customNsbList) ? master.customNsbList : [],
@@ -185,9 +186,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       const rawLen = Number(req.headers['content-length'] || 0)
       if (rawLen > 2_000_000) return res.status(413).json({ error: 'Payload terlalu besar' })
-
-      // validate arrays before destructive delete
-      if (body.txs !== undefined && !Array.isArray(body.txs)) return res.status(400).json({ error: 'txs harus array' })
+      // Tolak PUT parsial: semua kunci array wajib ada agar tak terjadi wipe tak sengaja.
+      const requiredArrays = ['txs', 'rabAnggy', 'rabKeluarga', 'piutangs', 'assets', 'deps', 'scheds'] as const
+      for (const k of requiredArrays) {
+        if (!Array.isArray((body as Record<string, unknown>)[k])) return res.status(400).json({ error: `${k} harus array` })
+      }
       if (body.year !== undefined && (!Number.isFinite(Number(body.year)) || Number(body.year) < 2000 || Number(body.year) > 2100)) return res.status(400).json({ error: 'year tidak valid' })
       if (body.saldoAwal !== undefined && (!Number.isFinite(Number(body.saldoAwal)) || Number(body.saldoAwal) < 0 || Number(body.saldoAwal) > 1e15)) return res.status(400).json({ error: 'saldoAwal tidak valid' })
 
@@ -300,6 +303,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const saldoAwal = String(clampNum(body.saldoAwal))
       const demoMode = Boolean(body.demoMode)
 
+      // Optimistic concurrency: tolak tulis di atas revisi basi.
+      const baseRev = typeof (body as Record<string, unknown>).baseRev === 'string' ? String((body as Record<string, unknown>).baseRev) : null
+      const current = await db.select().from(settings).where(eq(settings.workspaceId, workspaceId)).limit(1)
+      const currentRev = current[0]?.updatedAt ? current[0].updatedAt.toISOString() : null
+      if (baseRev && currentRev && baseRev !== currentRev) {
+        return res.status(409).json({ error: 'Data di server lebih baru. Muat ulang dulu.', updatedAt: currentRev })
+      }
+
       const statements: BatchItem<'pg'>[] = [
         db.delete(transactions).where(eq(transactions.workspaceId, workspaceId)),
         db.delete(rabRows).where(eq(rabRows.workspaceId, workspaceId)),
@@ -321,8 +332,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         })
       )
       await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]])
+      const fresh = await db.select().from(settings).where(eq(settings.workspaceId, workspaceId)).limit(1)
 
-      return res.status(200).json({ ok: true })
+      return res.status(200).json({ ok: true, updatedAt: fresh[0]?.updatedAt ? fresh[0].updatedAt.toISOString() : currentRev })
     } catch (err) {
       console.error('Save state error:', err)
       return res.status(500).json({ error: 'Gagal menyimpan data ke server' })

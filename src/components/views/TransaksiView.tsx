@@ -17,7 +17,7 @@ import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import type { State, Tx, Ledger } from '../../store'
-import { ledgerBalance, runningBalancesForYear, yearTransactions } from '../../finance'
+import { closingBalance, runningBalancesForYear, yearTransactions } from '../../finance'
 
 interface TransaksiViewProps {
   store: State
@@ -60,9 +60,9 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
     return [...list].sort((a, b) => b.tanggal.localeCompare(a.tanggal))
   }, [txCurrentYear, selectedLedger, search])
 
-  const balMaster = ledgerBalance(txCurrentYear, 'master', s.saldoAwal)
-  const balOperasional = ledgerBalance(txCurrentYear, 'operasional', 0)
-  const balKeluarga = ledgerBalance(txCurrentYear, 'keluarga', 0)
+  const balMaster = closingBalance(s.txs, 'master', s.year, s.saldoAwal)
+  const balOperasional = closingBalance(s.txs, 'operasional', s.year)
+  const balKeluarga = closingBalance(s.txs, 'keluarga', s.year)
 
   const nsbSuggestions = useMemo(() => {
     const fromTx = s.txs.map((t) => t.nsb)
