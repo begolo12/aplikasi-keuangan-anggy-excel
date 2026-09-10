@@ -6,7 +6,7 @@ import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan, kasLabel } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { EmptyState } from '../common/EmptyState'
-import { useModalA11y } from '../../lib/useModalA11y'
+import { Modal } from '../common/Modal'
 import type { State, RabRow } from '../../store'
 
 interface RabViewProps {
@@ -31,7 +31,6 @@ export function RabView({ store: s }: RabViewProps) {
   const buildMonths = (hs: number, vol: number, start: number, n: number): number[] =>
     Array.from({ length: 12 }, (_, i) => (i >= start && i < start + n ? hs * vol : 0))
 
-  const addDialogRef = useModalA11y(isAdding, () => setIsAdding(false))
   const [newRow, setNewRow] = useState<Omit<RabRow, 'id'>>({
     group: 'RUTIN',
     uraian: '',
@@ -257,11 +256,13 @@ export function RabView({ store: s }: RabViewProps) {
       <ConfirmDialog open={Boolean(deleteTargetId)} title="Hapus rencana" message="Hapus rencana anggaran ini?" confirmLabel="Ya, Hapus" onConfirm={() => { if (deleteTargetId) s.delRab(target, deleteTargetId); setDeleteTargetId(null) }} onCancel={() => setDeleteTargetId(null)} />
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="rab-add-title" ref={addDialogRef}>
-          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-sm" onClick={() => setIsAdding(false)} />
-          <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 id="rab-add-title" className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Tambah Rencana Anggaran — {rabKas(target)}</h3>
-            <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
+        <Modal
+          open
+          onClose={() => setIsAdding(false)}
+          size="lg"
+          title={`Tambah Rencana Anggaran — ${rabKas(target)}`}
+        >
+            <form onSubmit={handleAddSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Jenis Pengeluaran</label>
@@ -399,8 +400,7 @@ export function RabView({ store: s }: RabViewProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   )

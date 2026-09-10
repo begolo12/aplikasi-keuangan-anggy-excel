@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { X, ArrowRight, ArrowLeftRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { formatRibuan, kasLabel } from '../common/format'
 import { todayLocal } from '../../finance'
-import { useModalA11y } from '../../lib/useModalA11y'
+import { Modal } from '../common/Modal'
 
 interface TransferModalProps {
   open: boolean
@@ -27,8 +27,6 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
     }
   }, [open])
 
-  const dialogRef = useModalA11y(open, onClose)
-
   if (!open) return null
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,21 +42,14 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
   const isOverBalance = amount > maxMasterBalance
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="transfer-title" ref={dialogRef}>
-      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-accent-soft text-accent flex items-center justify-center">
-              <ArrowLeftRight size={16} />
-            </div>
-            <h3 id="transfer-title" className="font-medium text-base text-text tracking-tight">Pindah Saldo Antar Kas</h3>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-surface-sunken text-text-subtle transition"><X size={18} /></button>
-        </div>
-        <p className="mt-3 text-xs text-text-subtle">Pindahkan saldo dari {kasLabel('master', ledgerLabels)} ke {kasLabel('operasional', ledgerLabels)} atau {kasLabel('keluarga', ledgerLabels)} tanpa mengubah total kekayaan.</p>
-
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="md"
+      title="Pindah Saldo Antar Kas"
+      description={`Pindahkan saldo dari ${kasLabel('master', ledgerLabels)} ke ${kasLabel('operasional', ledgerLabels)} atau ${kasLabel('keluarga', ledgerLabels)} tanpa mengubah total kekayaan.`}
+    >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="p-3.5 bg-surface-sunken border border-border rounded-lg flex items-center justify-between">
             <span className="text-xs text-text-subtle">Sisa di {kasLabel('master', ledgerLabels)}:</span>
             <span className="font-semibold num text-sm text-accent">Rp {formatRibuan(maxMasterBalance)}</span>
@@ -147,7 +138,6 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }

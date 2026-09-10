@@ -17,7 +17,7 @@ import { formatRibuan, kasLabel } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import type { State, Tx, Ledger } from '../../store'
-import { useModalA11y } from '../../lib/useModalA11y'
+import { Modal } from '../common/Modal'
 import { closingBalance, runningBalancesForYear, yearTransactions } from '../../finance'
 
 interface TransaksiViewProps {
@@ -31,7 +31,6 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
   const [search, setSearch] = useState('')
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [editingTx, setEditingTx] = useState<Tx | null>(null)
-  const editDialogRef = useModalA11y(Boolean(editingTx), () => setEditingTx(null))
 
   const txCurrentYear = useMemo(() => yearTransactions(s.txs, s.year), [s.txs, s.year])
   
@@ -321,19 +320,21 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
       <ConfirmDialog open={Boolean(deleteTargetId)} title="Hapus Transaksi" message="Hapus transaksi ini? Sisa kas akan otomatis menyesuaikan." confirmLabel="Ya, Hapus" onConfirm={() => { if (deleteTargetId) s.delTx(deleteTargetId); setDeleteTargetId(null) }} onCancel={() => setDeleteTargetId(null)} />
 
       {editingTx && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="tx-edit-title">
-          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-sm" onClick={() => setEditingTx(null)} />
-          <div ref={editDialogRef} className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 id="tx-edit-title" className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Ubah Transaksi</h3>
-            <form onSubmit={handleUpdate} className="mt-4 space-y-4">
+        <Modal
+          open
+          onClose={() => setEditingTx(null)}
+          size="lg"
+          title="Ubah Transaksi"
+        >
+            <form onSubmit={handleUpdate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Tanggal</label>
-                  <input type="date" required value={editingTx.tanggal} onChange={(e) => setEditingTx({ ...editingTx, tanggal: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
+                  <input type="date" required value={editingTx.tanggal} onChange={(e) => setEditingTx({ ...editingTx, tanggal: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent transition" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Dompet Kas</label>
-                  <select value={editingTx.ledger} onChange={(e) => setEditingTx({ ...editingTx, ledger: e.target.value as Ledger })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+                  <select value={editingTx.ledger} onChange={(e) => setEditingTx({ ...editingTx, ledger: e.target.value as Ledger })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent transition">
                     <option value="master">{kasLabel('master', s.ledgerLabels)} — uang pusat</option>
                     <option value="operasional">{kasLabel('operasional', s.ledgerLabels)} — operasional</option>
                     <option value="keluarga">{kasLabel('keluarga', s.ledgerLabels)} — rumah tangga</option>
@@ -400,8 +401,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   )

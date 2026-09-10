@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useModalA11y } from '../../lib/useModalA11y'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -21,17 +21,9 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const cancelRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
-    }
-    window.addEventListener('keydown', onKey)
-    cancelRef.current?.focus()
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onCancel])
+  // Sebelumnya hanya Escape + fokus awal; Tab bisa keluar ke halaman di
+  // belakang overlay. Hook yang sama dengan dialog lain menutup celah itu.
+  const ref = useModalA11y(open, onCancel)
 
   if (!open) return null
 
@@ -41,6 +33,7 @@ export function ConfirmDialog({
       role="dialog"
       aria-modal="true"
       aria-label={title}
+      ref={ref}
     >
       <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onCancel} />
       <div className="relative bg-surface w-full max-w-md rounded-lg md-elevation-3 p-6 z-10 animate-scale">
@@ -48,7 +41,6 @@ export function ConfirmDialog({
         <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">{message}</p>
         <div className="mt-6 flex justify-end gap-2">
           <button
-            ref={cancelRef}
             onClick={onCancel}
             className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium text-accent hover:bg-accent-soft transition cursor-pointer"
           >

@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { X, PlusCircle } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { Autocomplete } from '../common/Autocomplete'
 import { todayLocal } from '../../finance'
 import { kasLabel } from '../common/format'
-import { useModalA11y } from '../../lib/useModalA11y'
+import { Modal } from '../common/Modal'
 import { useStore, type Ledger, type Tx } from '../../store'
 
 interface QuickTxModalProps {
@@ -50,8 +49,6 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
     }
   }, [open, defaultLedger])
 
-  const dialogRef = useModalA11y(open, onClose)
-
   if (!open) return null
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,23 +72,14 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="quicktx-title" ref={dialogRef}>
-      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} />
-      <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 p-6 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-3 border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-accent-soft text-accent flex items-center justify-center">
-              <PlusCircle size={18} />
-            </div>
-            <h3 id="quicktx-title" className="font-medium text-base text-text tracking-tight">Tambah Transaksi Baru</h3>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-surface-sunken text-text-subtle transition">
-            <X size={18} />
-          </button>
-        </div>
-        <p className="mt-3 text-xs text-text-subtle">Pilih dompet kas tujuan, lalu isi pihak terkait dan keperluannya.</p>
-
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="lg"
+      title="Tambah Transaksi Baru"
+      description="Pilih dompet kas tujuan, lalu isi pihak terkait dan keperluannya."
+    >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium text-text-muted block mb-1">Simpan di</label>
@@ -198,7 +186,6 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }

@@ -18,7 +18,7 @@ const sizes: Record<ModalSize, string> = {
   sm: 'max-w-sm',
   md: 'max-w-md',
   lg: 'max-w-lg',
-  xl: 'max-w-2xl',
+  xl: 'max-w-3xl',
 }
 
 /**
@@ -34,7 +34,7 @@ export function Modal({ open, onClose, title, description, size = 'lg', footer, 
 
   return (
     <div className="fixed inset-0 z-[75] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-      <div className="fixed inset-0" style={{ backgroundColor: 'var(--c-overlay)' }} onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         className={`relative w-full ${sizes[size]} bg-surface border border-border sm:rounded-lg rounded-t-lg max-h-[92vh] flex flex-col z-10 animate-scale md-elevation-3`}

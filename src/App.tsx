@@ -283,6 +283,7 @@ export default function App() {
         onClose={() => setYearModalOpen(false)}
         year={store.year}
         saldoAwal={store.saldoAwal}
+        ledgerLabels={store.ledgerLabels}
         onSave={(year, saldoAwal) => {
           store.setYear(year)
           store.setSaldoAwal(saldoAwal)

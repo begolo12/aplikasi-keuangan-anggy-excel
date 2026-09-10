@@ -8,7 +8,7 @@ import { formatRibuan } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { EmptyState } from '../common/EmptyState'
-import { useModalA11y } from '../../lib/useModalA11y'
+import { Modal } from '../common/Modal'
 import type { State, AssetRow } from '../../store'
 import { assetDebt } from '../../finance'
 
@@ -19,7 +19,6 @@ interface AssetViewProps {
 export function AssetView({ store: s }: AssetViewProps) {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
-  const addDialogRef = useModalA11y(isAdding, () => setIsAdding(false))
   const [newAsset, setNewAsset] = useState<Omit<AssetRow, 'id'>>({
     jenis: 'PROPERTY',
     nama: '',
@@ -266,13 +265,13 @@ export function AssetView({ store: s }: AssetViewProps) {
       />
 
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="asset-add-title">
-          <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-xs" onClick={() => setIsAdding(false)} />
-          <div ref={addDialogRef} className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 id="asset-add-title" className="font-black text-base sm:text-lg text-text tracking-tight pb-3 border-b border-border">
-              Tambah Aset Baru
-            </h3>
-            <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
+        <Modal
+          open
+          onClose={() => setIsAdding(false)}
+          size="lg"
+          title="Tambah Aset Baru"
+        >
+            <form onSubmit={handleAddSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-text-muted block mb-1">Jenis Aset</label>
@@ -402,8 +401,7 @@ export function AssetView({ store: s }: AssetViewProps) {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   )
