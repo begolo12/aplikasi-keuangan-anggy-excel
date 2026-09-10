@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect } from 'react'
+import { useState, useRef, useMemo, useEffect, useId } from 'react'
 import { Search, Plus, User } from 'lucide-react'
 
 interface AutocompleteProps {
@@ -7,7 +7,6 @@ interface AutocompleteProps {
   suggestions: string[]
   placeholder?: string
   required?: boolean
-  label?: string
   allowCreate?: boolean
   emptyHint?: string
 }
@@ -17,6 +16,10 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
   const [highlight, setHighlight] = useState(0)
   const wrapRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const uid = useId()
+  const listboxId = `${uid}-listbox`
+  const hintId = `${uid}-hint`
+  const optionId = (i: number) => `${listboxId}-opt-${i}`
 
   const norm = (s: string) => s.trim().toUpperCase()
 
@@ -71,7 +74,17 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
           aria-haspopup="listbox"
           aria-autocomplete="list"
           role="combobox"
-          aria-controls="autocomplete-listbox"
+          aria-controls={listboxId}
+          aria-describedby={hintId}
+          aria-activedescendant={
+            showDropdown
+              ? highlight < filtered.length
+                ? optionId(highlight)
+                : canCreate
+                  ? optionId(filtered.length)
+                  : undefined
+              : undefined
+          }
           onKeyDown={(e) => {
             if (!showDropdown) return
             const total = filtered.length + (canCreate ? 1 : 0)
@@ -104,12 +117,13 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
       </div>
 
       {showDropdown && (
-        <div role="listbox" className="absolute z-20 mt-1.5 w-full bg-surface rounded-lg md-elevation-2 border border-border overflow-hidden max-h-56 overflow-y-auto p-1">
+        <div role="listbox" id={listboxId} className="absolute z-20 mt-1.5 w-full bg-surface rounded-lg md-elevation-2 border border-border overflow-hidden max-h-56 overflow-y-auto p-1">
           {filtered.map((s, idx) => (
             <button
               key={s}
               type="button"
               role="option"
+              id={optionId(idx)}
               aria-selected={idx === highlight}
               onMouseDown={(e) => { e.preventDefault(); select(s) }}
               className={`w-full text-left px-3.5 py-2.5 flex items-center gap-3 text-xs rounded-lg transition ${idx === highlight ? 'bg-accent-soft text-text font-medium' : 'hover:bg-surface-sunken text-text'}`}
@@ -122,6 +136,9 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
           {canCreate && (
             <button
               type="button"
+              role="option"
+              id={optionId(filtered.length)}
+              aria-selected={highlight === filtered.length}
               onMouseDown={(e) => { e.preventDefault(); select(value) }}
               className={`w-full text-left px-3.5 py-2.5 flex items-center gap-2 text-xs rounded-lg border-t border-border transition ${highlight === filtered.length ? 'bg-positive text-on-fill font-medium' : 'bg-positive-soft hover:bg-positive-soft text-positive'}`}
             >
@@ -134,7 +151,7 @@ export function Autocomplete({ value, onChange, suggestions, placeholder, requir
           )}
         </div>
       )}
-      <p className="mt-1 text-[11px] text-text-subtle">
+      <p id={hintId} className="mt-1 text-[11px] text-text-subtle">
         {exactMatch ? '✓ Nasabah terdaftar' : value.trim() ? '↳ Akan disimpan sebagai nasabah baru (huruf besar otomatis)' : 'Ketik untuk mencari atau menambah nasabah'}
       </p>
     </div>

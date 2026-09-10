@@ -51,7 +51,6 @@ export function BarChart({ data, height = 220 }: BarChartProps) {
         <svg
           viewBox={`0 0 600 ${height}`}
           className="w-full h-auto min-w-[480px]"
-          preserveAspectRatio="none"
           role="img"
           aria-label={`Grafik pemasukan dan pengeluaran per bulan. ${data.map((d) => `${d.month}: masuk ${d.income}, keluar ${d.expense}`).join('; ')}`}
         >
@@ -160,8 +159,20 @@ interface DonutChartProps {
   size?: number
 }
 
+/** ponytail: legend dibatasi 5 baris supaya tidak memanjang; sisanya digabung. */
+const MAX_SLICES = 5
+const OTHER_LABEL = 'Lainnya'
+const OTHER_COLOR = 'var(--c-text-subtle)'
+
 export function DonutChart({ data, size = 160 }: DonutChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0)
+
+  const labeled: CategoryDonutData[] = data.length > MAX_SLICES
+    ? [
+        ...data.slice(0, MAX_SLICES - 1),
+        { label: OTHER_LABEL, value: data.slice(MAX_SLICES - 1).reduce((s, d) => s + d.value, 0), color: OTHER_COLOR },
+      ]
+    : data
 
   if (total === 0) {
     return (
@@ -178,7 +189,7 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
 
   const slices: Array<CategoryDonutData & { fraction: number; pathData: string }> = []
   let runningAngle = 0
-  for (const d of data) {
+  for (const d of labeled) {
     const fraction = d.value / total
     const rawAngle = fraction * 360
     const angle = rawAngle >= 360 ? 359.99 : rawAngle
@@ -223,7 +234,7 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
 
       {/* Legenda ini yang jadi teks alternatif grafik; arc-nya sendiri dekoratif. */}
       <div className="flex-1 space-y-1.5 w-full">
-        {data.slice(0, 5).map((d, i) => (
+        {slices.map((d, i) => (
           <div key={i} className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 min-w-0">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
