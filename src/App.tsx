@@ -17,6 +17,7 @@ import { YearModal } from './components/modals/YearModal'
 import { ToastStack, type ToastItem } from './components/common/ToastStack'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { Skeleton, SkeletonRows } from './components/common/Skeleton'
+import { kasLabel } from './components/common/format'
 
 const DashboardView = lazy(() => import('./components/views/DashboardView').then((m) => ({ default: m.DashboardView })))
 const TransaksiView = lazy(() => import('./components/views/TransaksiView').then((m) => ({ default: m.TransaksiView })))
@@ -260,8 +261,8 @@ export default function App() {
         defaultLedger={defaultQuickTxLedger}
         onAddTx={(tx) => {
           store.addTx(tx)
-          const kasLabel = tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'
-          addToast(`Transaksi berhasil dicatat di ${kasLabel}`, 'success')
+          const kas = kasLabel(tx.ledger, store.ledgerLabels)
+          addToast(`Transaksi berhasil dicatat di ${kas}`, 'success')
         }}
       />
 
@@ -269,9 +270,10 @@ export default function App() {
         open={transferOpen}
         onClose={() => setTransferOpen(false)}
         maxMasterBalance={fullMasterBalance}
+        ledgerLabels={store.ledgerLabels}
         onTransfer={(to, amount, tanggal, uraian) => {
           store.transferDropping('master', to, amount, tanggal, uraian)
-          const tujuan = to === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'
+          const tujuan = kasLabel(to, store.ledgerLabels)
           addToast(`Pindah saldo Rp ${new Intl.NumberFormat('id-ID').format(amount)} ke ${tujuan} berhasil`, 'success')
         }}
       />

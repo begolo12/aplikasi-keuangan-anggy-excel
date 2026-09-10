@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { closingBalance, consolidatedExpense, consolidatedIncome, groupHeaderRefs, isAssetConversion, isTransfer, ledgerBalance, monthlyTotals, openingBalance, outstandingPiutang, rabMonthlyTotals, runningBalancesForYear, straightLineValue } from './finance.ts'
 import { assetSchema, depSchema, normalizeState, piutangSchema, rabSchema, schedSchema } from './store.ts'
+import { kasLabel } from './components/common/format.ts'
 import type { PiutangRow, RabRow, Tx } from './store.ts'
 
 const txs: Tx[] = [
@@ -95,5 +96,16 @@ const badAsset = assetSchema.safeParse({ jenis: 'GADGET', nama: 'HP', tgl: '2026
 assert.equal(badAsset.success, false)
 const badDep = depSchema.safeParse({ nama: 'HP', tgl: '2026-01-01', nilai: 100, umur: 0, nilaiTaksir: 0, kat: 'GADGET' })
 assert.equal(badDep.success, false)
+
+// Nama dompet: user boleh mengganti nama di Setelan, jadi setiap tempat yang
+// menyebut dompet harus lewat kasLabel — bukan literal. Label kosong atau
+// spasi jatuh ke bawaan supaya tidak pernah muncul nama kosong di layar.
+assert.equal(kasLabel('master'), 'Kas Utama')
+assert.equal(kasLabel('operasional'), 'Kas Usaha')
+assert.equal(kasLabel('keluarga'), 'Kas Keluarga')
+assert.equal(kasLabel('master', { master: 'Kas Saya' }), 'Kas Saya')
+assert.equal(kasLabel('master', { master: '   ' }), 'Kas Utama')
+assert.equal(kasLabel('operasional', { operasional: '' }), 'Kas Usaha')
+assert.equal(kasLabel('keluarga', { master: 'Kas Saya' }), 'Kas Keluarga')
 
 process.stdout.write('finance self-check passed\n')

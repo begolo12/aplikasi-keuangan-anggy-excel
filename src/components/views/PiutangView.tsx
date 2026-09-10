@@ -5,7 +5,7 @@ import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
 import { Button } from '../common/Button'
 import { RupiahInput } from '../common/RupiahInput'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { EmptyState } from '../common/EmptyState'
@@ -75,7 +75,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-text">Piutang — Uang Dipinjamkan</h3>
-            <p className="text-xs font-medium text-text-muted">Mencatat pinjaman mengurangi Kas Utama; pelunasan menambah Kas Utama dan tidak dihitung sebagai pendapatan.</p>
+            <p className="text-xs font-medium text-text-muted">Mencatat pinjaman mengurangi {kasLabel('master', s.ledgerLabels)}; pelunasan menambah {kasLabel('master', s.ledgerLabels)} dan tidak dihitung sebagai pendapatan.</p>
           </div>
           <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={14} /> Catat Pinjaman Baru

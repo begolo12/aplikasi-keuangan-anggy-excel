@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card } from '../common/Card'
 import { StatCard } from '../common/StatCard'
 import { Badge } from '../common/Badge'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import { Calculator, ArrowUpRight, TrendingUp, AlertTriangle } from 'lucide-react'
 import type { State } from '../../store'
 import { isBudgetRealization, rabMonthlyTotals, yearTransactions } from '../../finance'
@@ -75,14 +75,14 @@ export function RariView({ store: s }: RariViewProps) {
             </thead>
             <tbody className="divide-y divide-border">
               <tr className="hover:bg-surface-sunken transition">
-                <td className="px-4 py-3 font-medium text-text-muted">Kas Usaha</td>
+                <td className="px-4 py-3 font-medium text-text-muted">{kasLabel('operasional', s.ledgerLabels)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raOp)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riOp)}</td>
                 <td className={`px-4 py-3 text-right font-bold num ${devOp >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devOp)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devOp >= 0 ? 'success' : 'danger'}>{devOp >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
               <tr className="hover:bg-surface-sunken transition">
-                <td className="px-4 py-3 font-medium text-text-muted">Kas Keluarga</td>
+                <td className="px-4 py-3 font-medium text-text-muted">{kasLabel('keluarga', s.ledgerLabels)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raKel)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riKel)}</td>
                 <td className={`px-4 py-3 text-right font-bold num ${devKel >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devKel)}</td>

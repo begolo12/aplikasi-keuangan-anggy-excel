@@ -323,7 +323,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
         <Card className="p-6 max-w-2xl">
           <h3 className="text-base font-medium text-text mb-1">Tahun Buku & Saldo Awal</h3>
           <p className="text-xs text-text-subtle mb-5">
-            Atur tahun aktif dan saldo awal yang ada di Kas Utama pada tanggal 1 Januari tahun tersebut.
+            Atur tahun aktif dan saldo awal yang ada di {labels.master} pada tanggal 1 Januari tahun tersebut.
           </p>
 
           <form onSubmit={handleSavePeriode} className="space-y-4">
@@ -344,7 +344,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
 
             <div>
               <label className="text-xs font-medium text-text-muted block mb-1">
-                Saldo Awal Kas Utama (1 Jan {yearInput})
+                Saldo Awal {labels.master} (1 Jan {yearInput})
               </label>
               <RupiahInput
                 value={saldoAwalInput}

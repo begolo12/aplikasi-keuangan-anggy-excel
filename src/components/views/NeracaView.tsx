@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Card } from '../common/Card'
 import { Badge } from '../common/Badge'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import type { State } from '../../store'
 import { assetDebt, closingBalance, outstandingPiutang, straightLineValue, todayLocal } from '../../finance'
 
@@ -52,9 +52,9 @@ export function NeracaView({ store: s }: NeracaViewProps) {
             <div>
               <p className="eyebrow mb-2">Uang Tunai di 3 Kas</p>
               <div className="space-y-1.5 pl-2">
-                <div className="flex justify-between"><span className="font-medium text-text-muted">Kas Utama</span><span className="font-semibold num text-text">Rp {formatRibuan(kasMaster)}</span></div>
-                <div className="flex justify-between"><span className="font-medium text-text-muted">Kas Usaha</span><span className="font-semibold num text-text">Rp {formatRibuan(kasOperasional)}</span></div>
-                <div className="flex justify-between"><span className="font-medium text-text-muted">Kas Keluarga</span><span className="font-semibold num text-text">Rp {formatRibuan(kasKeluarga)}</span></div>
+                <div className="flex justify-between"><span className="font-medium text-text-muted">{kasLabel('master', s.ledgerLabels)}</span><span className="font-semibold num text-text">Rp {formatRibuan(kasMaster)}</span></div>
+                <div className="flex justify-between"><span className="font-medium text-text-muted">{kasLabel('operasional', s.ledgerLabels)}</span><span className="font-semibold num text-text">Rp {formatRibuan(kasOperasional)}</span></div>
+                <div className="flex justify-between"><span className="font-medium text-text-muted">{kasLabel('keluarga', s.ledgerLabels)}</span><span className="font-semibold num text-text">Rp {formatRibuan(kasKeluarga)}</span></div>
                 <div className="flex justify-between pt-2 border-t border-border font-semibold text-text"><span>Total Uang Tunai</span><span className="num">Rp {formatRibuan(totalKasLancar)}</span></div>
               </div>
             </div>

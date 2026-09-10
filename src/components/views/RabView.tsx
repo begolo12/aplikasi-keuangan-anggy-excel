@@ -3,7 +3,7 @@ import { Plus, Trash2, LayoutGrid, List } from 'lucide-react'
 import { Card } from '../common/Card'
 import { Button } from '../common/Button'
 import { RupiahInput } from '../common/RupiahInput'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { EmptyState } from '../common/EmptyState'
 import { useModalA11y } from '../../lib/useModalA11y'
@@ -48,6 +48,9 @@ export function RabView({ store: s }: RabViewProps) {
 
   const monthShorts = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']
 
+  /** RAB 'anggy' memakai dompet operasional, 'keluarga' memakai dompet keluarga. */
+  const rabKas = (t: 'anggy' | 'keluarga') => kasLabel(t === 'anggy' ? 'operasional' : 'keluarga', s.ledgerLabels)
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newRow.uraian.trim()) return
@@ -84,7 +87,7 @@ export function RabView({ store: s }: RabViewProps) {
                   : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
-              Kas Usaha
+              {rabKas('anggy')}
             </button>
             <button
               onClick={() => setTarget('keluarga')}
@@ -94,7 +97,7 @@ export function RabView({ store: s }: RabViewProps) {
                   : 'bg-surface-sunken text-text-muted hover:text-text'
               }`}
             >
-              Kas Keluarga
+              {rabKas('keluarga')}
             </button>
           </div>
 
@@ -131,7 +134,7 @@ export function RabView({ store: s }: RabViewProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-4">
-          <p className="eyebrow">Total Rencana — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</p>
+          <p className="eyebrow">Total Rencana — {rabKas(target)}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight num text-text">Rp {formatRibuan(grandTotal) || '0'}</p>
           <p className="text-xs font-medium text-text-muted mt-1">{currentRab.length} rencana pengeluaran</p>
         </Card>
@@ -141,11 +144,7 @@ export function RabView({ store: s }: RabViewProps) {
         <EmptyState
           icon={<Plus size={20} />}
           title="Belum ada pos anggaran"
-          description={
-            target === 'anggy'
-              ? 'Susun rencana pengeluaran Kas Usaha supaya realisasi bisa dibandingkan dengan rencana.'
-              : 'Susun rencana pengeluaran Kas Keluarga supaya realisasi bisa dibandingkan dengan rencana.'
-          }
+          description={`Susun rencana pengeluaran ${rabKas(target)} supaya realisasi bisa dibandingkan dengan rencana.`}
           actionLabel="Tambah Anggaran"
           onAction={() => setIsAdding(true)}
         />
@@ -261,7 +260,7 @@ export function RabView({ store: s }: RabViewProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="rab-add-title" ref={addDialogRef}>
           <div className="fixed inset-0 bg-[var(--c-overlay)] backdrop-blur-sm" onClick={() => setIsAdding(false)} />
           <div className="relative bg-surface w-full max-w-lg rounded-lg md-elevation-3 border border-border p-5 z-10 animate-scale max-h-[90vh] overflow-y-auto">
-            <h3 id="rab-add-title" className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Tambah Rencana Anggaran — {target === 'anggy' ? 'Kas Usaha' : 'Kas Keluarga'}</h3>
+            <h3 id="rab-add-title" className="font-bold text-base text-text tracking-tight pb-3 border-b border-border">Tambah Rencana Anggaran — {rabKas(target)}</h3>
             <form onSubmit={handleAddSubmit} className="mt-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>

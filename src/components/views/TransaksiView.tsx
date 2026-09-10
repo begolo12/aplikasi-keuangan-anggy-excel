@@ -13,7 +13,7 @@ import { Card } from '../common/Card'
 import { Badge } from '../common/Badge'
 import { EmptyState } from '../common/EmptyState'
 import { RupiahInput } from '../common/RupiahInput'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import { Autocomplete } from '../common/Autocomplete'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import type { State, Tx, Ledger } from '../../store'
@@ -192,7 +192,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                     </div>
                     <div>
                       <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'neutral'}>
-                        {tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}
+                        {kasLabel(tx.ledger, s.ledgerLabels)}
                       </Badge>
                       <span className="text-[11px] text-text-muted ml-2 font-medium">{tx.tanggal}</span>
                     </div>
@@ -277,7 +277,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                       <td className="px-4 py-3 font-medium text-text-muted whitespace-nowrap">{tx.tanggal}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <Badge variant={tx.ledger === 'master' ? 'brand' : tx.ledger === 'operasional' ? 'success' : 'neutral'}>
-                          {tx.ledger === 'master' ? 'Kas Utama' : tx.ledger === 'operasional' ? 'Kas Usaha' : 'Kas Keluarga'}
+                          {kasLabel(tx.ledger, s.ledgerLabels)}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 font-bold text-text whitespace-nowrap">{tx.nsb}</td>
@@ -334,9 +334,9 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Dompet Kas</label>
                   <select value={editingTx.ledger} onChange={(e) => setEditingTx({ ...editingTx, ledger: e.target.value as Ledger })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
-                    <option value="master">Kas Utama — uang pusat</option>
-                    <option value="operasional">Kas Usaha — operasional</option>
-                    <option value="keluarga">Kas Keluarga — rumah tangga</option>
+                    <option value="master">{kasLabel('master', s.ledgerLabels)} — uang pusat</option>
+                    <option value="operasional">{kasLabel('operasional', s.ledgerLabels)} — operasional</option>
+                    <option value="keluarga">{kasLabel('keluarga', s.ledgerLabels)} — rumah tangga</option>
                   </select>
                 </div>
               </div>

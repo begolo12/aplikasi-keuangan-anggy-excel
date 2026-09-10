@@ -3,6 +3,7 @@ import { X, PlusCircle } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
 import { Autocomplete } from '../common/Autocomplete'
 import { todayLocal } from '../../finance'
+import { kasLabel } from '../common/format'
 import { useModalA11y } from '../../lib/useModalA11y'
 import { useStore, type Ledger, type Tx } from '../../store'
 
@@ -99,11 +100,11 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 onChange={(e) => setLedger(e.target.value as Ledger)}
                 className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
               >
-                <option value="master">{store.ledgerLabels?.master || 'Kas Utama'} — uang masuk pertama</option>
-                <option value="operasional">{store.ledgerLabels?.operasional || 'Kas Usaha'} — untuk operasional</option>
-                <option value="keluarga">{store.ledgerLabels?.keluarga || 'Kas Keluarga'} — untuk rumah tangga</option>
+                <option value="master">{kasLabel('master', store.ledgerLabels)} — uang masuk pertama</option>
+                <option value="operasional">{kasLabel('operasional', store.ledgerLabels)} — untuk operasional</option>
+                <option value="keluarga">{kasLabel('keluarga', store.ledgerLabels)} — untuk rumah tangga</option>
               </select>
-              <p className="mt-1 text-[11px] text-text-subtle">Kas Utama = pusat, bisa dipindah ke Usaha/Keluarga</p>
+              <p className="mt-1 text-[11px] text-text-subtle">{kasLabel('master', store.ledgerLabels)} = pusat, bisa dipindah ke {kasLabel('operasional', store.ledgerLabels)}/{kasLabel('keluarga', store.ledgerLabels)}</p>
             </div>
             <div>
               <label className="text-xs font-medium text-text-muted block mb-1">Tanggal</label>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, ArrowRight, ArrowLeftRight } from 'lucide-react'
 import { RupiahInput } from '../common/RupiahInput'
-import { formatRibuan } from '../common/format'
+import { formatRibuan, kasLabel } from '../common/format'
 import { todayLocal } from '../../finance'
 import { useModalA11y } from '../../lib/useModalA11y'
 
@@ -10,9 +10,10 @@ interface TransferModalProps {
   onClose: () => void
   onTransfer: (to: 'operasional' | 'keluarga', amount: number, tanggal: string, uraian: string) => void
   maxMasterBalance: number
+  ledgerLabels?: Partial<Record<'master' | 'operasional' | 'keluarga', string>>
 }
 
-export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: TransferModalProps) {
+export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, ledgerLabels }: TransferModalProps) {
   const [to, setTo] = useState<'operasional' | 'keluarga'>('operasional')
   const [amount, setAmount] = useState(0)
   const [tanggal, setTanggal] = useState(() => todayLocal())
@@ -55,11 +56,11 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-surface-sunken text-text-subtle transition"><X size={18} /></button>
         </div>
-        <p className="mt-3 text-xs text-text-subtle">Pindahkan saldo dari Kas Utama ke Kas Usaha atau Kas Keluarga tanpa mengubah total kekayaan.</p>
+        <p className="mt-3 text-xs text-text-subtle">Pindahkan saldo dari {kasLabel('master', ledgerLabels)} ke {kasLabel('operasional', ledgerLabels)} atau {kasLabel('keluarga', ledgerLabels)} tanpa mengubah total kekayaan.</p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="p-3.5 bg-surface-sunken border border-border rounded-lg flex items-center justify-between">
-            <span className="text-xs text-text-subtle">Sisa di Kas Utama:</span>
+            <span className="text-xs text-text-subtle">Sisa di {kasLabel('master', ledgerLabels)}:</span>
             <span className="font-semibold num text-sm text-accent">Rp {formatRibuan(maxMasterBalance)}</span>
           </div>
 
@@ -75,7 +76,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                     : 'text-text-muted hover:text-text'
                 }`}
               >
-                Kas Usaha
+                {kasLabel('operasional', ledgerLabels)}
               </button>
               <button
                 type="button"
@@ -86,7 +87,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
                     : 'text-text-muted hover:text-text'
                 }`}
               >
-                Kas Keluarga
+                {kasLabel('keluarga', ledgerLabels)}
               </button>
             </div>
           </div>
@@ -116,7 +117,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance }: T
             </div>
           </div>
 
-          {isOverBalance && <p className="text-xs text-negative">Jumlah melebihi saldo di Kas Utama</p>}
+          {isOverBalance && <p className="text-xs text-negative">Jumlah melebihi saldo di {kasLabel('master', ledgerLabels)}</p>}
 
           <div>
             <label className="text-xs font-medium text-text-muted block mb-1">Catatan (opsional)</label>
