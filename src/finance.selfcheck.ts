@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { closingBalance, consolidatedExpense, consolidatedIncome, groupHeaderRefs, isAssetConversion, isTransfer, ledgerBalance, monthlyTotals, openingBalance, outstandingPiutang, rabMonthlyTotals, runningBalancesForYear, straightLineValue } from './finance.ts'
+import { assetSchema, depSchema, normalizeState, piutangSchema, rabSchema, schedSchema } from './store.ts'
 import type { PiutangRow, RabRow, Tx } from './store.ts'
 
 const txs: Tx[] = [
@@ -58,4 +59,41 @@ assert.deepEqual(straightLineValue({ id: 'd', nama: 'Laptop', tgl: '2025-01-01',
 assert.equal(groupHeaderRefs([7, 9, 12], 'H'), 'SUM(H7,H9,H12)')
 assert.equal(groupHeaderRefs([7], 'N'), 'SUM(N7)')
 assert.equal(groupHeaderRefs([], 'H'), '0')
+
+const goodRab = { id: 'r1', group: 'A', uraian: 'Sewa', sat: 'bln', vol: 1, hs: 100, w: [100, 0, 0, 0], months: [100, ...Array(11).fill(0)], total: 100 }
+const normalized = normalizeState({
+  rabAnggy: [goodRab, { ...goodRab, id: 'r2', hs: Number.NaN }],
+  scheds: [{ id: 's1', nama: 'Pajak', hs: 50, months: [50, ...Array(11).fill(0)], kat: 'pajak' }],
+  customNsbList: [],
+  customPosList: ['abc'],
+  ledgerLabels: { master: 'x'.repeat(80), operasional: '', keluarga: 'K' },
+  txs: [{ id: 't1', tanggal: '2026-01-01', nsb: 'A', pos: 'GAJI', uraian: 'g', penerimaan: 10, pengeluaran: 0, ledger: 'master' }],
+  __rogueKey: 'harus dibuang',
+} as never)
+
+// Baris dengan angka rusak dibuang, bukan dipaksa masuk sebagai NaN.
+assert.equal(normalized.rabAnggy.length, 1)
+assert.deepEqual(normalized.rabAnggy[0]?.months.slice(0, 2), [100, 0])
+// List kosong yang disengaja harus bertahan, bukan kembali ke seed default.
+assert.deepEqual(normalized.customNsbList, [])
+assert.deepEqual(normalized.customPosList, ['abc'])
+// Label kosong jatuh ke bawaan, yang kepanjangan dipotong di 40 karakter.
+assert.equal(normalized.ledgerLabels?.master.length, 40)
+assert.equal(normalized.ledgerLabels?.operasional, 'Kas Usaha')
+// Kunci asing tidak boleh bocor ke state.
+assert.equal(Object.prototype.hasOwnProperty.call(normalized, '__rogueKey'), false)
+// Jadwal selalu 12 bulan walaupun sumbernya lebih pendek.
+assert.equal(normalized.scheds[0]?.months.length, 12)
+
+const badRab = rabSchema.safeParse({ ...goodRab, months: Array(11).fill(0) })
+assert.equal(badRab.success, false)
+const badSched = schedSchema.safeParse({ nama: 'x', hs: 1, months: Array(3).fill(0), kat: 'service' })
+assert.equal(badSched.success, false)
+const badPiutang = piutangSchema.safeParse({ tgl: '2026-02-30', nsb: 'A', terbit: 1, lunas: 0 })
+assert.equal(badPiutang.success, false)
+const badAsset = assetSchema.safeParse({ jenis: 'GADGET', nama: 'HP', tgl: '2026-01-01', nilai: 100, dp: 0, bunga: 2, tenor: 12, nilaiPasar: 0, tambah: 0 })
+assert.equal(badAsset.success, false)
+const badDep = depSchema.safeParse({ nama: 'HP', tgl: '2026-01-01', nilai: 100, umur: 0, nilaiTaksir: 0, kat: 'GADGET' })
+assert.equal(badDep.success, false)
+
 process.stdout.write('finance self-check passed\n')

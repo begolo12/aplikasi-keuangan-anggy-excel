@@ -5,12 +5,29 @@ type Bucket = { count: number; resetAt: number }
 
 const buckets = new Map<string, Bucket>()
 
+/**
+ * Ambil hop TERAKHIR rantai `x-forwarded-for`, bukan hop pertama: proxy yang
+ * menangani request menambahkan hop di ujung, sedangkan hop awal bisa ditulis
+ * klien. Membaca hop pertama membuat limit bisa dilewati hanya dengan
+ * memalsukan header, sekaligus membuat Map tumbuh tanpa batas.
+ */
 function clientIp(req: { headers: Record<string, unknown> }): string {
   const fwd = req.headers['x-forwarded-for']
-  if (typeof fwd === 'string' && fwd.length > 0) return fwd.split(',')[0].trim()
+  if (typeof fwd === 'string' && fwd.length > 0) {
+    const hops = fwd.split(',')
+    return hops[hops.length - 1].trim() || 'unknown'
+  }
   const real = req.headers['x-real-ip']
   if (typeof real === 'string' && real.length > 0) return real
   return 'unknown'
+}
+
+/** Buang bucket yang sudah kedaluwarsa; dipanggil hanya saat Map membesar. */
+function sweep(now: number) {
+  if (buckets.size < 5000) return
+  for (const [key, bucket] of buckets) {
+    if (bucket.resetAt <= now) buckets.delete(key)
+  }
 }
 
 export function isRateLimited(
@@ -23,6 +40,7 @@ export function isRateLimited(
   const now = Date.now()
   const bucket = buckets.get(key)
   if (!bucket || bucket.resetAt <= now) {
+    sweep(now)
     buckets.set(key, { count: 1, resetAt: now + windowMs })
     return null
   }

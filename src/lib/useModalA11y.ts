@@ -8,6 +8,13 @@ import { useEffect, useRef } from 'react'
  */
 export function useModalA11y(enabled: boolean, onClose: () => void) {
   const ref = useRef<HTMLDivElement>(null)
+  // Callback disimpan di ref supaya efek tidak dijalankan ulang tiap render
+  // (deps `onClose` selalu berubah karena arrow function di pemanggil). Kalau
+  // efek restart saat user mengetik, fokus dilompatkan ke elemen pertama.
+  const closeRef = useRef(onClose)
+  useEffect(() => {
+    closeRef.current = onClose
+  })
 
   useEffect(() => {
     if (!enabled) return
@@ -24,7 +31,7 @@ export function useModalA11y(enabled: boolean, onClose: () => void) {
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose()
+        closeRef.current()
         return
       }
       if (e.key !== 'Tab') return
@@ -46,7 +53,7 @@ export function useModalA11y(enabled: boolean, onClose: () => void) {
       document.removeEventListener('keydown', onKey)
       previous?.focus?.()
     }
-  }, [enabled, onClose])
+  }, [enabled])
 
   return ref
 }

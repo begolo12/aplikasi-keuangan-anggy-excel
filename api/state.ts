@@ -5,6 +5,8 @@ import { db } from '../lib/db.js'
 import { transactions, rabRows, piutangs, assets, deps, schedules, settings } from '../lib/schema.js'
 import { eq } from 'drizzle-orm'
 
+const SCHEMA_VERSION = 3
+
 function clampStr(v: unknown, max = 200): string {
   return String(v ?? '').trim().slice(0, max)
 }
@@ -17,6 +19,13 @@ function pad(values: number[], len: number): number[] {
   const out = values.slice(0, len)
   while (out.length < len) out.push(0)
   return out
+}
+/**
+ * Baca jsonb yang seharusnya array angka. Cast `as number[]` bohong kalau
+ * kolomnya ternyata skalar/objek, jadi lebarnya diperiksa di runtime.
+ */
+function numArray(v: unknown, len: number): number[] {
+  return pad(Array.isArray(v) ? v.map(clampNum) : [], len)
 }
 
 function isValidDateStr(v: unknown): boolean {
@@ -70,8 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sat: r.sat,
         vol: r.vol,
         hs: Number(r.hs),
-        w: (r.w as [number, number, number, number]) || [0, 0, 0, 0],
-        months: (r.months as number[]) || Array(12).fill(0),
+        w: numArray(r.w, 4) as [number, number, number, number],
+        months: numArray(r.months, 12),
         total: Number(r.total),
       }))
 
@@ -82,8 +91,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sat: r.sat,
         vol: r.vol,
         hs: Number(r.hs),
-        w: (r.w as [number, number, number, number]) || [0, 0, 0, 0],
-        months: (r.months as number[]) || Array(12).fill(0),
+        w: numArray(r.w, 4) as [number, number, number, number],
+        months: numArray(r.months, 12),
         total: Number(r.total),
       }))
 
@@ -139,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         id: s.id,
         nama: s.nama,
         hs: Number(s.hs),
-        months: (s.months as number[]) || Array(12).fill(0),
+        months: numArray(s.months, 12),
         kat: s.kat as 'service' | 'pajak',
       }))
 
@@ -152,7 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } | null
 
       return res.status(200).json({
-        schemaVersion: 3,
+        schemaVersion: SCHEMA_VERSION,
         updatedAt: currentSetting?.updatedAt ? currentSetting.updatedAt.toISOString() : null,
         year: currentSetting?.year ?? 2026,
         saldoAwal: Number(currentSetting?.saldoAwal ?? 0),
@@ -223,6 +232,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         receivableId: t.receivableId ? clampStr(t.receivableId, 64) : null,
       }))
 
+      // Uang bergerak satu arah. Klien menegakkan ini; server adalah batas
+      // kepercayaan sebenarnya, jadi aturannya diulang di sini — transaksi
+      // dua arah membuat finance.ts menghitung nilai yang sama sebagai
+      // pemasukan DAN pengeluaran sekaligus.
+      const badTx = txRows.findIndex((t) => {
+        const masuk = Number(t.penerimaan)
+        const keluar = Number(t.pengeluaran)
+        return (masuk > 0 && keluar > 0) || (masuk === 0 && keluar === 0)
+      })
+      if (badTx !== -1) {
+        return res.status(400).json({
+          error: `Transaksi #${badTx} harus punya tepat satu sisi: pemasukan atau pengeluaran, tidak dua-duanya dan tidak nol.`,
+        })
+      }
+
       const rabItems: Record<string, unknown>[] = []
       if (Array.isArray(body.rabAnggy)) body.rabAnggy.forEach((r: Record<string, unknown>) => rabItems.push({ ...r, target: 'anggy' }))
       if (Array.isArray(body.rabKeluarga)) body.rabKeluarga.forEach((r: Record<string, unknown>) => rabItems.push({ ...r, target: 'keluarga' }))
@@ -234,10 +258,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         uraian: clampStr(r.uraian, 300) || '-',
         sat: clampStr(r.sat, 20) || 'bln',
         vol: Math.max(0, Math.min(1e6, Number(r.vol) || 0)),
-        hs: String(clampNum(r.hs)),
-        w: pad(Array.isArray(r.w) ? (r.w as unknown[]).slice(0, 4).map(clampNum) : [], 4),
-        months: pad(Array.isArray(r.months) ? (r.months as unknown[]).slice(0, 12).map(clampNum) : [], 12),
-        total: String(clampNum(r.total)),
+        hs: String(Math.max(0, Math.min(1e12, clampNum(r.hs)))),
+        w: numArray(r.w, 4),
+        months: numArray(r.months, 12),
+        total: String(Math.max(0, Math.min(1e12, clampNum(r.total)))),
       }))
 
       const piutangRowsToInsert: PiutangInsert[] = (Array.isArray(body.piutangs) ? body.piutangs.slice(0, limits.piutangs) : []).map((p: Record<string, unknown>) => ({
@@ -250,6 +274,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lunas: String(clampNum(p.lunas)),
         keterangan: p.keterangan ? clampStr(p.keterangan, 500) : null,
       }))
+
+      // Piutang tidak bisa dibayar melebihi yang diterbitkan.
+      const badPiutang = piutangRowsToInsert.findIndex((p) => Number(p.lunas) > Number(p.terbit))
+      if (badPiutang !== -1) {
+        return res.status(400).json({ error: `Piutang #${badPiutang}: jumlah lunas melebihi jumlah terbit.` })
+      }
 
       const assetRowsToInsert: AssetInsert[] = (Array.isArray(body.assets) ? body.assets.slice(0, limits.assets) : []).map((a: Record<string, unknown>) => ({
         id: typeof a.id === 'string' && a.id ? clampStr(a.id as string, 64) : crypto.randomUUID(),
@@ -266,6 +296,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tambah: String(clampNum(a.tambah)),
       }))
 
+      // DP tidak bisa melebihi harga aset — sisanya yang jadi hutang.
+      const badAsset = assetRowsToInsert.findIndex((a) => Number(a.dp) > Number(a.nilai))
+      if (badAsset !== -1) {
+        return res.status(400).json({ error: `Aset #${badAsset}: DP melebihi nilai aset.` })
+      }
+
       const depRowsToInsert: DepInsert[] = (Array.isArray(body.deps) ? body.deps.slice(0, limits.deps) : []).map((d: Record<string, unknown>) => ({
         id: typeof d.id === 'string' && d.id ? clampStr(d.id as string, 64) : crypto.randomUUID(),
         workspaceId,
@@ -281,8 +317,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         id: typeof s.id === 'string' && s.id ? clampStr(s.id as string, 64) : crypto.randomUUID(),
         workspaceId,
         nama: clampStr(s.nama, 160) || '-',
-        hs: String(clampNum(s.hs)),
-        months: pad(Array.isArray(s.months) ? (s.months as unknown[]).slice(0, 12).map(clampNum) : [], 12),
+        hs: String(Math.max(0, Math.min(1e12, clampNum(s.hs)))),
+        months: numArray(s.months, 12),
         kat: ['service', 'pajak'].includes(String(s.kat)) ? String(s.kat) : 'service',
       }))
 
