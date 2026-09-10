@@ -153,7 +153,7 @@ export function DashboardView({ store: s, onNavigate, onOpenQuickTx, onOpenTrans
               <span className="text-[11px] text-text-subtle">{c.hint}</span>
             </div>
             <p className="mt-3 text-xs text-text-subtle">{c.desc}</p>
-            <p className="mt-1 text-[22px] font-bold tracking-tight num truncate text-text">Rp {formatRibuan(c.value) || '0'}</p>
+            <p className="mt-1 text-[22px] font-semibold tracking-tight num truncate text-text">Rp {formatRibuan(c.value) || '0'}</p>
             <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
               <button onClick={() => onNavigate('transaksi')} className="text-xs font-medium text-accent hover:underline inline-flex items-center gap-1 cursor-pointer">
                 Lihat transaksi <ChevronRight size={14} />

@@ -104,7 +104,7 @@ export function RabView({ store: s }: RabViewProps) {
             <div className="hidden sm:flex items-center bg-accent-soft p-1 rounded-lg border border-border">
               <button
                 onClick={() => setViewMode('single')}
-                className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition cursor-pointer ${
                   viewMode === 'single' ? 'bg-surface text-text' : 'text-text-muted hover:text-text'
                 }`}
                 title="Tampilan Mingguan & Ringkas"
@@ -114,7 +114,7 @@ export function RabView({ store: s }: RabViewProps) {
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
+                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition cursor-pointer ${
                   viewMode === 'grid' ? 'bg-surface text-text' : 'text-text-muted hover:text-text'
                 }`}
                 title="Tampilan Grid 12 Bulan"
@@ -134,7 +134,7 @@ export function RabView({ store: s }: RabViewProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-4">
           <p className="eyebrow">Total Rencana — {rabKas(target)}</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight num text-text">Rp {formatRibuan(grandTotal) || '0'}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight num text-text">Rp {formatRibuan(grandTotal) || '0'}</p>
           <p className="text-xs font-medium text-text-muted mt-1">{currentRab.length} rencana pengeluaran</p>
         </Card>
       </div>
@@ -155,10 +155,10 @@ export function RabView({ store: s }: RabViewProps) {
           <Card key={row.id} className="p-4 border-border bg-surface">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <span className="px-2 py-0.5 rounded-md bg-positive-soft text-positive border border-positive text-[10px] font-extrabold uppercase">
+                <span className="px-2 py-0.5 rounded-md bg-positive-soft text-positive border border-positive text-[10px] font-semibold uppercase">
                   {row.group}
                 </span>
-                <h4 className="mt-1 text-sm font-black text-text">{row.uraian}</h4>
+                <h4 className="mt-1 text-sm font-semibold text-text">{row.uraian}</h4>
                 <p className="text-xs font-semibold text-text-muted mt-0.5">
                   {row.vol} {row.sat} × Rp {formatRibuan(row.hs)}
                 </p>
@@ -175,7 +175,7 @@ export function RabView({ store: s }: RabViewProps) {
 
             <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs">
               <span className="text-text-muted font-medium">Total tahun ini:</span>
-              <span className="font-bold text-text text-sm num">Rp {formatRibuan(row.total)}</span>
+              <span className="font-semibold text-text text-sm num">Rp {formatRibuan(row.total)}</span>
             </div>
           </Card>
         ))}
@@ -215,9 +215,9 @@ export function RabView({ store: s }: RabViewProps) {
                     <span className="px-2 py-0.5 rounded-md bg-surface-sunken text-text-muted border border-border text-[10px] font-semibold uppercase">{row.group}</span>
                   </td>
                   <td className="px-3 py-2.5 font-semibold text-text">{row.uraian}</td>
-                  <td className="px-3 py-2.5 text-center font-bold text-text-muted">{row.vol}</td>
+                  <td className="px-3 py-2.5 text-center font-semibold text-text-muted">{row.vol}</td>
                   <td className="px-3 py-2.5 text-center text-text-muted">{row.sat}</td>
-                  <td className="px-3 py-2.5 text-right font-bold text-text-muted num">
+                  <td className="px-3 py-2.5 text-right font-semibold text-text-muted num">
                     Rp {formatRibuan(row.hs)}
                   </td>
 
@@ -236,7 +236,7 @@ export function RabView({ store: s }: RabViewProps) {
                     ))
                   )}
 
-                  <td className="px-3 py-2.5 text-right font-bold text-text num">Rp {formatRibuan(row.total)}
+                  <td className="px-3 py-2.5 text-right font-semibold text-text num">Rp {formatRibuan(row.total)}
                   </td>
                   <td className="px-3 py-2.5 text-center">
                     <button
@@ -272,7 +272,7 @@ export function RabView({ store: s }: RabViewProps) {
                       if (group !== 'CICILAN') setBulanMulai(0)
                       const months = buildMonths(newRow.hs, newRow.vol || 1, start, bulanAktif)
                       setNewRow({ ...newRow, group, months, w: splitWeekly(months) })
-                    }} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+                    }} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent">
                     <option value="RUTIN">Rutin — tiap bulan ada</option>
                     <option value="PERIODIK">Periodik — kadang-kadang</option>
                     <option value="INSIDENTAL">Incidental — tidak terduga</option>
@@ -281,7 +281,7 @@ export function RabView({ store: s }: RabViewProps) {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Satuan</label>
-                  <input type="text" value={newRow.sat} onChange={(e) => setNewRow({ ...newRow, sat: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent" placeholder="bln, kali, unit" />
+                  <input type="text" value={newRow.sat} onChange={(e) => setNewRow({ ...newRow, sat: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent" placeholder="bln, kali, unit" />
                 </div>
               </div>
 
@@ -293,13 +293,13 @@ export function RabView({ store: s }: RabViewProps) {
                   placeholder="Contoh: Belanja Dapur Mingguan"
                   value={newRow.uraian}
                   onChange={(e) => setNewRow({ ...newRow, uraian: e.target.value })}
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Volume</label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Volume</label>
                   <input
                     type="number"
                     min="1"
@@ -309,11 +309,11 @@ export function RabView({ store: s }: RabViewProps) {
                       const months = buildMonths(newRow.hs, vol, newRow.group === 'CICILAN' ? bulanMulai : 0, bulanAktif)
                       setNewRow({ ...newRow, vol, months, w: splitWeekly(months) })
                     }}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Harga Satuan / Anggaran Bulanan (Rp)</label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Harga Satuan / Anggaran Bulanan (Rp)</label>
                   <RupiahInput
                     value={newRow.hs}
                     onChange={(v) => {
@@ -327,7 +327,7 @@ export function RabView({ store: s }: RabViewProps) {
                 {newRow.group === 'CICILAN' ? (
                   <>
                     <div>
-                      <label className="text-xs font-bold text-text-muted block mb-1">Cicilan mulai bulan</label>
+                      <label className="text-xs font-semibold text-text-muted block mb-1">Cicilan mulai bulan</label>
                       <select
                         value={bulanMulai}
                         onChange={(e) => {
@@ -338,13 +338,13 @@ export function RabView({ store: s }: RabViewProps) {
                           const months = buildMonths(newRow.hs, newRow.vol || 1, start, sampai - start + 1)
                           setNewRow({ ...newRow, months, w: splitWeekly(months) })
                         }}
-                        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:border-accent"
                       >
                         {monthShorts.map((m, i) => (<option key={m} value={i}>{m}</option>))}
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-text-muted block mb-1">Sampai bulan</label>
+                      <label className="text-xs font-semibold text-text-muted block mb-1">Sampai bulan</label>
                       <select
                         value={bulanMulai + bulanAktif - 1}
                         onChange={(e) => {
@@ -353,7 +353,7 @@ export function RabView({ store: s }: RabViewProps) {
                           const months = buildMonths(newRow.hs, newRow.vol || 1, bulanMulai, sampai - bulanMulai + 1)
                           setNewRow({ ...newRow, months, w: splitWeekly(months) })
                         }}
-                        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:border-accent"
                       >
                         {monthShorts.map((m, i) => (<option key={m} value={i} disabled={i < bulanMulai}>{m}</option>))}
                       </select>
@@ -361,7 +361,7 @@ export function RabView({ store: s }: RabViewProps) {
                   </>
                 ) : (
                   <div>
-                    <label className="text-xs font-bold text-text-muted block mb-1">Berlaku berapa bulan dalam setahun?</label>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Berlaku berapa bulan dalam setahun?</label>
                     <input
                       type="number"
                       min="1"
@@ -374,13 +374,13 @@ export function RabView({ store: s }: RabViewProps) {
                         const months = buildMonths(newRow.hs, newRow.vol || 1, 0, n)
                         setNewRow({ ...newRow, months, w: splitWeekly(months) })
                       }}
-                      className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                      className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent"
                     />
                   </div>
                 )}
                 <div className="rounded-lg bg-surface-sunken border border-border px-3 py-2 sm:col-span-2">
                   <p className="text-[11px] font-medium text-text-muted">{newRow.group === 'CICILAN' ? `Total cicilan (${bulanAktif} bulan × Rp ${formatRibuan((newRow.vol || 1) * newRow.hs)})` : 'Total setahun (otomatis)'}</p>
-                  <p className="text-sm font-bold text-text num">Rp {formatRibuan(newRow.months.reduce((sum, v) => sum + v, 0))}</p>
+                  <p className="text-sm font-semibold text-text num">Rp {formatRibuan(newRow.months.reduce((sum, v) => sum + v, 0))}</p>
                 </div>
               </div>
 
@@ -388,13 +388,13 @@ export function RabView({ store: s }: RabViewProps) {
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-text-muted hover:bg-surface-sunken transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-black transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold transition"
                 >
                   Simpan Pos
                 </button>

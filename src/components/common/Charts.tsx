@@ -216,8 +216,8 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Total</span>
-          <span className="text-xs font-black text-text num">Rp {formatRibuan(total)}</span>
+          <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Total</span>
+          <span className="text-xs font-semibold text-text num">Rp {formatRibuan(total)}</span>
         </div>
       </div>
 
@@ -229,7 +229,7 @@ export function DonutChart({ data, size = 160 }: DonutChartProps) {
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
               <span className="font-semibold text-text-muted truncate">{d.label}</span>
             </div>
-            <span className="font-bold text-text num shrink-0">
+            <span className="font-semibold text-text num shrink-0">
               {((d.value / total) * 100).toFixed(0)}%
             </span>
           </div>

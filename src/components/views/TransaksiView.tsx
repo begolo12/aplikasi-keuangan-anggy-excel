@@ -108,7 +108,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <span className="text-xs font-medium">{s.ledgerLabels?.master || 'Kas Utama'}</span>
             <Badge variant="brand">Pusat</Badge>
           </div>
-          <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balMaster) || '0'}</p>
+          <p className="mt-1.5 text-lg font-semibold num truncate">Rp {formatRibuan(balMaster) || '0'}</p>
           <p className="text-[11px] text-text-subtle">Uang pusat, sebelum dibagi</p>
         </button>
 
@@ -122,7 +122,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <span className="text-xs font-medium">{s.ledgerLabels?.operasional || 'Kas Usaha'}</span>
             <Badge variant="success">Operasional</Badge>
           </div>
-          <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balOperasional) || '0'}</p>
+          <p className="mt-1.5 text-lg font-semibold num truncate">Rp {formatRibuan(balOperasional) || '0'}</p>
           <p className="text-[11px] text-text-subtle">Untuk operasional harian</p>
         </button>
 
@@ -136,7 +136,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <span className="text-xs font-medium">{s.ledgerLabels?.keluarga || 'Kas Keluarga'}</span>
             <Badge variant="warning">Keluarga</Badge>
           </div>
-          <p className="mt-1.5 text-lg font-bold num truncate">Rp {formatRibuan(balKeluarga) || '0'}</p>
+          <p className="mt-1.5 text-lg font-semibold num truncate">Rp {formatRibuan(balKeluarga) || '0'}</p>
           <p className="text-[11px] text-text-subtle">Untuk rumah tangga</p>
         </button>
       </div>
@@ -148,7 +148,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
             <button onClick={() => setSelectedLedger('all')} className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer ${selectedLedger === 'all' ? 'bg-accent text-on-fill' : 'bg-surface-sunken text-text-muted hover:bg-surface-sunken'}`}>Semua Kas</button>
             <div className="relative flex-1 sm:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari keterangan atau kategori..." className="w-full pl-9 pr-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari keterangan atau kategori..." className="w-full pl-9 pr-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium text-text placeholder:text-text-subtle outline-none focus:border-accent" />
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -198,18 +198,18 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                   </div>
 
                   <div className="text-right">
-                    <p className={`font-bold text-sm num ${isIncome ? 'text-positive' : 'text-negative'}`}>
+                    <p className={`font-semibold text-sm num ${isIncome ? 'text-positive' : 'text-negative'}`}>
                       {isIncome ? `+Rp ${formatRibuan(tx.penerimaan)}` : `-Rp ${formatRibuan(tx.pengeluaran)}`}
                     </p>
                     <p className="text-[10px] text-text-muted font-medium num">Sisa: Rp {formatRibuan(bal)}</p>
                   </div>
                 </div>
 
-                <p className="mt-2 text-xs font-bold text-text line-clamp-2">{tx.uraian}</p>
+                <p className="mt-2 text-xs font-semibold text-text line-clamp-2">{tx.uraian}</p>
 
                 <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5 text-[11px] text-text-muted font-medium">
-                    {tx.pos && <span className="bg-surface-sunken px-2 py-0.5 rounded-md font-bold text-text-muted">{tx.pos}</span>}
+                    {tx.pos && <span className="bg-surface-sunken px-2 py-0.5 rounded-md font-semibold text-text-muted">{tx.pos}</span>}
                     {tx.nsb && <span className="text-text-muted">{tx.nsb}</span>}
                   </div>
 
@@ -279,13 +279,13 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                           {kasLabel(tx.ledger, s.ledgerLabels)}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 font-bold text-text whitespace-nowrap">{tx.nsb}</td>
+                      <td className="px-4 py-3 font-semibold text-text whitespace-nowrap">{tx.nsb}</td>
                       <td className="px-4 py-3 font-semibold text-text-muted whitespace-nowrap">{tx.pos}</td>
                       <td className="px-4 py-3 font-semibold text-text max-w-xs truncate">{tx.uraian}</td>
-                      <td className="px-4 py-3 text-right font-bold text-positive num whitespace-nowrap">
+                      <td className="px-4 py-3 text-right font-semibold text-positive num whitespace-nowrap">
                         {tx.penerimaan > 0 ? `Rp ${formatRibuan(tx.penerimaan)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right font-bold text-negative num whitespace-nowrap">
+                      <td className="px-4 py-3 text-right font-semibold text-negative num whitespace-nowrap">
                         {tx.pengeluaran > 0 ? `Rp ${formatRibuan(tx.pengeluaran)}` : '—'}
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-text num whitespace-nowrap">Rp {formatRibuan(bal)}
@@ -360,27 +360,27 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                   required
                   value={editingTx.uraian}
                   onChange={(e) => setEditingTx({ ...editingTx, uraian: e.target.value })}
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold outline-none focus:bg-surface focus:border-accent"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Penerimaan (Rp)</label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Penerimaan (Rp)</label>
                   <RupiahInput
                     value={editingTx.penerimaan}
                     onChange={(v) => setEditingTx({ ...editingTx, penerimaan: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-positive outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold num text-positive outline-none focus:bg-surface focus:border-accent"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-text-muted block mb-1">Pengeluaran (Rp)</label>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Pengeluaran (Rp)</label>
                   <RupiahInput
                     value={editingTx.pengeluaran}
                     onChange={(v) => setEditingTx({ ...editingTx, pengeluaran: v })}
                     placeholder="0"
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-negative outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold num text-negative outline-none focus:bg-surface focus:border-accent"
                   />
                 </div>
               </div>
@@ -389,7 +389,7 @@ export function TransaksiView({ store: s, onOpenQuickTx, onOpenTransfer }: Trans
                 <button
                   type="button"
                   onClick={() => setEditingTx(null)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-text-muted hover:bg-surface-sunken transition"
                 >
                   Batal
                 </button>

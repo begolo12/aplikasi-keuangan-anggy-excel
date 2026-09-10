@@ -13,6 +13,10 @@ interface RupiahInputProps {
   autoFocus?: boolean
 }
 
+/** Sama dengan `control` di Input.tsx supaya kolom rupiah tidak perlu dihias ulang. */
+const control =
+  'w-full px-3 py-2 bg-surface text-text border border-border rounded-lg text-[13px] num outline-none transition-colors placeholder:text-text-subtle focus:border-accent disabled:opacity-45 disabled:cursor-not-allowed'
+
 export function RupiahInput({
   value,
   onChange,
@@ -55,7 +59,7 @@ export function RupiahInput({
       placeholder={placeholder}
       value={displayVal}
       onChange={handleChange}
-      className={className}
+      className={className || control}
     />
   )
 }

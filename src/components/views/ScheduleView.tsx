@@ -75,9 +75,9 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <Badge variant={sc.kat === 'pajak' ? 'warning' : 'brand'}>{sc.kat}</Badge>
-                  <h4 className="mt-1.5 text-sm font-black text-text">{sc.nama}</h4>
+                  <h4 className="mt-1.5 text-sm font-semibold text-text">{sc.nama}</h4>
                   <p className="text-xs font-semibold text-text-muted mt-0.5">
-                    Biaya per jadwal: <span className="text-accent font-black num">Rp {formatRibuan(sc.hs)}</span>
+                    Biaya per jadwal: <span className="text-accent font-semibold num">Rp {formatRibuan(sc.hs)}</span>
                   </p>
                 </div>
                 <button
@@ -91,7 +91,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
 
               {/* Month Selector Grid (4x3 for Easy Tap) */}
               <div className="mt-3 pt-3 border-t border-border">
-                <p className="text-[11px] font-bold text-text-muted mb-2 flex items-center gap-1">
+                <p className="text-[11px] font-semibold text-text-muted mb-2 flex items-center gap-1">
                   <Calendar size={12} className="text-accent" />
                   <span>Bulan Terjadwal ({activeMonthsCount}/12 bulan):</span>
                 </p>
@@ -102,14 +102,14 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                       <button
                         key={mIdx}
                         onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
-                        className={`min-h-[40px] py-1.5 px-2 rounded-lg text-xs font-bold flex flex-col items-center justify-center transition active:scale-95 cursor-pointer ${
+                        className={`min-h-[40px] py-1.5 px-2 rounded-lg text-xs font-semibold flex flex-col items-center justify-center transition active:scale-95 cursor-pointer ${
                           isActive
                             ? 'bg-positive text-on-fill'
                             : 'bg-surface-sunken text-text-muted border border-border hover:bg-positive-soft hover:text-positive'
                         }`}
                       >
-                        <span className="text-[10px] font-bold">{monthShorts[mIdx]}</span>
-                        <span className="text-[11px] font-extrabold">{isActive ? '✓' : '—'}</span>
+                        <span className="text-[10px] font-semibold">{monthShorts[mIdx]}</span>
+                        <span className="text-[11px] font-semibold">{isActive ? '✓' : '—'}</span>
                       </button>
                     )
                   })}
@@ -118,7 +118,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
 
               <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs">
                 <span className="text-text-muted font-semibold">Total Anggaran Tahun {s.year}:</span>
-                <span className="font-black text-positive text-sm num">Rp {formatRibuan(rowTotal)}</span>
+                <span className="font-semibold text-positive text-sm num">Rp {formatRibuan(rowTotal)}</span>
               </div>
             </Card>
           )
@@ -143,7 +143,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                 {monthShorts.map((m) => (
                   <th key={m} className="px-2 py-3 text-center min-w-[50px]">{m}</th>
                 ))}
-                <th className="px-3 py-3 text-right font-black">Total Anggaran</th>
+                <th className="px-3 py-3 text-right font-semibold">Total Anggaran</th>
                 <th className="px-3 py-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -155,8 +155,8 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                     <td className="px-3 py-2.5">
                       <Badge variant={sc.kat === 'pajak' ? 'warning' : 'brand'}>{sc.kat}</Badge>
                     </td>
-                    <td className="px-3 py-2.5 font-bold text-text">{sc.nama}</td>
-                    <td className="px-3 py-2.5 text-right font-bold text-text-muted num">
+                    <td className="px-3 py-2.5 font-semibold text-text">{sc.nama}</td>
+                    <td className="px-3 py-2.5 text-right font-semibold text-text-muted num">
                       Rp {formatRibuan(sc.hs)}
                     </td>
                     {sc.months.map((val, mIdx) => {
@@ -165,7 +165,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                         <td key={mIdx} className="px-2 py-2.5 text-center">
                           <button
                             onClick={() => s.toggleSchedMonth(sc.id, mIdx)}
-                            className={`w-8 h-8 rounded-lg text-xs font-black inline-flex items-center justify-center transition active:scale-90 cursor-pointer ${
+                            className={`w-8 h-8 rounded-lg text-xs font-semibold inline-flex items-center justify-center transition active:scale-90 cursor-pointer ${
                               isActive
                                 ? 'bg-positive text-on-fill'
                                 : 'bg-surface-sunken text-text-subtle hover:bg-positive-soft hover:text-positive border border-border'
@@ -177,7 +177,7 @@ export function ScheduleView({ store: s }: ScheduleViewProps) {
                         </td>
                       )
                     })}
-                    <td className="px-3 py-2.5 text-right font-black text-positive num bg-positive-soft/40">
+                    <td className="px-3 py-2.5 text-right font-semibold text-positive num bg-positive-soft/40">
                       Rp {formatRibuan(rowTotal)}
                     </td>
                     <td className="px-3 py-2.5 text-center">

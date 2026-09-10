@@ -90,7 +90,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <Badge variant={d.kat === 'KENDARAAN' ? 'brand' : 'neutral'}>{d.kat}</Badge>
-                  <h4 className="mt-1 text-sm font-black text-text">{d.nama}</h4>
+                  <h4 className="mt-1 text-sm font-semibold text-text">{d.nama}</h4>
                   <p className="text-xs text-text-muted font-medium mt-0.5">
                     Beli: {d.tgl} • {calc.monthsElapsed} dari {d.umur} bln
                   </p>
@@ -108,19 +108,19 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
               <div className="mt-3 pt-2.5 border-t border-border grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-text-muted font-semibold text-[11px] block">Nilai Beli Awal</span>
-                  <span className="font-bold text-text num">Rp {formatRibuan(d.nilai)}</span>
+                  <span className="font-semibold text-text num">Rp {formatRibuan(d.nilai)}</span>
                 </div>
                 <div>
                   <span className="text-text-muted font-semibold text-[11px] block">Sisa Nilai Buku</span>
-                  <span className="font-black text-positive num">Rp {formatRibuan(calc.bookValue)}</span>
+                  <span className="font-semibold text-positive num">Rp {formatRibuan(calc.bookValue)}</span>
                 </div>
                 <div>
                   <span className="text-text-muted font-semibold text-[11px] block">Penyusutan / Bulan</span>
-                  <span className="font-bold text-negative num">Rp {formatRibuan(depPerMonth)}</span>
+                  <span className="font-semibold text-negative num">Rp {formatRibuan(depPerMonth)}</span>
                 </div>
                 <div>
                   <span className="text-text-muted font-semibold text-[11px] block">Akumulasi Depresiasi</span>
-                  <span className="font-bold text-negative num">Rp {formatRibuan(calc.accumulated)}</span>
+                  <span className="font-semibold text-negative num">Rp {formatRibuan(calc.accumulated)}</span>
                 </div>
               </div>
             </Card>
@@ -141,7 +141,7 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
                 <th className="px-4 py-3 text-center">Masa Pakai</th>
                 <th className="px-4 py-3 text-right">Penyusutan/Bln</th>
                 <th className="px-4 py-3 text-right">Akumulasi Dep</th>
-                <th className="px-4 py-3 text-right font-black">Nilai Buku</th>
+                <th className="px-4 py-3 text-right font-semibold">Nilai Buku</th>
                 <th className="px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -154,16 +154,16 @@ export function DepresiasiView({ store: s }: DepresiasiViewProps) {
                     <td className="px-4 py-3">
                       <Badge variant={d.kat === 'KENDARAAN' ? 'brand' : 'neutral'}>{d.kat}</Badge>
                     </td>
-                    <td className="px-4 py-3 font-bold text-text">{d.nama}</td>
+                    <td className="px-4 py-3 font-semibold text-text">{d.nama}</td>
                     <td className="px-4 py-3 text-text-muted font-semibold">{d.tgl}</td>
-                    <td className="px-4 py-3 text-right font-bold text-text num">Rp {formatRibuan(d.nilai)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-text num">Rp {formatRibuan(d.nilai)}</td>
                     <td className="px-4 py-3 text-center font-semibold text-text-muted">
                       {calc.monthsElapsed} / {d.umur} bln
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-negative num">
                       Rp {formatRibuan(depPerMonth)}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-negative num">
+                    <td className="px-4 py-3 text-right font-semibold text-negative num">
                       Rp {formatRibuan(calc.accumulated)}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-positive num">

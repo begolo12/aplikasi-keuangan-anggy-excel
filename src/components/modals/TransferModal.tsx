@@ -91,7 +91,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
                 required
                 value={tanggal}
                 onChange={(e) => setTanggal(e.target.value)}
-                className="w-full px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+                className="w-full px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent transition"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
                 onChange={(v) => setAmount(v)}
                 placeholder="0"
                 className={`w-full px-3.5 py-2.5 bg-surface border rounded-lg text-sm font-medium num outline-none transition ${
-                  isOverBalance ? 'border-negative text-negative' : 'border-border-strong text-text focus:border-accent focus:ring-2 focus:ring-accent/20'
+                  isOverBalance ? 'border-negative text-negative' : 'border-border-strong text-text focus:border-accent '
                 }`}
               />
             </div>
@@ -117,7 +117,7 @@ export function TransferModal({ open, onClose, onTransfer, maxMasterBalance, led
               value={uraian}
               onChange={(e) => setUraian(e.target.value)}
               placeholder="Mis. Untuk operasional bulan ini"
-              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent transition"
             />
           </div>
 

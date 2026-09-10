@@ -48,7 +48,7 @@ export function Sidebar({
     >
       {/* Material 3 App Header */}
       <div className="h-[64px] flex items-center gap-3 px-4 shrink-0">
-        <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold text-base tracking-tight shrink-0">
+        <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-base tracking-tight shrink-0">
           F
         </div>
         {!collapsed && (

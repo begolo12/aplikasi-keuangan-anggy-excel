@@ -36,7 +36,7 @@ export default function Login() {
 
           <div className="space-y-3">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-on-fill font-bold text-2xl">
+              <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center text-on-fill font-semibold text-2xl">
                 F
               </div>
               <div>
@@ -76,7 +76,7 @@ export default function Login() {
         <div className="lg:col-span-5 w-full">
           <div className="bg-surface border border-border rounded-lg p-6 sm:p-8">
             <div className="lg:hidden flex items-center gap-3 mb-6 pb-4 border-b border-border">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-on-fill font-bold text-lg">
+              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-on-fill font-semibold text-lg">
                 F
               </div>
               <div>
@@ -111,7 +111,7 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="nama@email.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-strong rounded-lg text-xs sm:text-sm text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-strong rounded-lg text-xs sm:text-sm text-text placeholder:text-text-subtle outline-none focus:border-accent transition"
                   />
                 </div>
               </div>
@@ -130,7 +130,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-strong rounded-lg text-xs sm:text-sm text-text placeholder:text-text-subtle outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface border border-border-strong rounded-lg text-xs sm:text-sm text-text placeholder:text-text-subtle outline-none focus:border-accent transition"
                   />
                 </div>
               </div>

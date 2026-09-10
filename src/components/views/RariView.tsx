@@ -45,7 +45,7 @@ export function RariView({ store: s }: RariViewProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-text-muted">Bulan:</span>
-            <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))} className="px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))} className="px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent">
               {monthNames.map((name, idx) => (<option key={name} value={idx}>{name} {s.year}</option>))}
             </select>
           </div>
@@ -78,14 +78,14 @@ export function RariView({ store: s }: RariViewProps) {
                 <td className="px-4 py-3 font-medium text-text-muted">{kasLabel('operasional', s.ledgerLabels)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raOp)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riOp)}</td>
-                <td className={`px-4 py-3 text-right font-bold num ${devOp >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devOp)}</td>
+                <td className={`px-4 py-3 text-right font-semibold num ${devOp >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devOp)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devOp >= 0 ? 'success' : 'danger'}>{devOp >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
               <tr className="hover:bg-surface-sunken transition">
                 <td className="px-4 py-3 font-medium text-text-muted">{kasLabel('keluarga', s.ledgerLabels)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-text-muted">Rp {formatRibuan(raKel)}</td>
                 <td className="px-4 py-3 text-right font-semibold num text-negative">Rp {formatRibuan(riKel)}</td>
-                <td className={`px-4 py-3 text-right font-bold num ${devKel >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devKel)}</td>
+                <td className={`px-4 py-3 text-right font-semibold num ${devKel >= 0 ? 'text-positive' : 'text-negative'}`}>Rp {formatRibuan(devKel)}</td>
                 <td className="px-4 py-3 text-center"><Badge variant={devKel >= 0 ? 'success' : 'danger'}>{devKel >= 0 ? 'Aman' : 'Kelebihan'}</Badge></td>
               </tr>
             </tbody>

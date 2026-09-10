@@ -86,7 +86,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
               <select
                 value={ledger}
                 onChange={(e) => setLedger(e.target.value as Ledger)}
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent transition"
               >
                 <option value="master">{kasLabel('master', store.ledgerLabels)} — uang masuk pertama</option>
                 <option value="operasional">{kasLabel('operasional', store.ledgerLabels)} — untuk operasional</option>
@@ -101,7 +101,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
                 required
                 value={tanggal}
                 onChange={(e) => setTanggal(e.target.value)}
-                className="w-full px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+                className="w-full px-3.5 py-2 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent transition"
               />
             </div>
           </div>
@@ -155,7 +155,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
               value={uraian}
               onChange={(e) => setUraian(e.target.value)}
               placeholder="Contoh: Belanja bahan dapur / Bensin"
-              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-normal outline-none focus:border-accent transition"
             />
           </div>
 
@@ -166,7 +166,7 @@ export function QuickTxModal({ open, onClose, defaultLedger = 'master', onAddTx 
               value={nominal}
               onChange={setNominal}
               placeholder="0"
-              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-sm font-medium num text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition"
+              className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-sm font-medium num text-text outline-none focus:border-accent transition"
             />
           </div>
 

@@ -75,7 +75,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
             <h3 className="text-sm font-semibold text-text">Piutang — Uang Dipinjamkan</h3>
             <p className="text-xs font-medium text-text-muted">Mencatat pinjaman mengurangi {kasLabel('master', s.ledgerLabels)}; pelunasan menambah {kasLabel('master', s.ledgerLabels)} dan tidak dihitung sebagai pendapatan.</p>
           </div>
-          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold  transition flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => setIsAdding(true)} className="self-start sm:self-auto px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
             <Plus size={14} /> Catat Pinjaman Baru
           </button>
         </div>
@@ -107,7 +107,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                         </Badge>
                         <span className="text-[11px] text-text-muted font-semibold">{p.tgl}</span>
                       </div>
-                      <h4 className="mt-1 text-sm font-black text-text">{p.nsb}</h4>
+                      <h4 className="mt-1 text-sm font-semibold text-text">{p.nsb}</h4>
                       <p className="text-xs text-text-muted font-medium mt-0.5">{p.uraian}</p>
                     </div>
 
@@ -127,7 +127,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                     </div>
                     <div>
                       <span className="text-text-muted font-medium text-[11px] block">{isRepayment ? 'Status' : 'Sisa Belum Kembali'}</span>
-                      <span className={`font-bold text-sm num ${isRepayment || isLunas ? 'text-positive' : 'text-negative'}`}>
+                      <span className={`font-semibold text-sm num ${isRepayment || isLunas ? 'text-positive' : 'text-negative'}`}>
                         {isRepayment ? 'Tercatat' : `Rp ${formatRibuan(sisa)}`}
                       </span>
                     </div>
@@ -169,15 +169,15 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                     return (
                       <tr key={p.id} className="hover:bg-surface-sunken/60 transition">
                         <td className="px-4 py-3 font-semibold text-text-muted">{p.tgl}</td>
-                        <td className="px-4 py-3 font-bold text-text">{p.nsb}</td>
+                        <td className="px-4 py-3 font-semibold text-text">{p.nsb}</td>
                         <td className="px-4 py-3 font-medium text-text-muted">{p.uraian}</td>
-                        <td className="px-4 py-3 text-right font-bold text-text num">
+                        <td className="px-4 py-3 text-right font-semibold text-text num">
                           {p.terbit > 0 ? `Rp ${formatRibuan(p.terbit)}` : '—'}
                         </td>
-                        <td className="px-4 py-3 text-right font-bold text-positive num">
+                        <td className="px-4 py-3 text-right font-semibold text-positive num">
                           {p.lunas > 0 ? `Rp ${formatRibuan(p.lunas)}` : '—'}
                         </td>
-                        <td className="px-4 py-3 text-right font-black text-negative num bg-negative-soft/20">
+                        <td className="px-4 py-3 text-right font-semibold text-negative num bg-negative-soft/20">
                           {isRepayment ? '—' : `Rp ${formatRibuan(sisa)}`}
                         </td>
                         <td className="px-4 py-3 text-center">
@@ -246,7 +246,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Tanggal Pinjam</label>
-                  <input type="date" required value={newPiutang.tgl} onChange={(e) => setNewPiutang({ ...newPiutang, tgl: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
+                  <input type="date" required value={newPiutang.tgl} onChange={(e) => setNewPiutang({ ...newPiutang, tgl: e.target.value })} className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-text-muted block mb-1">Nama Peminjam <span className="text-negative">*</span></label>
@@ -256,7 +256,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
 
               <div>
                 <label className="text-xs font-semibold text-text-muted block mb-1">Untuk keperluan apa?</label>
-                <input type="text" required value={newPiutang.uraian} onChange={(e) => setNewPiutang({ ...newPiutang, uraian: e.target.value })} placeholder="Mis. Talangan usaha sementara" className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent" />
+                <input type="text" required value={newPiutang.uraian} onChange={(e) => setNewPiutang({ ...newPiutang, uraian: e.target.value })} placeholder="Mis. Talangan usaha sementara" className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-medium outline-none focus:border-accent" />
               </div>
 
               <div>
@@ -266,7 +266,7 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                   value={newPiutang.terbit}
                   onChange={(v) => setNewPiutang({ ...newPiutang, terbit: v })}
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-bold num text-accent outline-none focus:bg-surface focus:border-accent focus:ring-1 focus:ring-accent"
+                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-semibold num text-accent outline-none focus:bg-surface focus:border-accent"
                 />
               </div>
 
@@ -274,13 +274,13 @@ export function PiutangView({ store: s }: PiutangViewProps) {
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-text-muted hover:bg-surface-sunken transition"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-text-muted hover:bg-surface-sunken transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-black transition"
+                  className="px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-on-fill text-xs font-semibold transition"
                 >
                   Terbitkan Piutang
                 </button>

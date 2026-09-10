@@ -140,7 +140,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   value={newNsb}
                   onChange={(e) => setNewNsb(e.target.value)}
                   placeholder="Contoh: PT MAJU JAYA, PAK BUDI"
-                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent"
                 />
                 <button
                   type="submit"
@@ -204,7 +204,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                   value={newPos}
                   onChange={(e) => setNewPos(e.target.value)}
                   placeholder="Contoh: LOGISTIK, MARKETING, PULSA"
-                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                  className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent"
                 />
                 <button
                   type="submit"
@@ -271,7 +271,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.master}
                 onChange={(e) => setLabels({ ...labels, master: e.target.value })}
                 placeholder="Kas Utama"
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent"
               />
               <p className="text-[11px] text-text-subtle mt-1">Dompet kas pusat tempat penerimaan saldo awal dan transfer keluar.</p>
             </div>
@@ -286,7 +286,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.operasional}
                 onChange={(e) => setLabels({ ...labels, operasional: e.target.value })}
                 placeholder="Kas Usaha"
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent"
               />
               <p className="text-[11px] text-text-subtle mt-1">Digunakan untuk belanja operasional, gaji, dan anggaran bisnis.</p>
             </div>
@@ -301,7 +301,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={labels.keluarga}
                 onChange={(e) => setLabels({ ...labels, keluarga: e.target.value })}
                 placeholder="Kas Keluarga"
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs text-text outline-none focus:border-accent"
               />
               <p className="text-[11px] text-text-subtle mt-1">Digunakan untuk kebutuhan rumah tangga dan anggaran keluarga.</p>
             </div>
@@ -338,7 +338,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 required
                 value={yearInput}
                 onChange={(e) => setYearInput(parseInt(e.target.value, 10) || s.year)}
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-medium num outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-xs font-medium num outline-none focus:border-accent"
               />
             </div>
 
@@ -350,7 +350,7 @@ export function SettingsView({ store: s }: SettingsViewProps) {
                 value={saldoAwalInput}
                 onChange={setSaldoAwalInput}
                 placeholder="0"
-                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-sm font-medium num outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full px-3.5 py-2.5 bg-surface border border-border-strong rounded-lg text-sm font-medium num outline-none focus:border-accent"
               />
               <p className="text-[11px] text-text-subtle mt-1">Saldo ini menjadi modal dasar kas utama sebelum transaksi tahun berjalan dicatat.</p>
             </div>

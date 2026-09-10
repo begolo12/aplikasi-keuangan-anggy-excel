@@ -33,10 +33,10 @@ export function NeracaView({ store: s }: NeracaViewProps) {
       <Card className="p-4 border border-border bg-surface">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-accent text-on-fill">
-            <span className="text-sm font-black">Rp</span>
+            <span className="text-sm font-semibold">Rp</span>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text">Komposisi harta tahun {s.year} (termasuk bawaan tahun lalu)</h3>
+            <h3 className="text-sm font-semibold text-text">Komposisi harta tahun {s.year} (termasuk bawaan tahun lalu)</h3>
             <p className="text-xs font-medium text-text-muted mt-0.5">Total Harta = Kas 3 kas + Piutang + Nilai pasar aset + Nilai buku susut. Kekayaan bersih = Harta dikurangi sisa hutang.</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export function NeracaView({ store: s }: NeracaViewProps) {
               </div>
             </div>
           </div>
-          <div className="p-4 bg-surface-sunken border-t border-border flex items-center justify-between font-bold text-sm text-text">
+          <div className="p-4 bg-surface-sunken border-t border-border flex items-center justify-between font-semibold text-sm text-text">
             <span>TOTAL HARTA</span><span className="num text-positive">Rp {formatRibuan(totalAktiva)}</span>
           </div>
         </Card>
@@ -88,12 +88,12 @@ export function NeracaView({ store: s }: NeracaViewProps) {
             <div>
               <p className="eyebrow mb-2">Kekayaan Bersih</p>
               <div className="space-y-1 pl-2">
-                <div className="flex justify-between"><span className="font-medium text-text-muted">Harta dikurangi hutang</span><span className="font-bold text-positive num">Rp {formatRibuan(ekuitasBersih)}</span></div>
+                <div className="flex justify-between"><span className="font-medium text-text-muted">Harta dikurangi hutang</span><span className="font-semibold text-positive num">Rp {formatRibuan(ekuitasBersih)}</span></div>
                 <p className="text-[11px] text-text-muted">Ini sisa kekayaan bersih milik Anda</p>
               </div>
             </div>
           </div>
-          <div className="p-4 bg-surface-sunken border-t border-border flex items-center justify-between font-bold text-sm text-text">
+          <div className="p-4 bg-surface-sunken border-t border-border flex items-center justify-between font-semibold text-sm text-text">
             <span>TOTAL HUTANG + KEKAYAAN</span><span className="num">Rp {formatRibuan(totalPassiva)}</span>
           </div>
         </Card>

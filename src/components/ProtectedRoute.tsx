@@ -9,7 +9,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-accent text-on-fill flex items-center justify-center font-bold animate-pulse">
+          <div className="w-10 h-10 rounded-lg bg-accent text-on-fill flex items-center justify-center font-semibold animate-pulse">
             A
           </div>
           <span className="text-xs font-semibold text-text-muted">Memuat sesi...</span>
